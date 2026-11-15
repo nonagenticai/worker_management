@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "uuid": "^10.0.0",
-    "ws": "^8.18.3"
+    "ws": "^8.21.0"
   },
   "keywords": [
     "test",
