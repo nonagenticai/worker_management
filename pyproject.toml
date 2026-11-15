@@ -51,7 +51,13 @@ dependencies = [
     "pydantic-graph>=1.0.18",
     "psycopg[binary,pool]>=3.2.12",
     "groq>=0.25.0",
-    "openai>=1.107.2",
+    # <3 until the client is ported to httpx2: openai 3.x's AsyncOpenAI declares
+    # `http_client: httpx2.AsyncClient`, while this service builds an httpx.AsyncClient
+    # around DiagnosticAsyncHTTPTransport. Runtime still works (measured 2026-11-15: the
+    # client constructs and only fails against an unreachable endpoint), but `ty check
+    # src/` — the gate every agent's pre-push runs — fails on the mismatch, which makes
+    # the repository unpushable for everyone. Lift this bound when the transport is ported.
+    "openai>=1.107.2,<3",
     "PyJWT>=2.15.1",
     "redis>=5.0.0",
     "PyYAML>=6.0",
