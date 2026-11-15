@@ -14,7 +14,8 @@ from contextlib import AsyncExitStack, suppress
 from contextvars import ContextVar
 from copy import deepcopy
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, ClassVar, TypedDict, cast
+from types import GenericAlias
+from typing import TYPE_CHECKING, Any, ClassVar, Protocol, TypedDict, cast
 from uuid import UUID, uuid7
 
 import httpx
@@ -1637,7 +1638,10 @@ def _output_type_from_schema(
         items = output_schema.get("items")
         item_type_name = items.get("type") if isinstance(items, dict) else None
         item_py = _JSON_TYPE_TO_PY.get(item_type_name, Any) if item_type_name else Any
-        inner = list[item_py]  # type: ignore[valid-type]
+        # GenericAlias, not `list[item_py]`: the latter is parsed as a type expression and
+        # rejected because `item_py` is a variable, while the alias is exactly the same
+        # object at runtime (`list[dict[str, Any]]` and friends) and is legal in value position.
+        inner = GenericAlias(list, (item_py,))
     else:
         # object / unknown / composite — hand the schema to StructuredDict.
         # pydantic-ai will raise UserError("Schema must be an object") for
@@ -1663,7 +1667,10 @@ def _output_type_from_schema(
         )
 
     if provider == "mlx":
-        return PromptedOutput(inner)
+        # `inner` is a runtime-constructed output type (see GenericAlias above); its static
+        # type is the union of what each branch assigns, which PromptedOutput's signature
+        # cannot accept even though every branch produces a valid output type.
+        return PromptedOutput(cast("Any", inner))
     if provider == "inference_router":
         # strict=False prevents pydantic-ai's OpenAI profile transformer
         # from adding `additionalProperties: false` at the outer level on
@@ -1671,7 +1678,7 @@ def _output_type_from_schema(
         # transformer mutates top-level-oneOf schemas into a logically
         # empty shape that rejects every key in the response. vLLM's
         # guided decoding enforces structure at the inference layer.
-        return NativeOutput(inner, strict=False)
+        return NativeOutput(cast("Any", inner), strict=False)
     return inner
 
 
@@ -2590,6 +2597,18 @@ class PromptBuilder:
         context_info.append(f"Variables: {', '.join(var_summary)}")
 
 
+class _HasAllMessages(Protocol):
+    """The only capability `finish_reason` needs.
+
+    Both shapes the service hands it — `AgentRunResult` from `agent.run()` and
+    `StreamedRunResult` from `agent.run_stream()` — expose `all_messages()`, and neither is a
+    subclass of the other. Annotating the parameter as `AgentRunResult` rejected the streamed
+    caller at type-check time even though the body only ever iterates messages.
+    """
+
+    def all_messages(self) -> list[Any]: ...
+
+
 class ResponseExtractor:
     """Extracts text output and token usage from a pydantic-ai run result."""
 
@@ -2715,7 +2734,7 @@ class ResponseExtractor:
         return None
 
     @staticmethod
-    def finish_reason(run_result: FrameworkAgentRunResult[Any] | None) -> str | None:
+    def finish_reason(run_result: _HasAllMessages | None) -> str | None:
         """Return the provider-reported finish reason of the last model response.
 
         pydantic-ai DOES surface this in the pinned version (>=1.99.0, locked at

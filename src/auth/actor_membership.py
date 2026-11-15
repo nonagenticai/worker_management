@@ -42,7 +42,9 @@ LOOKUP_UNAVAILABLE = "lookup_unavailable"
 
 # sub -> member tenant ("" = undecided) | None (404). Failures are cached
 # separately so their shorter TTL applies.
-_member_cache: TTLCache[str, str | None] = TTLCache(maxsize=4096, ttl=POSITIVE_TTL_S)
+_member_cache: TTLCache[str, str | None] = TTLCache[str, str | None](
+    maxsize=4096, ttl=POSITIVE_TTL_S
+)
 _failure_cache: TTLCache[str, bool] = TTLCache(maxsize=4096, ttl=NEGATIVE_TTL_S)
 
 

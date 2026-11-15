@@ -23,8 +23,11 @@ except ImportError:
 try:
     from pydantic_graph import Graph
 except ImportError:
-    # Fallback for missing pydantic_graph dependency
-    class Graph:
+    # Fallback for missing pydantic_graph dependency. Generic over the same three
+    # parameters as `pydantic_graph.graph.Graph` so the annotations below stay valid in
+    # both branches — a bare `class Graph:` made them a union of a generic and a
+    # non-generic type, which the type checker rejects as "cannot be specialized".
+    class Graph[StateT, DepsT, RunEndT]:
         """No-op replacement when the pydantic_graph package is unavailable."""
 
 

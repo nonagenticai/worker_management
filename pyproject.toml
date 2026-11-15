@@ -108,7 +108,10 @@ worker-management = "src.api.worker_management_api:app"
 dev = [
     "detect-secrets>=1.5.0",
     "kubernetes>=35.0.0a1",
-    "ty>=0.0.24",
+    # The gate the pre-push hook and CI both run. Keep it on the current ty: 0.0.49 (the
+    # version this repo sat on) predates every diagnostic the newer releases found, so the
+    # hook reported "0 errors" on a tree the current ty rejects.
+    "ty>=0.0.104",
     "pytest>=9.0.2",
     "pytest-asyncio>=1.3.0",
     "pytest-cov>=6.0.0",
@@ -311,7 +314,8 @@ python-version = "3.14"
 exclude = ["tests/"]
 
 [tool.ty.rules]
-unresolved-import = "ignore"
+# Renamed upstream: ty 0.0.104 warns that `unresolved-import` is now `import-not-found`.
+import-not-found = "ignore"
 
 [tool.bandit]
 # B608 (hardcoded_sql_expressions) is suppressed project-wide. Every f-string
@@ -322,3 +326,6 @@ unresolved-import = "ignore"
 # retained for documentation but are now redundant; any NEW f-string SQL that
 # is NOT scope_clause-only must be reviewed by hand before merge.
 skips = ["B608"]
+
+[tool.ty.terminal]
+error-on-warning = false
