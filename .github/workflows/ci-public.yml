@@ -115,10 +115,18 @@ jobs:
       - name: ruff format
         run: uv run ruff format --check .
 
-      # Type checking is deliberately not in the shared gate: the tool and the paths it
-      # checks are per-repo. If the repo already gates types, re-enable it here:
-      #   - name: types
-      #     run: uv run --with ty ty check <paths>
+      # Type checking IS part of the gate. It runs the same ty the pre-push hook runs —
+      # locked in the `dev` extra and kept on the current release — so a green hook and a
+      # green CI mean the same thing. This step was previously commented out, and the cost
+      # was concrete: an openai major (2.41 → 3.49) merged green into a tree whose
+      # `httpx`-based client no longer type-checks, leaving the repository unpushable for
+      # every agent until the constraint was bounded.
+      #
+      # Warnings are printed but do not fail (`[tool.ty.terminal] error-on-warning = false`
+      # in pyproject): what remains is deprecations inside pydantic-ai and Python 3.14's
+      # `asynccontextmanager` typing, not defects in this repo. Error-level diagnostics fail.
+      - name: ty check
+        run: uv run ty check src/
 
       - name: pytest (unit)
         run: uv run pytest -q
