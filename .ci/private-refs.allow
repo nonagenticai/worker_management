@@ -1,0 +1,100 @@
+# Allowlist for scripts/ci/no-private-refs.sh — a security decision, not a convenience.
+#
+# One rule per line, `path/glob:pattern  # justification`. The glob matches the repo-relative
+# path; the pattern is an ERE matched against the whole `git grep` hit (`path:line:text`).
+# Blank lines and `#` comments are ignored. A justification is mandatory in review.
+#
+# ⛔ Do NOT add an entry to keep a real internal hostname, address or private repository path
+# in a public tree. Remove it instead. An entry is only for a string that *looks* private but
+# is not: a documented loopback example, a placeholder, or a term that collides with a rule.
+#
+# The guard and this file necessarily spell the patterns out; the guard excludes both from
+# its own scan. Everything else is scanned.
+#
+# No entries by default. An empty file that fails the build is the correct starting state.
+
+# ── worker_management: universal values, not estate topology ────────────────────────
+# Four classes, each justified once:
+#
+# 1. `*.svc.cluster.local` — the cluster domain every conformant Kubernetes cluster
+#    serves; the tests and defaults use it as "an in-cluster service", which is what a
+#    stranger's cluster calls its own services too.
+# 2. `host.docker.internal` — Docker Desktop's standard alias for the host machine.
+# 3. The CGNAT/tailnet range BOUNDARIES (100.64.0.0, 100.127.255.254, 100.100.100.100/101
+#    and a fabricated `*.ts.net` name) — fixtures that prove the refusal path REFUSES
+#    tailnet space. No real host is named: the addresses are the edges of the range and
+#    the names are invented.
+# 4. The `.internal` suffix — a reserved private-use TLD that the code checks as a
+#    PATTERN (alongside .local) to refuse private endpoints. The guard matches the
+#    suffix wherever it appears; here it names no deployment.
+#
+# These are pattern-level exceptions per file, never whole-file blanks.
+tests/integration/target_guard.py:100\.(100\.100\.10[01]|64\.0\.[0-9]+|127\.255\.254)
+tests/test_integration_target_guard.py:100\.(100\.100\.10[01]|64\.0\.[0-9]+|127\.255\.254)
+tests/test_tenant_byo_fix4.py:100\.(100\.100\.10[01]|64\.0\.[0-9]+|127\.255\.254)
+tests/test_tenant_byo_fix5.py:100\.(100\.100\.10[01]|64\.0\.[0-9]+|127\.255\.254)
+CLI_PROXY_SETUP.md:\.internal([^A-Za-z0-9_(]|$)
+docker-compose.yml:\.internal([^A-Za-z0-9_(]|$)
+scripts/cli_proxy_server.py:\.internal([^A-Za-z0-9_(]|$)
+src/auth/caller_identity.py:\.internal([^A-Za-z0-9_(]|$)
+src/security/request_overrides.py:\.internal([^A-Za-z0-9_(]|$)
+src/worker/agents/codex_agent.py:\.internal([^A-Za-z0-9_(]|$)
+tests/integration/conftest.py:\.internal([^A-Za-z0-9_(]|$)
+tests/integration/target_guard.py:\.internal([^A-Za-z0-9_(]|$)
+tests/test_auth/test_caller_identity.py:\.internal([^A-Za-z0-9_(]|$)
+tests/test_settings_production_validation.py:\.internal([^A-Za-z0-9_(]|$)
+README.md:\.svc\.cluster\.local
+docker-compose.yml:\.svc\.cluster\.local
+scripts/improvement_workers/register.py:\.svc\.cluster\.local
+scripts/seed_w2v_workers.py:\.svc\.cluster\.local
+src/security/request_overrides.py:\.svc\.cluster\.local
+src/settings.py:\.svc\.cluster\.local
+tests/integration/conftest.py:\.svc\.cluster\.local
+tests/integration/target_guard.py:\.svc\.cluster\.local
+tests/integration/test_inference_graph_end_to_end.py:\.svc\.cluster\.local
+tests/integration/test_k8s_job_executor.py:\.svc\.cluster\.local
+tests/integration/test_worker_config_merge.py:\.svc\.cluster\.local
+tests/test_actor_id_outbound.py:\.svc\.cluster\.local
+tests/test_app_id_outbound.py:\.svc\.cluster\.local
+tests/test_artifact_upload.py:\.svc\.cluster\.local
+tests/test_caller_identity_is_verified.py:\.svc\.cluster\.local
+tests/test_end_user_multi_realm.py:\.svc\.cluster\.local
+tests/test_graph_code_mcp_tenant_url_security.py:\.svc\.cluster\.local
+tests/test_integration_target_guard.py:\.svc\.cluster\.local
+tests/test_ir_bundle_mint_proven_tenant.py:\.svc\.cluster\.local
+tests/test_ir_bundle_tokens.py:\.svc\.cluster\.local
+tests/test_ir_client_transport_hardening.py:\.svc\.cluster\.local
+tests/test_ir_outbound_effective_tenant.py:\.svc\.cluster\.local
+tests/test_ir_platform_and_placeholder.py:\.svc\.cluster\.local
+tests/test_ir_router_identity_forwarding.py:\.svc\.cluster\.local
+tests/test_licence_end_user.py:\.svc\.cluster\.local
+tests/test_mcp_coverage.py:\.svc\.cluster\.local
+tests/test_origin_attribution.py:\.svc\.cluster\.local
+tests/test_outbound_trace_and_prompt_headers.py:\.svc\.cluster\.local
+tests/test_owner_key_test.py:\.svc\.cluster\.local
+tests/test_project_id_outbound.py:\.svc\.cluster\.local
+tests/test_prompt_release_card_verify.py:\.svc\.cluster\.local
+tests/test_pydantic_ai_agent.py:\.svc\.cluster\.local
+tests/test_pydantic_ai_wire_identity.py:\.svc\.cluster\.local
+tests/test_remaining_coverage.py:\.svc\.cluster\.local
+tests/test_replay_identity_headers.py:\.svc\.cluster\.local
+tests/test_request_override_security.py:\.svc\.cluster\.local
+tests/test_spend_scope_outbound.py:\.svc\.cluster\.local
+tests/test_tenant_byo_fix2.py:\.svc\.cluster\.local
+tests/test_tenant_byo_fix4.py:\.svc\.cluster\.local
+tests/test_tenant_byo_fix5.py:\.svc\.cluster\.local
+tests/test_tenant_byo_fix6.py:\.svc\.cluster\.local
+tests/test_tenant_endpoint_dns_pinning.py:\.svc\.cluster\.local
+tests/test_tenant_membership_proof.py:\.svc\.cluster\.local
+tests/test_vllm_ir_header_parity.py:\.svc\.cluster\.local
+tests/test_wm_never_calls_ir_on_its_own_behalf.py:\.svc\.cluster\.local
+tests/test_worker_config_payload.py:\.svc\.cluster\.local
+tests/test_workers_crud_endpoints.py:\.svc\.cluster\.local
+tests/test_workers_models.py:\.svc\.cluster\.local
+tests/test_workflow_rollback_webhook.py:\.svc\.cluster\.local
+CLI_PROXY_SETUP.md:host\.docker\.internal
+docker-compose.yml:host\.docker\.internal
+scripts/cli_proxy_server.py:host\.docker\.internal
+src/worker/agents/codex_agent.py:host\.docker\.internal
+src/security/request_overrides.py:ts\.net
+tests/test_tenant_byo_fix4.py:ts\.net

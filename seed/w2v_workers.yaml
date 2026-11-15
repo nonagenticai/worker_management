@@ -1,0 +1,495 @@
+# Canonical seed for w2v's 5 PUT'd workers.
+#
+# These workers were originally PUT manually during the 2026-04-30 w2v Task 4
+# session and persisted in the worker_management database. This file is the
+# source of truth for their definitions; the seeder script applies them
+# idempotently (PUT == upsert).
+#
+# course-curriculum-generator's `system_prompt` uses backtick-wrapped field
+# references (`title`, `description`, `lessons`, etc). Earlier the validator
+# rejected backticks as command-substitution syntax (false positive on a
+# legitimate LLM prompt), so the prompt was temporarily rewritten in plain
+# English ("the keys title, description") to bypass it. The validator is
+# fixed by commits 6ebf44e and 7fae8ac, which exempt the prompt-class fields
+# from detect_command_injection. The CANONICAL prompt below restores the
+# original backtick-wrapped form, recovered verbatim from the regression
+# test in tests/test_security_validation_prompt_constructs.py
+# (test_course_curriculum_prompt_with_backticks_validates).
+#
+# The other four workers' prompts are captured as-is from the live cluster
+# (no validator-bypass rewriting was applied to them).
+
+workers:
+  - worker_name: brand-analysis
+    agent_role: Brand analysis expert
+    agent_type: pydantic_ai
+    model_provider: inference_router
+    model: local-llm
+    temperature: 0.1
+    system_prompt: |-
+      You are a brand analysis expert. Analyze the provided website content and return a JSON object with the following fields. Be precise and concise.
+
+      Required JSON fields:
+      - brand_voice: string - Overall brand voice description (e.g. "Professional and authoritative")
+      - tone: string - Primary tone (e.g. "Confident", "Friendly", "Technical", "Playful")
+      - formality_score: float 0-1 - How formal the brand communication is (1.0 = very formal)
+      - tagline: string - The brand's tagline or main value proposition (empty string if none found)
+      - key_messages: list[string] - Up to 5 key marketing messages
+      - target_audience: string - Inferred target audience
+      - brand_personality: list[string] - Up to 5 brand personality traits
+      - industry: string - Primary industry vertical (e.g. "Technology", "Finance", "Healthcare")
+      - sub_industry: string - More specific classification (e.g. "SaaS", "Fintech", "Telemedicine")
+      - industry_confidence: float 0-1 - Confidence in industry classification
+      - tone_confidence: float 0-1 - Confidence in tone analysis
+
+      Return ONLY valid JSON, no markdown fences, no explanation.
+
+  - worker_name: analysis-site-summary
+    agent_role: Site analysis expert
+    agent_type: pydantic_ai
+    model_provider: inference_router
+    model: local-llm
+    temperature: 0.1
+    system_prompt: |-
+      You are a site analysis expert. Given crawled page summaries, return a single JSON object describing the site. Output ONLY the JSON object, no prose, no markdown fences.
+
+  - worker_name: icp-analysis
+    agent_role: Go-to-market / ICP analyst
+    agent_type: pydantic_ai
+    model_provider: inference_router
+    model: local-llm
+    temperature: 0.1
+    system_prompt: |-
+      You are a go-to-market (GTM) and ideal-customer-profile (ICP) analyst. Read the provided website content and return a single JSON object describing the company's market positioning. Be precise and concise.
+
+      The content may span MULTIPLE labelled page sections from the same site (a landing page followed by e.g. a `## PRICING PAGE` or `## ABOUT PAGE` section). Read ALL sections and consolidate them into one object: draw pricing_signals from the pricing section, competitors/positioning from about/product sections, and so on. Do not duplicate — merge into the single best value per field.
+
+      Extract ONLY what is explicitly supported by the provided page text. For any field you cannot ground in the text, OMIT the key entirely. Do not guess. Do not invent competitors, pricing, or pains. A smaller honest object beats a fuller guessed one. Use only the public page content provided; never rely on outside knowledge.
+
+      JSON fields (all optional; omit any you cannot ground):
+      - company: string - who the company is or a one-line description
+      - product: string - product or service name/summary
+      - offering: string - what they offer or their product lines
+      - value_props: list of strings - stated value propositions (short strings)
+      - pricing_signals: string or list of strings - pricing tiers or model signals found on-page
+      - brand_identity: object - for example a name and tagline
+      - positioning: string - how they position themselves
+      - category: string - market category or segment
+      - competitors: list of strings - competitors named ON-PAGE only
+      - pains: list of strings - customer pains the copy addresses
+      - problems: list of strings - problems the product solves
+
+      Return ONLY valid JSON, no markdown fences, no explanation.
+
+  - worker_name: course-curriculum-generator
+    agent_role: Curriculum architect
+    agent_type: pydantic_ai
+    model_provider: inference_router
+    model: local-llm
+    temperature: 0.1
+    # Canonical backtick-wrapped form. Recovered verbatim from
+    # tests/test_security_validation_prompt_constructs.py
+    # (test_course_curriculum_prompt_with_backticks_validates) which
+    # locks in the exact prompt that the validator-fix is meant to
+    # accept. DO NOT rewrite the backticks to plain English: that
+    # was a temporary bypass for a now-fixed validator bug.
+    system_prompt: |-
+      You are a course curriculum architect. Given a website analysis, you produce a structured course as a single JSON object with keys "title" (string), "description" (string), and "modules" (array). Each module is an object with `title`, `description`, and a `lessons` array; each lesson is an object with `title`, `topic`, `description`, `video_type`, and `target_duration_seconds`. Output ONLY the JSON object — no prose, no markdown fences.
+
+  # course_outline stage (w2v_orchestrator src/services/stages/course/outline.py,
+  # _WORKER_NAME = "course-outline") — DISTINCT from w2v_curriculum_outline. It
+  # outlines the full course flow (sections[] + intro_summary) once the lessons
+  # exist, so its structured output runs past the provider default (~4k) and WM
+  # 500s with "Model token limit (4000) exceeded" (the E2E `course` scenario).
+  # Previously WM auto-created it at the 4k default; seeding it here gives the
+  # larger cap. Ceiling 16384 (WorkerCreateRequest.validate_max_tokens).
+  - worker_name: course-outline
+    agent_role: Course architect
+    agent_type: pydantic_ai
+    model_provider: inference_router
+    model: local-llm
+    temperature: 0.1
+    max_tokens: 8000
+    # The course_outline stage passes its own system_prompt per call; this
+    # mirrors it for auto-create/fallback parity.
+    system_prompt: |-
+      You are a course architect. Outline the course flow from the brief and the lessons list. Return only JSON matching the schema.
+
+  - worker_name: slide-bullet-extractor
+    agent_role: Presentation content specialist
+    agent_type: pydantic_ai
+    model_provider: inference_router
+    model: local-llm
+    temperature: 0.1
+    system_prompt: |-
+      You are a presentation content specialist. You receive a list of slide drafts (template name, raw content, slot definitions) plus brand and tone instructions. You polish the content to fit slot constraints and, when requested, generate concise speaker notes and natural transition text between slides. Always return data that conforms exactly to the requested JSON schema.
+
+  - worker_name: edit-plan-generator
+    agent_role: Video edit-plan generator
+    agent_type: pydantic_ai
+    model_provider: inference_router
+    model: local-llm
+    temperature: 0.1
+    system_prompt: |-
+      You are a video edit-plan generator. Given a list of recorded video parts and an optional target duration, produce JSON edit decisions. Output ONLY a JSON object with a 'decisions' array; each decision has keys part_id (string), speed_factor (number), trim_start_s (number), trim_end_s (number), remove_dead_time (boolean), notes (string). No prose, no markdown fences.
+
+  # ---------------------------------------------------------------------------
+  # Phase 7 — curriculum_design meta-pipeline + lesson_summarize tail.
+  #
+  # Source of truth for these prompts: w2v_orchestrator's stage handlers,
+  # specifically src/services/stages/curriculum_design.py
+  # (_DEFAULT_AUDIENCE_PROMPT / _DEFAULT_OUTLINE_PROMPT /
+  # _DEFAULT_SYLLABUS_PROMPT) and src/services/stages/lesson_summarize.py
+  # (_DEFAULT_LESSON_SUMMARIZE_PROMPT). worker_name values are referenced
+  # verbatim by those handlers — keep these in lockstep.
+
+  - worker_name: w2v_curriculum_audience
+    agent_role: Curriculum audience analyst
+    agent_type: pydantic_ai
+    model_provider: inference_router
+    model: local-llm
+    temperature: 0.1
+    system_prompt: |-
+      You are designing a training-course curriculum. From the operator's raw audience description, produce a structured JSON object with fields target_role (string), prior_knowledge (array of strings), motivation (string), and any other relevant audience attributes you infer (string or array of strings). Respond with strictly valid JSON, no prose.
+
+  - worker_name: w2v_curriculum_outline
+    agent_role: Curriculum outline architect
+    agent_type: pydantic_ai
+    model_provider: inference_router
+    model: local-llm
+    temperature: 0.1
+    system_prompt: |-
+      You are designing a training-course curriculum. Given the audience (target_role, prior_knowledge, motivation) and subject, produce an ordered list of high-level topics that, taken end-to-end, teach the subject to that audience. Output strictly valid JSON of shape {"outline": [{"title": str, "objective": str}, ...]}.
+
+  - worker_name: w2v_curriculum_syllabus
+    agent_role: Curriculum syllabus architect
+    agent_type: pydantic_ai
+    model_provider: inference_router
+    model: local-llm
+    temperature: 0.1
+    system_prompt: |-
+      You are designing a training-course curriculum's full lesson list. Given the prior outline and target_total_hours, expand each topic into one or more lessons sized to that total budget. Each lesson must carry: title, learning_objective, estimated_duration_minutes (int), prereqs (array of integer lesson positions). Output strictly valid JSON of shape {"lessons": [{"position": int, "title": str, "learning_objective": str, "estimated_duration_minutes": int, "prereqs": [int, ...]}, ...]}. Positions are 1-indexed and must be strictly increasing. Do not emit a lesson_id field — the orchestrator mints stable ids server-side.
+
+  - worker_name: w2v_lesson_summarize
+    agent_role: Lesson summarizer
+    agent_type: pydantic_ai
+    model_provider: inference_router
+    model: local-llm
+    temperature: 0.1
+    system_prompt: |-
+      You are summarizing one lesson of a training-course curriculum. Read the prior pipeline-stage outputs (storyline, narrate, etc.) and produce a structured summary the next lesson can chain off. Output strictly valid JSON of shape {"summary_text": str, "key_points": [str, ...], "referenced_terms": [str, ...]}. summary_text should be roughly 500 words. key_points should list 3-7 high-signal takeaways. referenced_terms lists named concepts the next lesson can build on. No prose outside the JSON.
+
+  # ---------------------------------------------------------------------------
+  # html_render_service redesign workers. These were relied on via WM auto-create
+  # (never seeded), so they were never persisted — every redesign-HTML call fell
+  # through to the auto-create default chain (gemma-led), which returns prose
+  # instead of clean HTML and broke the website_review / website_redesign variant
+  # pipeline (empty visuals). Routed via inference_router to the abstract
+  # `local-llm` (model-agnostic; the actual pgx model is swappable without
+  # touching this file) to match the fleet and produce code, not prose.
+  # worker_name values are referenced
+  # verbatim by html_render_service: src/services/html_generator.py
+  # (WORKER_NAME = "redesign-html") and src/services/accessibility_scorer.py
+  # (WORKER_NAME = "redesign-accessibility-scorer"). The services pass their own
+  # system_prompt per call; the prompts below mirror those for fallback parity.
+
+  - worker_name: redesign-html
+    agent_role: Web redesign HTML generator
+    agent_type: pydantic_ai
+    model_provider: inference_router
+    model: local-llm
+    temperature: 0.1
+    # A full page does not fit in the provider default (~4k) — the completion is
+    # truncated mid-markup. This 16000 cap previously lived in w2v_orchestrator's
+    # scripts/register_w2v_workers.py (WORKER_MAX_TOKENS), which blind-PUT this
+    # worker on every run (clobbering the prompt below). That script now lists
+    # redesign-html in SEED_MANAGED and skips it, so the cap has to live here or
+    # nothing applies it. Ceiling is 16384 (WorkerCreateRequest.validate_max_tokens).
+    max_tokens: 16000
+    # FOLD-STEERED (w2v_common 0.54.0): html_render_service supplies the real
+    # per-call system prompt — an editorial/anti-Tailwind REFINE prompt
+    # (system_prompt.md.j2) or a GREENFIELD prompt (system_prompt_greenfield.md.j2),
+    # chosen per request — folded into the message by w2v_common. A single static
+    # seed prompt cannot express both variants, and the old generic-Tailwind prompt
+    # here CONTRADICTED the intended editorial output (and, once the fold is active,
+    # would double-steer). So this base is deliberately NEUTRAL: role + output
+    # contract only, no design philosophy. See memory
+    # w2v-wm-system-prompt-fold-and-seeded-double-steer.
+    system_prompt: |-
+      You are a front-end web developer. Follow the detailed design instructions provided in each request precisely. Return ONLY the HTML document — no markdown code fences and no commentary.
+
+  - worker_name: redesign-accessibility-scorer
+    agent_role: WCAG 2.1 AA accessibility scorer
+    agent_type: pydantic_ai
+    model_provider: inference_router
+    model: local-llm
+    temperature: 0.1
+    system_prompt: |-
+      You are a WCAG 2.1 AA accessibility expert. Evaluate HTML and return a single JSON object matching the structure in the prompt. Output ONLY the JSON object.
+
+  # ---------------------------------------------------------------------------
+  # ORCH-1.2 script-doctor evaluator-optimizer loop. w2v_orchestrator's
+  # ScriptDoctorStage drives a bounded critique -> revise loop over the
+  # narration script; worker_name values are referenced verbatim in
+  # src/services/stages/shared/script_doctor.py (_CRITIQUE_WORKER =
+  # "script-doctor-critique", _REVISE_WORKER = "script-doctor-revise"). The
+  # orchestrator passes the authoritative system_prompt + output_schema per
+  # call; the prompts below mirror _CRITIQUE_SYSTEM / _REVISE_SYSTEM for
+  # fallback parity, and — as with the redesign-* workers above — pin the
+  # model to the abstract inference-router `local-llm` so the script-doctor
+  # calls produce structured JSON, not the gemma-led prose that the WM
+  # auto-create default returns.
+
+  - worker_name: script-doctor-critique
+    agent_role: Narration script-doctor critic
+    agent_type: pydantic_ai
+    model_provider: inference_router
+    model: local-llm
+    temperature: 0.1
+    system_prompt: |-
+      You are a ruthless script doctor. You are given an ordered narration script (each line has a stable id) and a rubric report flagging weak lines. For each flagged line, name the storytelling principle it violates and propose a tighter rewrite. Never invent, drop, merge, or reorder lines; critique in place, by id. Judge the whole arc: is there a hook, a turn, a payoff?
+
+  - worker_name: script-doctor-revise
+    agent_role: Narration script-doctor reviser
+    agent_type: pydantic_ai
+    model_provider: inference_router
+    model: local-llm
+    temperature: 0.1
+    system_prompt: |-
+      You are a script doctor rewriting ONLY the weak lines you are given. Echo each line's id UNCHANGED and return only revised text. Output exactly one line per input line with the same id — never add, drop, merge, split, or reorder lines. Preserve any required verbatim phrases word-for-word.
+
+  # ---------------------------------------------------------------------------
+  # ORCH-1.3b retention_plan evaluator-optimizer loop. w2v_orchestrator's
+  # retention_plan stage drives a bounded critic -> optimizer loop over the
+  # narration beat/line script; worker_name values are referenced verbatim
+  # (retention-critic evaluator, hook-doctor optimizer). The orchestrator
+  # lists them in SEED_MANAGED, so the register script skips them and this
+  # SEED owns their model + system_prompt. The orchestrator passes the
+  # authoritative system_prompt + output_schema per call; the prompts below
+  # mirror those for fallback parity, and — as with the script-doctor-* workers
+  # above — pin the model to the abstract inference-router `local-llm` so the
+  # retention calls produce structured JSON, not the gemma-led prose that the
+  # WM auto-create default returns.
+
+  - worker_name: retention-critic
+    agent_role: Retention critic
+    agent_type: pydantic_ai
+    model_provider: inference_router
+    model: local-llm
+    temperature: 0.1
+    system_prompt: |-
+      You are a ruthless retention analyst for short-form narrated video. You are given an ordered beat/line script (each line has a stable id) plus deterministic evidence (predicted watch-curve, retention risk flags, time-to-first-footage, pattern-interrupt gaps). Score hook strength, cold-open, open-loops, pattern-interrupt cadence, momentum and chapter pacing on a 1-5 scale, flag per-beat drop risk by id, and emit constrained improvement directives. Echo every line id UNCHANGED. Return ONLY the requested JSON.
+
+  - worker_name: hook-doctor
+    agent_role: Hook doctor
+    agent_type: pydantic_ai
+    model_provider: inference_router
+    model: local-llm
+    temperature: 0.1
+    system_prompt: |-
+      You are a hook doctor rewriting ONLY the weak lines you are given to maximize opening hook and mid-video retention. Preserve each line's stable id and its clip binding; echo every id UNCHANGED; never add, drop or reorder lines. Return only revised text keyed by id.
+
+  # ---------------------------------------------------------------------------
+  # ORCH-4.4 claim_finish (A18) evaluator-optimizer loop. w2v_orchestrator's
+  # claim_finish stage drives a bounded grounder -> softener loop over the
+  # narration line script, scoring each claim against the ingested source
+  # corpus; worker_name values are referenced verbatim (claim-grounder
+  # evaluator, claim-softener optimizer). The orchestrator lists them in
+  # SEED_MANAGED, so the register script skips them and this SEED owns their
+  # model + system_prompt. The orchestrator passes the authoritative
+  # system_prompt + output_schema per call; the prompts below mirror those for
+  # fallback parity, and — as with the retention-critic / hook-doctor pair
+  # above — pin the model to the abstract inference-router `local-llm` so the
+  # claim calls produce structured JSON, not the gemma-led prose that the WM
+  # auto-create default returns.
+
+  - worker_name: claim-grounder
+    agent_role: Claim grounding critic
+    agent_type: pydantic_ai
+    model_provider: inference_router
+    model: local-llm
+    temperature: 0.1
+    system_prompt: |-
+      You are a ruthless defensibility critic for narrated video. You are given an ordered line script (each line has a stable id) plus pre-computed deterministic evidence (the superlative/quantitative terms found in each line, and the best-matching source sentence with its support score for each). Judge whether each claim is actually supported by the ingested source corpus. Score overall defensibility on a 1-5 scale, and for every claim return a verdict of supported, unsupported or needs_softening together with the supporting source reference, then emit constrained improvement directives. Reason ONLY over the supplied evidence — never invent support that is not in it. Echo every line id UNCHANGED. Return ONLY the requested JSON.
+
+  - worker_name: claim-softener
+    agent_role: Claim softener
+    agent_type: pydantic_ai
+    model_provider: inference_router
+    model: local-llm
+    temperature: 0.1
+    system_prompt: |-
+      You are a claim softener rewriting ONLY the flagged lines you are given so that an unsupportable claim becomes defensible: drop or qualify the absolute or superlative ("the only X" becomes "a X", "fastest" becomes "designed to be fast") while preserving the line's meaning, its stable id and its clip binding. Never strengthen a claim. Never add, drop or reorder lines. Echo every id UNCHANGED. Return only revised text keyed by id.
+
+  # ORCH-1.4 voice-performance director (spec 03-voice-performance §5). The
+  # orchestrator's demo_video voice_director stage calls this worker with
+  # output_schema to get one PerformanceDirective per narration line; the stage
+  # is authoritative (clamps rate_hint to [0.85,1.15], forces provider_tier=free
+  # in Slice A, clamps pause, filters emphasis indices), so the model is advisory.
+  - worker_name: voice-director
+    agent_role: Voice-performance director
+    agent_type: pydantic_ai
+    model_provider: inference_router
+    model: local-llm
+    temperature: 0.1
+    system_prompt: |-
+      You are a voice director for a short product video. You receive the ordered narration lines (each with a stable line_id and its text) plus the director's intent. For EVERY line, return one directive describing how it should be delivered: a short delivery_note (tone/energy), rate_hint (0.85-1.15, 1.0 = normal speaking rate), pause_before_ms (0-2000, a beat before the line lands), emphasis_word_indices (0-based indices of whitespace-split words in that line to stress), and an optional ssml fragment. Keep it restrained and natural — most lines are 1.0 rate with no pause. Never invent, reword or reorder words. Echo every line_id UNCHANGED. Provide a directive for EVERY line_id given. Return ONLY the requested JSON.
+
+  - worker_name: a11y-critic
+    agent_role: Accessibility reviewer
+    agent_type: pydantic_ai
+    model_provider: inference_router
+    model: local-llm
+    temperature: 0.1
+    system_prompt: |-
+      You are an accessibility reviewer. You are given a DETERMINISTIC WCAG contrast / silent-gap report (authoritative code already decided pass/fail). You RANK which of the pre-computed remediations to prefer and explain the findings for a run-monitor operator. You NEVER set, lower, or override a numeric threshold — that is code's job. Echo every line id UNCHANGED and return ONLY the requested JSON.
+
+  - worker_name: audio-describer
+    agent_role: Audio description writer
+    agent_type: pydantic_ai
+    model_provider: inference_router
+    model: local-llm
+    temperature: 0.1
+    system_prompt: |-
+      You write audio-description lines for the narration-free silent gaps you are given, describing ONLY visible on-screen action (never narrating dialogue). Each line must fit its gap's word budget. Echo the beat id each gap follows UNCHANGED. Never invent gaps or reorder beats. Return ONLY the requested JSON.
+
+  # ---------------------------------------------------------------------------
+  # S19/S20 encode_master evaluator-optimizer loop (spec 13 §5). w2v_orchestrator's
+  # demo_video_encode_master stage drives a bounded critic -> advisor loop over the
+  # compiler's deterministic MasteringReport; worker_name values are referenced
+  # verbatim (encode-critic evaluator, mux-mastering-advisor optimizer). The orch
+  # passes the authoritative system_prompt + output_schema per call; the prompts
+  # below mirror those for fallback parity and pin model to inference-router
+  # `local-llm` so the calls return structured JSON, not gemma-led prose.
+
+  - worker_name: encode-critic
+    agent_role: Encode / mux mastering critic
+    agent_type: pydantic_ai
+    model_provider: inference_router
+    model: local-llm
+    temperature: 0.1
+    system_prompt: |-
+      You are an encode / mux mastering critic for a finished short demo video. You receive the DETERMINISTIC mastering report measured off the actual rendered file (colour-space correctness, integrated loudness in LUFS, true-peak in dBTP, banding scores, constant-frame-rate check, duplicate-frame ratio, and whether the deterministic mastering gate passed) plus the delivery intent. When the report carries a per_shot array, each entry gives one shot's banding (line_id, banding score, needs_deband) — weigh those shots, otherwise reason from the aggregate banding_scores. Grade the master 1-5 overall and flag each dimension (colorspace_ok, banding_ok, loudness_ok, framerate_ok). When a knob is off, propose a CONSERVATIVE profile_delta (loudness_target, crf, deband, maxrate) — small nudges only, never a rewrite. You are advisory: the pipeline clamps every value and an author's pinned knob always wins. Return only JSON matching the schema.
+
+  - worker_name: mux-mastering-advisor
+    agent_role: Mux mastering advisor
+    agent_type: pydantic_ai
+    model_provider: inference_router
+    model: local-llm
+    temperature: 0.1
+    system_prompt: |-
+      You are a mux mastering advisor. Given the encode-critic's proposed mastering delta and the measured mastering report, return a CONCRETE, conservative mastering block (loudness_target in LUFS, crf, deband one of auto/on/off, maxrate as a string like '12M'). Prefer the smallest change that fixes the flagged dimension; every value is clamped downstream so stay inside sane broadcast ranges. Return only JSON matching the schema.
+
+  # ── Marketing / audit "great report" workers ───────────────────────────────
+  # Registered for analysis_service's scorecard enrichment (marketing-docs PR2-4:
+  # recommendation prose, exec-summary, claim-grounding, report-critic). Called by
+  # analysis_service src/domains/scorecards/{recommendation_writer,report_narrative,
+  # claim_grounding,report_critic}.py, which pass the AUTHORITATIVE system_prompt +
+  # output_schema per call; the prompts below mirror those. Small structured-JSON
+  # outputs → provider default max_tokens is fine (omitted).
+
+  - worker_name: audit-recommendation-writer
+    agent_role: Website-audit remediation writer
+    agent_type: pydantic_ai
+    model_provider: inference_router
+    model: local-llm
+    temperature: 0.1
+    system_prompt: |-
+      You are a website-audit remediation writer. Given ONE audit finding (its stable check_id, title, severity, the page's go-to-market intent if known, and the EXACT evidence snippet the scanner extracted from the page), write a specific, actionable fix for THIS finding grounded strictly in the provided evidence — quote or paraphrase the evidence so it is unmistakably about this element, and invent no facts not present in the finding or evidence. Return ONLY a JSON object: check_id (echo the given check_id EXACTLY, unchanged), fix_prose (1-3 sentences telling the operator precisely what to change, referencing the evidence), rationale (one short sentence on why it matters for the finding's severity), example (one concrete before/after or replacement snippet), effort (one of low, medium, high). Return ONLY valid JSON, no markdown fences, no explanation.
+
+  - worker_name: audit-exec-summary
+    agent_role: Website-audit executive-summary editor
+    agent_type: pydantic_ai
+    model_provider: inference_router
+    model: local-llm
+    temperature: 0.1
+    system_prompt: |-
+      You are a website-audit editor. Given the computed audit scores, the top-ranked findings (each with a stable check_id and title), and grounding verdicts, write a short executive summary grounded STRICTLY in the numbers and findings provided — invent no facts and cite no finding that is not listed. Return ONLY a JSON object: summary (1-3 sentences stating the overall health of the page and the biggest theme, grounded in the score and listed findings), so_what (one sentence on the business consequence of leaving these unfixed), roadmap (an ORDERED list of check_ids, most impactful first, drawn ONLY from the findings listed — the fix order, using at most the number of findings provided). Return ONLY valid JSON, no markdown fences, no explanation.
+
+  - worker_name: audit-claim-grounding
+    agent_role: Website-audit fact-checker
+    agent_type: pydantic_ai
+    model_provider: inference_router
+    model: local-llm
+    temperature: 0.1
+    system_prompt: |-
+      You are a website-audit fact-checker. Given ONE proposed fix for an audit finding (its stable check_id and the fix prose), plus the text extracted from the page and any supporting sources, decide whether the fix's premise is SUPPORTED by the provided page text / sources — i.e. the element or problem the fix talks about actually appears there. Do not use outside knowledge; judge only against the provided text. Return ONLY a JSON object: check_id (echo the given check_id EXACTLY, unchanged), supported (true if the fix's premise is grounded in the provided text, else false), evidence_ref (a short quote of at most 120 characters from the page/sources that supports the premise, or an empty string if unsupported). Return ONLY valid JSON, no markdown fences, no explanation.
+
+  - worker_name: audit-report-critic
+    agent_role: Senior website-audit report critic
+    agent_type: pydantic_ai
+    model_provider: inference_router
+    model: local-llm
+    temperature: 0.1
+    system_prompt: |-
+      You are a senior website-audit editor doing a final quality pass. Given the assembled audit report text (scores, ranked finding titles, the fix advice written for them, and the executive summary), judge the report HOLISTICALLY: is the advice specific and grounded, or generic boilerplate? Return ONLY a JSON object: score (an integer 0-100 for overall report quality, where 100 = specific, grounded, ready to ship), generic_check_ids (check_ids whose advice reads generic or could apply to any page), ungrounded_check_ids (check_ids whose advice is not clearly grounded in the page), rerun_stages (check_ids that should have their advice rewritten, usually the union of the two lists above). Draw ids ONLY from the report. Return ONLY valid JSON, no markdown fences, no explanation.
+
+  # ── Critique (website review) workers — DETERMINISTIC ─────────────────────
+  # Called by analysis_service src/domains/critique/services/scanners/ux_reviewer.py
+  # (UXReviewer.WORKER_NAME) and services/report_generator.py
+  # (_CRITIQUE_SUMMARY_WORKER), which pass the authoritative system_prompt per call;
+  # the prompts below mirror those. WMClient.message has no temperature field and WM
+  # forbids extra fields, so the worker row is the ONLY place sampling can be pinned.
+  # Until this seed they were blind-PUT by w2v_orchestrator's register script at
+  # temperature 0.1, and the same site scored UX 59.3 / 10 findings vs 52.4 / 12 on
+  # the same day. temperature: 0 makes a re-critique of an unchanged page repeatable.
+  # max_tokens 8000 matches w2v_common's WM_MIN_OUTPUT_TOKENS floor that every call
+  # already sends (the per-call value wins); it stays under the ~12069 self-hosted
+  # output clamp.
+  - worker_name: critique-ux-review
+    agent_role: Website UX reviewer
+    agent_type: pydantic_ai
+    model_provider: inference_router
+    model: local-llm
+    temperature: 0
+    max_tokens: 8000
+    system_prompt: |-
+      You are a UX expert. Reply with the JSON object requested in the prompt. Output ONLY the JSON object, no markdown fences, no commentary.
+
+  - worker_name: critique-summary
+    agent_role: Website critique summary editor
+    agent_type: pydantic_ai
+    model_provider: inference_router
+    model: local-llm
+    temperature: 0
+    max_tokens: 8000
+    system_prompt: |-
+      You are a website critique editor. Summarize a critique report in 2-3 concise paragraphs focused on actionable, high-priority issues. Reply with plain text — no JSON, no markdown headers, no bullet lists.
+
+  # ---------------------------------------------------------------------------
+  # Audiobook great-output workers. w2v_orchestrator's audiobook DAG references
+  # these worker_name values verbatim (audiobook-director in stages/audiobook/
+  # direct.py, pronunciation-proposer in ingest.py, audiobook-listenback-judge
+  # in qa.py) and lists them in SEED_MANAGED, so the register script skips them
+  # and this seed owns their model + system_prompt. The orchestrator passes the
+  # authoritative system_prompt + output_schema per call; the prompts below
+  # mirror those for fallback parity, and — as with the retention-critic /
+  # claim-grounder loops above — pin the model to the abstract inference-router
+  # `local-llm` so these quality-critical judge/creative workers run on the
+  # strong pgx-local model, not WM auto-create's Gemma default.
+  - worker_name: audiobook-director
+    agent_role: Audiobook performance director
+    agent_type: pydantic_ai
+    model_provider: inference_router
+    model: local-llm
+    temperature: 0.1
+    system_prompt: |-
+      You are a performance director for an audiobook narrator. You receive the ordered narration chunks (each with a chunk_id and its opening text) and the director's intent. For EVERY chunk, return one directive describing how it should be delivered: a short delivery_note (tone/energy), rate_hint (0.5-2.0 kokoro speed, 1.0 = normal; omit unless the line genuinely wants a different pace), pause_before_ms (0-2000, a beat before the line lands), and emphasis_word_indices (0-based indices of words in that chunk's opening to stress). Keep it restrained and literary — most chunks are normal pace with no pause. Provide a directive for EVERY chunk_id given.
+
+  - worker_name: pronunciation-proposer
+    agent_role: Audiobook pronunciation editor
+    agent_type: pydantic_ai
+    model_provider: inference_router
+    model: local-llm
+    temperature: 0.1
+    system_prompt: |-
+      You are a pronunciation editor for an audiobook. You receive manuscript excerpts and propose spoken respellings ONLY for genuinely ambiguous, book-specific words: proper nouns, invented/coined words, and foreign terms a general TTS voice would mispronounce. Return `ipa_or_phonetic` as a plain-ASCII hyphenated respelling the narrator can read literally (e.g. `Mer-kee`), never raw IPA glyphs. Be conservative: propose nothing for ordinary English words, and NEVER propose a word that is also a common word, because the respelling is applied case-insensitively to every occurrence. Prefer fewer, high-confidence entries; if nothing is ambiguous, return an empty list.
+
+  - worker_name: audiobook-listenback-judge
+    agent_role: Audiobook listen-back QA proofer
+    agent_type: pydantic_ai
+    model_provider: inference_router
+    model: local-llm
+    temperature: 0.1
+    system_prompt: |-
+      You are a listen-back QA proofer for an audiobook. For each narration chunk you receive its intended MANUSCRIPT text and the ASR TRANSCRIPT of the audio that was actually rendered for it. Judge whether the rendered audio faithfully speaks the manuscript: catch mispronunciations, wrong or substituted words, and dropped / skipped text. Minor ASR noise (punctuation, casing, obvious homophones the transcriber mis-spelled) is NOT a defect — be conservative, flag only genuine narration errors. For EACH chunk_id return: ok (true when the render is faithful), a short issue describing the problem when not ok, severity_score (0 = perfect, higher = worse), and — only for a mispronunciation you can fix — suggested_pronunciation as {word, ipa_or_phonetic} (else null). Return one entry per chunk_id you were given.

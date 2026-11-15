@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "requirement_development output",
+  "type": "object",
+  "required": ["name", "body", "acceptance_criteria"],
+  "additionalProperties": false,
+  "properties": {
+    "name": { "type": "string", "minLength": 1, "maxLength": 200 },
+    "body": { "type": "string", "minLength": 1 },
+    "acceptance_criteria": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "tags": { "type": "array", "items": { "type": "string" } },
+    "derived_from_principle_ids": { "type": "array", "items": { "type": "string" } }
+  }
+}

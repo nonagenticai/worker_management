@@ -1,0 +1,21 @@
+{
+  "name": "worker-management-js-tests",
+  "version": "1.0.0",
+  "description": "JavaScript test suite for Worker Management API",
+  "main": "test_graph_execution.js",
+  "scripts": {
+    "test": "node test_graph_execution.js",
+    "test-all": "node run_all_tests.js"
+  },
+  "dependencies": {
+    "uuid": "^10.0.0",
+    "ws": "^8.18.3"
+  },
+  "keywords": [
+    "test",
+    "api",
+    "worker-management"
+  ],
+  "author": "Worker Management Test Suite",
+  "license": "MIT"
+}

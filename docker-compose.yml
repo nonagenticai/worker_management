@@ -1,0 +1,170 @@
+services:
+  workers:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: worker-management-api
+
+    # ----------------------------------------------------------------------
+    # Environment Configuration (ALL non-secret config goes here)
+    # ----------------------------------------------------------------------
+    environment:
+      # Core Metadata
+      SERVICE_NAME: worker-management
+      VERSION: 1.0.0
+      ENVIRONMENT: production
+      LOG_LEVEL: INFO
+      LOG_FORMAT: json
+
+      # Trusted Network Auth
+      DEFAULT_TENANT_ID: 0195f48b-d000-7000-8000-000000000001
+
+      # Application Settings
+      PORT: 8887
+      TEMP_DIR: /tmp/worker_management
+      CORS_ALLOW_ORIGINS: "http://localhost:8921,http://localhost:3000,http://127.0.0.1:3000"
+
+      # Database Configuration
+      DATABASE_URL: postgresql://worker_mgmt_user:${POSTGRES_PASSWORD_WORKER_MANAGEMENT}@pgbouncer.example.com:6432/worker_management?sslmode=prefer
+      POSTGRES_SSLMODE: prefer
+
+      # Secrets Service Integration
+      SECRETS_URL: https://secrets.example.com:8543
+
+      # code_graph_helper Integration (Remote Agent Execution)
+      CODING_SERVICE_URL: ${CODING_SERVICE_URL}
+      CODING_SERVICE_HOST: ${CODING_SERVICE_HOST}
+
+      # TLS/Certificate Configuration
+      SSL_VERIFY: true
+      REQUESTS_CA_BUNDLE: /app/certs/ca-cert.pem
+      CLIENT_CERT_PATH: /app/certs/worker_mgmt_user-client-cert.pem
+      CLIENT_KEY_PATH: /app/certs/worker_mgmt_user-client-key.pem
+      CA_CERT_PATH: /app/certs/ca-cert.pem
+
+      # Python Application Configuration
+      PYTHONPATH: src
+      LANG: C.UTF-8
+      PYTHONUNBUFFERED: 1
+      POETRY_VERSION: 1.8.3
+      POETRY_HOME: /opt/poetry
+      POETRY_VIRTUALENVS_CREATE: false
+      POETRY_CACHE_DIR: /var/cache/pypoetry
+
+      # LLM/AI Configuration
+      OPENAI_API_BASE: http://host.docker.internal:8100/v1
+      OPENAI_MODEL_NAME: local-llm
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      GROQ_API_KEY: ${GROQ_API_KEY}
+      GROQ_API_KEY_TWO: ${GROQ_API_KEY_TWO}
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY}
+
+      # MLX Multi-Instance Configuration (both point to distributed ring)
+      MLX_INSTANCE_MINI1_URL: http://host.docker.internal:8100
+      MLX_INSTANCE_MINI2_URL: http://host.docker.internal:8100
+      MLX_MODEL_CACHE_TTL: 300
+
+      # Inference Router Configuration
+      INFERENCE_ROUTER_URL: http://host.docker.internal:8150
+
+      # External Service API Keys
+      SERPER_API_KEY: ${SERPER_API_KEY}
+      LANGTRACE_API_KEY: ${LANGTRACE_API_KEY}
+      LCA_CLI_TOKEN: ${LCA_CLI_TOKEN}
+      GRAFANA_API_KEY: ${GRAFANA_API_KEY}
+
+      # Agent Host Configuration (one agent host per worker node)
+      AGENT_HOST_MINI1_URL: http://agent-host-1.example.com:9100
+      AGENT_HOST_MINI2_URL: http://agent-host-2.example.com:9100
+      USE_AGENT_HOST: "true"
+
+      # MCP Configuration
+      KANBAN_MCP_URL: https://kanban.example.com/sse
+      CLI_PROXY_URL: http://host.docker.internal:9000
+      CLI_PROXY_ENABLED: "false"
+
+      # OpenTelemetry Configuration
+      OTLP_TRACES_ENDPOINT: http://grafana-agent:4318/v1/traces
+      OTLP_METRICS_ENDPOINT: http://grafana-agent:4318/v1/metrics
+      OTEL_EXPORTER_OTLP_INSECURE: true
+      OTEL_SERVICE_NAME: worker-management-service
+      OTEL_SDK_DISABLED: false
+      OTEL_RESOURCE_ATTRIBUTES: service.name=worker-management-service,service.namespace=worker_management,deployment.environment=local
+
+    # ----------------------------------------------------------------------
+    # Port Mappings (localhost only for security)
+    # ----------------------------------------------------------------------
+    expose:
+      - "8887"
+    ports:
+      - "0.0.0.0:8887:8887"
+
+    # ----------------------------------------------------------------------
+    # Network Configuration
+    # ----------------------------------------------------------------------
+    networks:
+      - workflow-system-network
+
+    # ----------------------------------------------------------------------
+    # Restart Policy
+    # ----------------------------------------------------------------------
+    restart: unless-stopped
+
+    # ----------------------------------------------------------------------
+    # DNS and Host Resolution
+    # ----------------------------------------------------------------------
+    extra_hosts:
+      # Example wiring: point each name at the host that serves it. The addresses
+      # below are from the RFC 5737 documentation range, so replace them.
+      - "postgres.example.com:192.0.2.10"
+      - "pgbouncer.example.com:192.0.2.10"
+      - "neo4j.example.com:192.0.2.10"
+      - "keycloak.example.com:192.0.2.10"
+      - "vault.example.com:192.0.2.10"
+      # The MLX inference entries were replaced by the inference router.
+      # (inference-router.inference-router.svc.cluster.local:8150 inside the cluster).
+      - "agent-host-1.example.com:192.0.2.11"
+      - "agent-host-2.example.com:192.0.2.12"
+
+    # ----------------------------------------------------------------------
+    # Volume Mounts
+    # ----------------------------------------------------------------------
+    volumes:
+      # Application certificates. NOT shipped — the estate's PKI stays private.
+      # Put your own CA + client cert/key here, or set SSL_VERIFY=false and leave
+      # REQUESTS_CA_BUNDLE / CLIENT_CERT_PATH / CLIENT_KEY_PATH unset when your
+      # PostgreSQL does not require mTLS. An empty directory makes the TLS paths
+      # above unresolvable, so one of those two things is required.
+      - ./certs:/app/certs:ro
+      # Docker socket access
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Configuration files
+      - ./.env:/app/.env:ro
+      - ./scripts:/app/scripts:ro
+      - ./mcp_configs:/app/mcp_configs:ro
+      - ./src/db:/app/src/db
+      # Claude Code and Codex CLI credentials (writable for debug logs)
+      - ~/.claude:/home/appuser/.claude
+      - ~/.codex:/home/appuser/.codex
+
+    # ----------------------------------------------------------------------
+    # Resource Limits
+    # ----------------------------------------------------------------------
+    deploy:
+
+    # ----------------------------------------------------------------------
+    # Health Check
+    # ----------------------------------------------------------------------
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8887/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+# --------------------------------------------------------------------------
+# External Network (created once, shared by all services)
+# --------------------------------------------------------------------------
+networks:
+  workflow-system-network:
+    driver: bridge

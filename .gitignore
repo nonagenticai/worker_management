@@ -1,0 +1,168 @@
+# Environment variables and secrets
+.env
+*.env
+.env.*
+!.env.example
+
+# API keys and credentials
+*api_key*
+*credentials*
+*secret*
+!.secrets.baseline
+# Source module, NOT a secret — the broad *secret* glob above would otherwise
+# drop it from the repo (it did: PR #77 merged without it → CI ModuleNotFoundError).
+!src/security/secret_box.py
+# ...and its TEST file, for the identical reason. The *secret* glob caught this one too, and it went
+# unnoticed for ~7 weeks: tests/test_secret_box.py existed locally from 2026-06-19 but was never
+# committed, so CI never ran a single one of its 13 tests while src/security/secret_box.py — tracked,
+# shipped, security-relevant code — sat at 68% coverage. It surfaced only because a local test count
+# (3200) disagreed with a fresh clone (3187). Rescuing the module without its test is half a fix.
+!tests/test_secret_box.py
+certs/
+
+# /dbs (root-level only, not src/db/)
+/db/
+/dbs/
+*.sqlite
+*.sqlite3
+*.db
+*.db3
+*.db4
+*.db5
+
+/pydantic-ai/
+
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv/
+.ENV/
+.env/
+
+# Data and output directories
+data/
+output/
+*.vector
+*.hnsw
+*.idx
+/workspace/
+
+# Log files
+*.log
+log/
+logs/
+
+# Temp files
+*.tmp
+*.temp
+.DS_Store
+temp/
+tmp/
+
+# Docker volumes
+docker_volumes/
+.docker/
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+.project
+.classpath
+.settings/
+
+# Backup files
+*~
+*.bak
+*.backup
+*.old
+*.orig
+*.save
+@*
+docker-compose*.backup
+docker-compose*.bak
+.env.backup*
+.env.bak*
+
+# Neo4j data
+neo4j/data/
+
+# Compiled files
+*.dll
+*.exe
+
+# Other files
+id_ed25519
+id_ed25519.pub
+id_rsa
+id_rsa.pub
+id_ecdsa
+id_ecdsa.pub
+mcp.config.json
+.hypothesis/
+
+# ============================================
+# DATABASE FILES - NEVER commit these!
+# ============================================
+# SQLite database files
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Database backups (critical!)
+*.db.backup
+*_backup_*.db
+*.sql.gz
+*.sql.bz2
+*.dump
+
+# Database directories
+/data/*.db
+/db/*.db
+/logs/*.db
+# ============================================
+
+.cursor/
+.windsurf/
+.claude/
+
+# Python linter caches
+.ruff_cache/
+
+# Test coverage and pytest cache
+.coverage
+.pytest_cache/
+
+# Additional Python bytecode
+*.pyc
+.local-ci-commit.txt
+.local-ci-push.txt
+coverage_html/
+test-results/
+01_recent_push_failure.txt
+02_deploy_issues.txt

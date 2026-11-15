@@ -1,0 +1,41 @@
+digraph G {
+concentrate=true;
+splines="ortho";
+rankdir="LR";
+subgraph legend{
+    rank = min;
+    label = "legend";
+    Legend [shape=none, margin=0, label = <
+        <table cellspacing="0" cellpadding="0" border="1"><tr><td>Code2flow Legend</td></tr><tr><td>
+        <table cellspacing="0">
+        <tr><td>Regular function</td><td width="50px" bgcolor='#cccccc'></td></tr>
+        <tr><td>Trunk function (nothing calls this)</td><td bgcolor='#966F33'></td></tr>
+        <tr><td>Leaf function (this calls nothing else)</td><td bgcolor='#6db33f'></td></tr>
+        <tr><td>Function call</td><td><font color='black'>&#8594;</font></td></tr>
+        </table></td></tr></table>
+        >];
+}node_6692e79d [label="270: _create_agent_worker()" name="worker_factory::_create_agent_worker" shape="rect" style="rounded,filled" fillcolor="#6db33f" ];
+node_f499f626 [label="166: _fetch_single_tool()" name="worker_factory::_fetch_single_tool" shape="rect" style="rounded,filled" fillcolor="#6db33f" ];
+node_f065c691 [label="69: _handle_preset_config()" name="worker_factory::_handle_preset_config" shape="rect" style="rounded,filled" fillcolor="#6db33f" ];
+node_0eda8932 [label="80: _handle_server_filtering()" name="worker_factory::_handle_server_filtering" shape="rect" style="rounded,filled" fillcolor="#6db33f" ];
+node_3ff56310 [label="147: _load_worker_tools()" name="worker_factory::_load_worker_tools" shape="rect" style="rounded,filled" fillcolor="#cccccc" ];
+node_dc98949f [label="209: _setup_mcp_servers_for_worker()" name="worker_factory::_setup_mcp_servers_for_worker" shape="rect" style="rounded,filled" fillcolor="#cccccc" ];
+node_709f0fa2 [label="194: _setup_worker_database()" name="worker_factory::_setup_worker_database" shape="rect" style="rounded,filled" fillcolor="#6db33f" ];
+node_5b1507e1 [label="320: create_worker()" name="worker_factory::create_worker" shape="rect" style="rounded,filled" fillcolor="#966F33" ];
+node_1cde3673 [label="113: resolve_mcp_config()" name="worker_factory::resolve_mcp_config" shape="rect" style="rounded,filled" fillcolor="#cccccc" ];
+node_3ff56310 -> node_f499f626 [color="#000000" penwidth="2"];
+node_dc98949f -> node_1cde3673 [color="#CC79A7" penwidth="2"];
+node_5b1507e1 -> node_6692e79d [color="#E69F00" penwidth="2"];
+node_5b1507e1 -> node_3ff56310 [color="#E69F00" penwidth="2"];
+node_5b1507e1 -> node_dc98949f [color="#E69F00" penwidth="2"];
+node_5b1507e1 -> node_709f0fa2 [color="#E69F00" penwidth="2"];
+node_1cde3673 -> node_f065c691 [color="#009E73" penwidth="2"];
+node_1cde3673 -> node_0eda8932 [color="#009E73" penwidth="2"];
+subgraph cluster_0aa3281e {
+    node_f065c691 node_0eda8932 node_1cde3673 node_3ff56310 node_f499f626 node_709f0fa2 node_dc98949f node_6692e79d node_5b1507e1;
+    label="File: worker_factory";
+    name="worker_factory";
+    style="filled";
+    graph[style=dotted];
+};
+}

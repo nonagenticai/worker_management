@@ -1,0 +1,15 @@
+{
+  "_doc": "worker_management#339 — fr's PLATFORM_TENANT_IDS, copied by hand from fr at the pinned ref below. tests/test_platform_tenant_ids_drift.py asserts WM src/api/tenant_constants.py PLATFORM_TENANT_IDS equals this set. When fr changes its set: re-copy it here with the new ref, AND change WM's set in the same PR (or justify the divergence in the issue). NOT gitops COMMERCIAL_PLATFORM_TENANT_IDS — a different set.",
+  "fr_repo": "nonagenticai/fr",
+  "fr_ref": "32661051c7234da34687d70263aa353c73934ff8",
+  "fr_source": "backend/src/middleware/internal-tenant-only.ts",
+  "fr_symbol": "PLATFORM_TENANT_IDS",
+  "tenant_ids": [
+    "0195f48b-d000-7000-8000-000000000001",
+    "0195f48b-d000-7000-8000-000000000002",
+    "0195f48b-d000-7000-8000-000000000003",
+    "0195f48b-d000-7000-8000-000000000004",
+    "0195f48b-d000-7000-8000-000000000005",
+    "019de842-c92a-7e37-8fdd-eb0d8c5396f9"
+  ]
+}

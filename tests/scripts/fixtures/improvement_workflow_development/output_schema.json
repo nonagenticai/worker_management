@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nonagentic.ai/schemas/improvement/workflow/development.json",
+  "title": "WorkflowDevelopmentProposal",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "workflow_patch",
+    "rationale",
+    "expected_impact",
+    "scope_of_change"
+  ],
+  "properties": {
+    "workflow_patch": {
+      "type": "array",
+      "maxItems": 25,
+      "description": "An RFC-6902 JSON-Patch over the BASE workflow JSON that makes a small, targeted improvement. It MUST NOT alter the workflow's external contract: no changes to webhook/trigger entrypoints, httpMethod, responseMode, or executeWorkflowTrigger inputSource. Keep the patch bounded and minimal. An empty array denotes a proposal of no change; it requires scope_of_change 'no_change' and the reason stated in rationale. Never invent an operation to pad the patch.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "op",
+          "path"
+        ],
+        "properties": {
+          "op": {
+            "type": "string",
+            "enum": [
+              "add",
+              "remove",
+              "replace",
+              "move",
+              "copy",
+              "test"
+            ]
+          },
+          "path": {
+            "type": "string",
+            "description": "A JSON Pointer (RFC-6901) into the base workflow JSON."
+          },
+          "from": {
+            "type": "string",
+            "description": "Source JSON Pointer for 'move' and 'copy' operations."
+          },
+          "value": {
+            "description": "The value for 'add', 'replace', and 'test' operations (any JSON type)."
+          }
+        }
+      }
+    },
+    "rationale": {
+      "type": "string",
+      "minLength": 1
+    },
+    "expected_impact": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "delta_execution_success_rate": {
+          "type": "number"
+        },
+        "delta_latency_ms": {
+          "type": "number"
+        },
+        "breaking_changes": {
+          "type": "boolean"
+        }
+      }
+    },
+    "scope_of_change": {
+      "type": "string",
+      "description": "The shape of the proposed change. 'no_change' is the value required when workflow_patch is empty.",
+      "enum": [
+        "node_parameter",
+        "node_addition",
+        "node_removal",
+        "connection_rewire",
+        "no_change"
+      ]
+    }
+  }
+}

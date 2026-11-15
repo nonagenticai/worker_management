@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nonagentic.ai/schemas/improvement/workflow/performance_analysis.json",
+  "title": "WorkflowPerformanceAnalysisProposal",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "proposal",
+    "predicted_deltas",
+    "rationale",
+    "confidence"
+  ],
+  "properties": {
+    "proposal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "body"
+      ],
+      "properties": {
+        "kind": {
+          "const": "analysis"
+        },
+        "body": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "bottlenecks",
+            "recommended_next_card_type"
+          ],
+          "properties": {
+            "bottlenecks": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "node_id",
+                  "metric",
+                  "value"
+                ],
+                "properties": {
+                  "node_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "metric": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "value": {
+                    "type": "number"
+                  }
+                }
+              }
+            },
+            "recommended_next_card_type": {
+              "enum": [
+                "improvement_workflow_statistics_analysis",
+                "improvement_workflow_performance_analysis",
+                "improvement_workflow_redesign",
+                "improvement_workflow_pattern_catalogue_improvement",
+                "improvement_workflow_development"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "predicted_deltas": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "cost_pct": {
+          "type": "number"
+        },
+        "latency_pct": {
+          "type": "number"
+        },
+        "validation_delta": {
+          "type": "number"
+        }
+      }
+    },
+    "rationale": {
+      "type": "string",
+      "minLength": 1
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    }
+  }
+}

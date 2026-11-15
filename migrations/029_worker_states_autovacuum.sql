@@ -1,0 +1,63 @@
+-- 029_worker_states_autovacuum.sql
+--
+-- Per-table autovacuum/autoanalyze thresholds for `worker_states` (#256).
+--
+-- WHY. `worker_states` is the hot append table of this service and it is now
+-- **5.1 GB across 1.28M rows**. `pg_class.reloptions` for it is **NULL**, so it
+-- runs on the cluster defaults: `autovacuum_analyze_scale_factor = 0.1` and
+-- `autovacuum_vacuum_scale_factor = 0.2`. At this row count that means
+-- autoanalyze waits for **~128k modifications** (0.1 x 1.28M, plus the 50-row
+-- base threshold) and autovacuum for roughly twice that before either is even
+-- considered.
+--
+-- WHAT THAT PRODUCED, measured on the prod primary (worker4):
+--
+--     last_autoanalyze  2026-09-02
+--     last_autovacuum   2026-08-27
+--
+-- i.e. the planner has been costing every query against `worker_states` on
+-- statistics that are weeks stale, and dead tuples from the retention sweep sit
+-- unreclaimed for as long. The indexes migrations 026/027 exist to give the
+-- sweep are only as good as the row estimates the planner feeds them.
+--
+-- ⚠️ THE BAND-AID THIS REPLACES. Someone hand-ran `VACUUM ANALYZE worker_states`
+-- on **2026-09-17 02:16Z**. That is the giveaway, not the fix: a hand-run VACUUM
+-- proves the table needed one and that the daemon was never going to do it. A
+-- manual command leaves no mechanism behind, so the table drifts straight back
+-- to the same place and the next person hand-runs it again. Storing the
+-- thresholds on the table is the mechanism.
+--
+-- THE VALUES, and why these and not "more aggressive".
+--
+--     autovacuum_analyze_scale_factor = 0.01  ->  ~12.8k mods, not ~128k
+--     autovacuum_vacuum_scale_factor  = 0.02  ->  ~25.6k dead, not ~256k
+--
+-- A 10x reduction on each, which restores roughly the cadence the defaults were
+-- written for at a table 10x smaller. They are SCALE factors, so they track the
+-- table: nothing here needs revisiting when `worker_states` grows again. The
+-- threshold companions (`autovacuum_analyze_threshold` /
+-- `autovacuum_vacuum_threshold`) are deliberately left at their defaults — the
+-- problem measured above is proportional, not a small-table floor problem, and
+-- setting a fourth knob that nothing measured would be guessing.
+--
+-- ⛔ NOT `migrate:always`, and that is a deliberate difference from 028.
+-- 028 is a control loop (it reaps whatever invalid indexes exist on THIS boot).
+-- This file is a one-time catalog write: after it runs, `pg_class.reloptions`
+-- carries the values permanently and re-running it every boot would be a
+-- no-op that still takes a lock. The ledger (`schema_migration_files`) recording
+-- it once is exactly right. An operator who deliberately changes these values by
+-- hand keeps their change; if that is ever wrong, the fix is a NEW numbered
+-- migration, not making this one re-assert itself silently.
+--
+-- ⛔ NOT `migrate:no-transaction`. `ALTER TABLE ... SET (...)` takes only
+-- SHARE UPDATE EXCLUSIVE — the same level autovacuum itself holds — so it does
+-- NOT block the constant INSERTs into this table (that was the 026/027
+-- incident, which was a plain `CREATE INDEX` taking SHARE). It is a catalog
+-- update with no table rewrite and no index build, it runs in milliseconds, and
+-- it belongs inside the runner's transaction so the 10s `SET LOCAL lock_timeout`
+-- guard applies to it.
+
+ALTER TABLE worker_states SET (
+    autovacuum_analyze_scale_factor = 0.01,
+    autovacuum_vacuum_scale_factor = 0.02
+);

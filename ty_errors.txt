@@ -1,0 +1,270 @@
+warning[unused-type-ignore-comment]: Unused blanket `type: ignore` directive
+   --> scripts/setup_graph_execution.py:199:61
+    |
+198 |         db = GraphStateDatabase()
+199 |         graphs = await db.list_graphs(creator_id="system")  # type: ignore[arg-type]
+    |                                                             ^^^^^^^^^^^^^^^^^^^^^^^^
+200 |         logger.info(f"✅ Graph states database: {len(graphs)} graphs found")
+    |
+help: Remove the unused suppression comment
+196 |         from src.db.graph_state_db import GraphStateDatabase
+197 |
+198 |         db = GraphStateDatabase()
+    -         graphs = await db.list_graphs(creator_id="system")  # type: ignore[arg-type]
+199 +         graphs = await db.list_graphs(creator_id="system")
+200 |         logger.info(f"✅ Graph states database: {len(graphs)} graphs found")
+201 |
+202 |         exec_db = GraphExecutionDatabase()
+
+warning[unused-type-ignore-comment]: Unused blanket `type: ignore` directive
+   --> scripts/setup_graph_execution.py:203:89
+    |
+202 |         exec_db = GraphExecutionDatabase()
+203 |         sessions = await exec_db.list_execution_sessions(creator_id="system", limit=5)  # type: ignore[arg-type]
+    |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^
+204 |         logger.info(f"✅ Graph execution database: {len(sessions)} sessions found")
+    |
+help: Remove the unused suppression comment
+200 |         logger.info(f"✅ Graph states database: {len(graphs)} graphs found")
+201 |
+202 |         exec_db = GraphExecutionDatabase()
+    -         sessions = await exec_db.list_execution_sessions(creator_id="system", limit=5)  # type: ignore[arg-type]
+203 +         sessions = await exec_db.list_execution_sessions(creator_id="system", limit=5)
+204 |         logger.info(f"✅ Graph execution database: {len(sessions)} sessions found")
+205 |
+206 |         # Test execution service
+
+error[unresolved-import]: Cannot resolve imported module `worker_management.services.orchestrator`
+ --> services/example_usage.py:9:6
+  |
+7 | import asyncio
+8 |
+9 | from worker_management.services.orchestrator import ContextOrchestrator
+  |      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+info: Searched in the following paths during module resolution:
+info:   1. /Users/mini1/Movies/worker_management (first-party code)
+info:   2. vendored://stdlib (stdlib typeshed stubs vendored by ty)
+info:   3. /Users/mini1/Movies/worker_management/.venv/lib/python3.13/site-packages (site-packages)
+info: make sure your Python environment is properly configured: https://docs.astral.sh/ty/modules/#python-environment
+info: rule `unresolved-import` is enabled by default
+
+error[unresolved-import]: Cannot resolve imported module `worker_management.models.parsed_data_models`
+  --> services/test_orchestrator.py:8:6
+   |
+ 7 | import pytest
+ 8 | from worker_management.models.parsed_data_models import (
+   |      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 9 |     CodeSnippet,
+10 |     Entity,
+   |
+info: Searched in the following paths during module resolution:
+info:   1. /Users/mini1/Movies/worker_management (first-party code)
+info:   2. vendored://stdlib (stdlib typeshed stubs vendored by ty)
+info:   3. /Users/mini1/Movies/worker_management/.venv/lib/python3.13/site-packages (site-packages)
+info: make sure your Python environment is properly configured: https://docs.astral.sh/ty/modules/#python-environment
+info: rule `unresolved-import` is enabled by default
+
+error[unresolved-import]: Cannot resolve imported module `worker_management.models.worker_context`
+  --> services/test_orchestrator.py:14:6
+   |
+12 |     ParsedRequirement,
+13 | )
+14 | from worker_management.models.worker_context import WorkerContext
+   |      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+15 | from worker_management.services.orchestrator import (
+16 |     AssetParser,
+   |
+info: Searched in the following paths during module resolution:
+info:   1. /Users/mini1/Movies/worker_management (first-party code)
+info:   2. vendored://stdlib (stdlib typeshed stubs vendored by ty)
+info:   3. /Users/mini1/Movies/worker_management/.venv/lib/python3.13/site-packages (site-packages)
+info: make sure your Python environment is properly configured: https://docs.astral.sh/ty/modules/#python-environment
+info: rule `unresolved-import` is enabled by default
+
+error[unresolved-import]: Cannot resolve imported module `worker_management.services.orchestrator`
+  --> services/test_orchestrator.py:15:6
+   |
+13 | )
+14 | from worker_management.models.worker_context import WorkerContext
+15 | from worker_management.services.orchestrator import (
+   |      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+16 |     AssetParser,
+17 |     ContextOrchestrator,
+   |
+info: Searched in the following paths during module resolution:
+info:   1. /Users/mini1/Movies/worker_management (first-party code)
+info:   2. vendored://stdlib (stdlib typeshed stubs vendored by ty)
+info:   3. /Users/mini1/Movies/worker_management/.venv/lib/python3.13/site-packages (site-packages)
+info: make sure your Python environment is properly configured: https://docs.astral.sh/ty/modules/#python-environment
+info: rule `unresolved-import` is enabled by default
+
+warning[unused-type-ignore-comment]: Unused blanket `type: ignore` directive
+  --> setup_test_data.py:44:53
+   |
+42 |     def __init__(self, base_url: str = "http://localhost:8887"):
+43 |         self.base_url = base_url.rstrip("/")
+44 |         self.session: aiohttp.ClientSession = None  # type: ignore[assignment]
+   |                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+45 |         self.created_entities = {"workers": [], "tools": [], "graphs": [], "states": []}
+   |
+help: Remove the unused suppression comment
+41 |
+42 |     def __init__(self, base_url: str = "http://localhost:8887"):
+43 |         self.base_url = base_url.rstrip("/")
+   -         self.session: aiohttp.ClientSession = None  # type: ignore[assignment]
+44 +         self.session: aiohttp.ClientSession = None
+45 |         self.created_entities = {"workers": [], "tools": [], "graphs": [], "states": []}
+46 |
+47 |     async def __aenter__(self):
+
+warning[unused-type-ignore-comment]: Unused blanket `type: ignore` directive
+  --> src/auth/tenant.py:12:34
+   |
+11 | import httpx
+12 | from cachetools import TTLCache  # type: ignore[import-untyped]
+   |                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+13 | from fastapi import HTTPException, Request
+   |
+help: Remove the unused suppression comment
+9  | from typing import Any, Awaitable, Callable, cast
+10 |
+11 | import httpx
+   - from cachetools import TTLCache  # type: ignore[import-untyped]
+12 + from cachetools import TTLCache
+13 | from fastapi import HTTPException, Request
+14 |
+15 | logger = logging.getLogger(__name__)
+
+warning[unused-type-ignore-comment]: Unused blanket `type: ignore` directive
+  --> src/services/mlx_model_registry.py:18:34
+   |
+17 | import httpx
+18 | from cachetools import TTLCache  # type: ignore[import-untyped]
+   |                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+19 |
+20 | logger = logging.getLogger(__name__)
+   |
+help: Remove the unused suppression comment
+15 | from typing import Any, Dict, List, Optional, cast
+16 |
+17 | import httpx
+   - from cachetools import TTLCache  # type: ignore[import-untyped]
+18 + from cachetools import TTLCache
+19 |
+20 | logger = logging.getLogger(__name__)
+21 |
+
+warning[unused-type-ignore-comment]: Unused blanket `type: ignore` directive
+   --> src/worker/graphs/graph_factory.py:219:65
+    |
+217 |             # Each class creates instances with _node_schema_id; extract it from the default
+218 |             instance = nc()
+219 |             node_class_registry[instance._node_schema_id] = nc  # type: ignore[attr-defined]
+    |                                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+220 |
+221 |         # Inject the registry into every node class so run() can look up siblings
+    |
+help: Remove the unused suppression comment
+216 |         for nc in node_classes:
+217 |             # Each class creates instances with _node_schema_id; extract it from the default
+218 |             instance = nc()
+    -             node_class_registry[instance._node_schema_id] = nc  # type: ignore[attr-defined]
+219 +             node_class_registry[instance._node_schema_id] = nc
+220 |
+221 |         # Inject the registry into every node class so run() can look up siblings
+222 |         for nc in node_classes:
+
+warning[unused-type-ignore-comment]: Unused blanket `type: ignore` directive
+   --> src/worker/graphs/graph_factory.py:223:60
+    |
+221 |         # Inject the registry into every node class so run() can look up siblings
+222 |         for nc in node_classes:
+223 |             nc._node_class_registry = node_class_registry  # type: ignore[attr-defined]
+    |                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+224 |
+225 |         return node_classes
+    |
+help: Remove the unused suppression comment
+220 |
+221 |         # Inject the registry into every node class so run() can look up siblings
+222 |         for nc in node_classes:
+    -             nc._node_class_registry = node_class_registry  # type: ignore[attr-defined]
+223 +             nc._node_class_registry = node_class_registry
+224 |
+225 |         return node_classes
+226 |
+
+warning[unused-type-ignore-comment]: Unused blanket `type: ignore` directive
+   --> src/worker/graphs/graph_factory.py:410:47
+    |
+408 |                         next_node_schema.node_type,
+409 |                     )
+410 |                     return next_node_class()  # type: ignore[no-any-return]
+    |                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+411 |
+412 |                 except Exception as e:
+    |
+help: Remove the unused suppression comment
+407 |                         next_node_id,
+408 |                         next_node_schema.node_type,
+409 |                     )
+    -                     return next_node_class()  # type: ignore[no-any-return]
+410 +                     return next_node_class()
+411 |
+412 |                 except Exception as e:
+413 |                     logger.error("OFFICIAL WorkerNode %s failed: %s", worker_name, e)
+
+warning[unused-type-ignore-comment]: Unused blanket `type: ignore` directive
+   --> src/worker/graphs/graph_factory.py:547:47
+    |
+545 |                         next_node_schema.node_type,
+546 |                     )
+547 |                     return next_node_class()  # type: ignore[no-any-return]
+    |                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+548 |
+549 |                 except Exception as e:
+    |
+help: Remove the unused suppression comment
+544 |                         next_node_id,
+545 |                         next_node_schema.node_type,
+546 |                     )
+    -                     return next_node_class()  # type: ignore[no-any-return]
+547 +                     return next_node_class()
+548 |
+549 |                 except Exception as e:
+550 |                     logger.error("OFFICIAL FunctionNode %s failed: %s", schema.id, e)
+
+warning[unused-type-ignore-comment]: Unused blanket `type: ignore` directive
+   --> src/worker/graphs/graph_factory.py:709:49
+    |
+707 |                         branch_node_schema.node_type if branch_node_schema else "unknown",
+708 |                     )
+709 |                     return branch_node_class()  # type: ignore[no-any-return]
+    |                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+710 |
+711 |                 except Exception as e:
+    |
+help: Remove the unused suppression comment
+706 |                         branch_node_id,
+707 |                         branch_node_schema.node_type if branch_node_schema else "unknown",
+708 |                     )
+    -                     return branch_node_class()  # type: ignore[no-any-return]
+709 +                     return branch_node_class()
+710 |
+711 |                 except Exception as e:
+712 |                     logger.error("OFFICIAL ConditionNode %s failed: %s", schema.id, e)
+
+warning[possibly-missing-attribute]: Attribute `put_object` may be missing on object of type `MockMinio | None`
+  --> tests/test_artifact_upload.py:69:13
+   |
+67 |         for filename in files:
+68 |             object_name = f"{execution_id}/{filename}"
+69 |             self.minio_client.put_object(
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+70 |                 bucket_name="agent-artifacts",
+71 |                 object_name=object_name,
+   |
+info: rule `possibly-missing-attribute` is enabled by default
+
+Found 15 diagnostics

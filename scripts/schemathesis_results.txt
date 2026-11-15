@@ -1,0 +1,74 @@
+======================= Schemathesis test session starts =======================
+Schema location: http://localhost:8887/openapi.json
+Base URL: http://localhost:8887/
+Specification version: Open API 3.1.0
+Random seed: 12704418209656370225390560203563078939
+Workers: 1
+Collected API operations: 31
+Collected API links: 0
+API probing: ...API probing: SUCCESS
+Schema analysis: ...Schema analysis: SKIP
+
+GET /workers .                                                            [  3%]
+POST /workers .                                                           [  6%]
+GET /workers/{worker_name} .                                              [  9%]
+DELETE /workers/{worker_name} .                                           [ 12%]
+POST /workers/{worker_name}/message .                                     [ 16%]
+GET /workers/{worker_name}/states .                                       [ 19%]
+GET /workers/{worker_name}/state/latest .                                 [ 22%]
+DELETE /workers/{worker_name}/instance .                                  [ 25%]
+GET /workers_states .                                                     [ 29%]
+POST /workers_states .                                                    [ 32%]
+POST /graphs/ .                                                           [ 35%]
+GET /graphs/ .                                                            [ 38%]
+GET /graphs/{graph_id} .                                                  [ 41%]
+PATCH /graphs/{graph_id} .                                                [ 45%]
+DELETE /graphs/{graph_id} .                                               [ 48%]
+POST /graphs/{graph_id}/preview-templates .                               [ 51%]
+GET /graphs/{graph_id}/structure .                                        [ 54%]
+GET /graphs/{graph_id}/states .                                           [ 58%]
+GET /graphs/{graph_id}/validate .                                         [ 61%]
+GET /execution/engines .                                                  [ 64%]
+POST /execution/graphs/{graph_id}/execute .                               [ 67%]
+POST /execution/graphs/{graph_id}/execute/stepwise .                      [ 70%]
+POST /execution/sessions/{session_id}/next .                              [ 74%]
+GET /execution/health .                                                   [ 77%]
+POST /graphs/{graph_id}/templates/preview .                               [ 80%]
+POST /graphs/{graph_id}/templates/validate .                              [ 83%]
+GET /graphs/{graph_id}/templates/variables .                              [ 87%]
+POST /graphs/{graph_id}/templates/test .                                  [ 90%]
+GET /graphs/{graph_id}/templates/examples .                               [ 93%]
+GET / .                                                                   [ 96%]
+GET /health .                                                             [100%]
+
+=================================== SUMMARY ====================================
+
+Performed checks:
+    not_a_server_error                    2409 / 2409 passed          PASSED
+
+WARNINGS:
+  - `POST /workers/{worker_name}/message` returned only 4xx responses during unit tests. Check base URL or adjust data generation settings
+  - `GET /workers/{worker_name}/state/latest` returned only 4xx responses during unit tests. Check base URL or adjust data generation settings
+  - `GET /graphs/{graph_id}` returned only 4xx responses during unit tests. Check base URL or adjust data generation settings
+  - `PATCH /graphs/{graph_id}` returned only 4xx responses during unit tests. Check base URL or adjust data generation settings
+  - `DELETE /graphs/{graph_id}` returned only 4xx responses during unit tests. Check base URL or adjust data generation settings
+  - `POST /graphs/{graph_id}/preview-templates` returned only 4xx responses during unit tests. Check base URL or adjust data generation settings
+  - `GET /graphs/{graph_id}/structure` returned only 4xx responses during unit tests. Check base URL or adjust data generation settings
+  - `GET /graphs/{graph_id}/states` returned only 4xx responses during unit tests. Check base URL or adjust data generation settings
+  - `GET /graphs/{graph_id}/validate` returned only 4xx responses during unit tests. Check base URL or adjust data generation settings
+  - `POST /execution/graphs/{graph_id}/execute` returned only 4xx responses during unit tests. Check base URL or adjust data generation settings
+  - `POST /execution/graphs/{graph_id}/execute/stepwise` returned only 4xx responses during unit tests. Check base URL or adjust data generation settings
+  - `POST /execution/sessions/{session_id}/next` returned only 4xx responses during unit tests. Check base URL or adjust data generation settings
+  - `POST /graphs/{graph_id}/templates/preview` returned only 4xx responses during unit tests. Check base URL or adjust data generation settings
+  - `POST /graphs/{graph_id}/templates/validate` returned only 4xx responses during unit tests. Check base URL or adjust data generation settings
+  - `GET /graphs/{graph_id}/templates/variables` returned only 4xx responses during unit tests. Check base URL or adjust data generation settings
+  - `POST /graphs/{graph_id}/templates/test` returned only 4xx responses during unit tests. Check base URL or adjust data generation settings
+  - `GET /graphs/{graph_id}/templates/examples` returned only 4xx responses during unit tests. Check base URL or adjust data generation settings
+
+Experimental Features:
+  - OpenAPI 3.1: Support for response validation
+    Feedback: https://github.com/schemathesis/schemathesis/discussions/1822
+
+Your feedback is crucial for experimental features. Please visit the provided URL(s) to share your thoughts.
+
+============================= 31 passed in 15.15s ==============================

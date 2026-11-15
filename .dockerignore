@@ -1,0 +1,52 @@
+# Git
+.git
+.gitignore
+
+# Docker
+.dockerignore
+Dockerfile*
+
+# Environment files (should be provided at runtime, not build time)
+.env
+.env.*
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Poetry / Virtual environment
+.venv
+dist/
+build/
+*.egg-info/
+
+# IDE / OS specific
+.idea/
+.vscode/
+*.DS_Store
+
+# Testing
+.pytest_cache/
+.coverage*
+htmlcov/
+.hypothesis/
+
+# Build and cache directories
+.mypy_cache/
+.ruff_cache/
+.pyre/
+node_modules/
+quality_output/
+
+# Logs and temporary files
+*.log
+logs/
+docker_monitor.log
+
+# Documentation
+docs/
+
+# Additional development files
+examples/
+tests/

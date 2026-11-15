@@ -1,0 +1,101 @@
+{
+  "timestamp": "2025-07-26T05:28:16.974Z",
+  "summary": {
+    "overallSecurityScore": "83.33",
+    "testsPass": 2,
+    "testsConducted": 8
+  },
+  "results": {
+    "startTime": 1753507682044,
+    "endTime": null,
+    "duration": null,
+    "overallSuccess": false,
+    "connectionResults": {
+      "healthChecks": [
+        {
+          "status": "success",
+          "responseTime": 230,
+          "details": {
+            "status": "healthy",
+            "service": "worker-management-api"
+          }
+        }
+      ],
+      "concurrentConnections": 5,
+      "connectionPoolLimit": null,
+      "connectionErrors": [],
+      "maxConnectionTime": 216,
+      "avgConnectionTime": 215
+    },
+    "injectionResults": {
+      "testedEndpoints": [
+        {
+          "endpoint": "GET /workers",
+          "payloadsTested": 2,
+          "blocked": 2,
+          "vulnerable": 0,
+          "errors": []
+        },
+        {
+          "endpoint": "POST /workers",
+          "payloadsTested": 2,
+          "blocked": 2,
+          "vulnerable": 0,
+          "errors": []
+        },
+        {
+          "endpoint": "GET /graphs/",
+          "payloadsTested": 2,
+          "blocked": 2,
+          "vulnerable": 0,
+          "errors": []
+        }
+      ],
+      "blockedAttempts": 6,
+      "vulnerableEndpoints": [],
+      "injectionPayloads": 2,
+      "securityScore": "100.00"
+    },
+    "transactionResults": {
+      "atomicityTests": [
+        {
+          "test": "atomicity",
+          "passed": false,
+          "details": "Error: HTTP 422: {\"error\":{\"code\":\"VALIDATION_ERROR\",\"message\":\"Validation failed: body: Value error, Unsupported agent type: test\",\"status\":422,\"details\":{\"validation_errors\":[{\"field\":\"body\",\"message\":\"Value error, Unsupported agent type: test\",\"type\":\"value_error\",\"value\":{\"worker_name\":\"atomicity_test_worker\",\"agent_type\":\"test\",\"agent_role\":\"test_role\",\"model_provider\":\"deepseek\",\"model\":\"deepseek-chat\",\"temperature\":0.5}}],\"error_count\":1}}}",
+          "startTime": 1753507688547,
+          "duration": 1010
+        }
+      ],
+      "consistencyTests": [
+        {
+          "test": "consistency",
+          "passed": true,
+          "details": "Invalid data properly rejected",
+          "startTime": 1753507689557,
+          "duration": 1013
+        }
+      ],
+      "overallScore": "50.00"
+    },
+    "performanceResults": {
+      "responseTimeAnalysis": {
+        "operations": [
+          {
+            "operation": "GET /health",
+            "averageMs": 206.66666666666666
+          },
+          {
+            "operation": "GET /workers",
+            "averageMs": 213.33333333333334
+          }
+        ],
+        "overallAverageMs": 210
+      },
+      "throughputMetrics": {
+        "requestsPerSecond": 3.89,
+        "successRate": 100
+      },
+      "overallScore": 100
+    }
+  }
+}

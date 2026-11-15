@@ -1,0 +1,66 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://nonagentic.ai/schemas/improvement/asset/requirement_improvement.json",
+  "title": "RequirementImprovementProposal",
+  "type": "object",
+  "required": [
+    "candidate_requirement",
+    "rationale",
+    "expected_impact",
+    "scope_of_change"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "candidate_requirement": {
+      "type": "object",
+      "required": [
+        "name",
+        "body"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "body": {
+          "type": "string",
+          "minLength": 1
+        },
+        "rationale": {
+          "type": "string"
+        }
+      }
+    },
+    "rationale": {
+      "type": "string",
+      "minLength": 1
+    },
+    "expected_impact": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "delta_clarity": {
+          "type": "number"
+        },
+        "delta_testability": {
+          "type": "number"
+        },
+        "breaking_changes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "scope_of_change": {
+      "type": "string",
+      "enum": [
+        "minor_wording",
+        "structural",
+        "instruction_set"
+      ]
+    }
+  }
+}

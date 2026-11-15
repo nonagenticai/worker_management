@@ -1,0 +1,434 @@
+{
+  "timestamp": "2025-07-26T17:08:10.259Z",
+  "summary": {
+    "total": 35,
+    "passed": 14,
+    "failed": 21,
+    "passRate": 40,
+    "duration": 762652
+  },
+  "details": [
+    {
+      "testId": "01",
+      "testName": "Root Health Endpoints",
+      "category": "core",
+      "priority": "critical",
+      "success": true,
+      "duration": 1094,
+      "error": null
+    },
+    {
+      "testId": "02",
+      "testName": "Worker Collection Operations",
+      "category": "core",
+      "priority": "critical",
+      "success": true,
+      "duration": 42876,
+      "error": null
+    },
+    {
+      "testId": "03",
+      "testName": "Individual Worker Operations",
+      "category": "core",
+      "priority": "critical",
+      "success": true,
+      "duration": 37752,
+      "error": null
+    },
+    {
+      "testId": "04",
+      "testName": "Worker Messaging",
+      "category": "core",
+      "priority": "critical",
+      "success": true,
+      "duration": 183868,
+      "error": null
+    },
+    {
+      "testId": "05",
+      "testName": "Worker States Management",
+      "category": "core",
+      "priority": "high",
+      "success": false,
+      "duration": 34253,
+      "error": "❌ Request failed (Attempt 1/5): HTTP 404: {\"error\":{\"code\":\"ERROR\",\"message\":\"Worker not found\",\"status\":404}}\n❌ Request failed (Attempt 1/5): HTTP 422: {\"error\":{\"code\":\"ERROR\",\"message\":\"Invalid worker name\",\"status\":422}}\n❌ Request failed (Attempt 1/5): HTTP 422: {\"error\":{\"code\":\"VALIDATION_ERROR\",\"message\":\"Validation failed: query -> limit: Input should be greater than or equal to 1\",\"status\":422,\"details\":{\"validation_errors\":[{\"field\":\"query -> limit\",\"message\":\"Input should be greater than or equal to 1\",\"type\":\"greater_than_equal\",\"value\":\"-1\"}],\"error_count\":1}}}\n❌ Request failed (Attempt 1/5): HTTP 422: {\"error\":{\"code\":\"VALIDATION_ERROR\",\"message\":\"Validation failed: query -> limit: Input should be a valid integer, unable to parse string as an integer\",\"status\":422,\"details\":{\"validation_errors\":[{\"field\":\"query -> limit\",\"message\":\"Input should be a valid integer, unable to parse string as an integer\",\"type\":\"int_parsing\",\"value\":\"abc\"}],\"error_count\":1}}}\n❌ Request failed (Attempt 1/5): HTTP 404: {\"error\":{\"code\":\"ERROR\",\"message\":\"No state found for worker\",\"status\":404}}\n"
+    },
+    {
+      "testId": "06",
+      "testName": "Worker Instance & Bulk Operations",
+      "category": "core",
+      "priority": "high",
+      "success": true,
+      "duration": 100928,
+      "error": null
+    },
+    {
+      "testId": "07",
+      "testName": "Worker States API",
+      "category": "core",
+      "priority": "high",
+      "success": false,
+      "duration": 14761,
+      "error": "❌ Request failed (Attempt 1/5): HTTP 422: {\"error\":{\"code\":\"VALIDATION_ERROR\",\"message\":\"Validation failed: body -> 0 -> worker_id: String should have at least 1 character\",\"status\":422,\"details\":{\"validation_errors\":[{\"field\":\"body -> 0 -> worker_id\",\"message\":\"String should have at least 1 character\",\"type\":\"string_too_short\",\"value\":\"\"}],\"error_count\":1}}}\n❌ Request failed (Attempt 1/5): HTTP 422: {\"error\":{\"code\":\"VALIDATION_ERROR\",\"message\":\"Validation failed: body -> 0 -> worker_name: Field required; body -> 0 -> state_type: Field required; body -> 0 -> worker_state: Field required\",\"status\":422,\"details\":{\"validation_errors\":[{\"field\":\"body -> 0 -> worker_name\",\"message\":\"Field required\",\"type\":\"missing\",\"value\":{\"worker_id\":\"test_worker\"}},{\"field\":\"body -> 0 -> state_type\",\"message\":\"Field required\",\"type\":\"missing\",\"value\":{\"worker_id\":\"test_worker\"}},{\"field\":\"body -> 0 -> worker_state\",\"message\":\"Field required\",\"type\":\"missing\",\"value\":{\"worker_id\":\"test_worker\"}}],\"error_count\":3}}}\n❌ Request failed (Attempt 1/5): HTTP 422: {\"error\":{\"code\":\"VALIDATION_ERROR\",\"message\":\"Validation failed: body -> 0 -> state_type: Value error, Invalid state type: 'invalid_state_type'. Must be one of: created, processing, completed, error, idle, active, default\",\"status\":422,\"details\":{\"validation_errors\":[{\"field\":\"body -> 0 -> state_type\",\"message\":\"Value error, Invalid state type: 'invalid_state_type'. Must be one of: created, processing, completed, error, idle, active, default\",\"type\":\"value_error\",\"value\":\"invalid_state_type\"}],\"error_count\":1}}}\n❌ Request failed (Attempt 1/5): HTTP 422: {\"error\":{\"code\":\"VALIDATION_ERROR\",\"message\":\"Validation failed: body -> 0 -> extra_field: Extra inputs are not permitted\",\"status\":422,\"details\":{\"validation_errors\":[{\"field\":\"body -> 0 -> extra_field\",\"message\":\"Extra inputs are not permitted\",\"type\":\"extra_forbidden\",\"value\":\"should_be_rejected\"}],\"error_count\":1}}}\n❌ Request failed (Attempt 1/5): HTTP 422: {\"error\":{\"code\":\"VALIDATION_ERROR\",\"message\":\"Validation failed: body: Field required\",\"status\":422,\"details\":{\"validation_errors\":[{\"field\":\"body\",\"message\":\"Field required\",\"type\":\"missing\",\"value\":null}],\"error_count\":1}}}\n❌ Request failed (Attempt 1/5): HTTP 422: {\"error\":{\"code\":\"VALIDATION_ERROR\",\"message\":\"Validation failed: body -> 12: JSON decode error\",\"status\":422,\"details\":{\"validation_errors\":[{\"field\":\"body -> 12\",\"message\":\"JSON decode error\",\"type\":\"json_invalid\",\"value\":{}}],\"error_count\":1}}}\n"
+    },
+    {
+      "testId": "08",
+      "testName": "Graph Collection Operations",
+      "category": "core",
+      "priority": "critical",
+      "success": true,
+      "duration": 53513,
+      "error": null
+    },
+    {
+      "testId": "09",
+      "testName": "Individual Graph Operations",
+      "category": "core",
+      "priority": "critical",
+      "success": true,
+      "duration": 33114,
+      "error": null
+    },
+    {
+      "testId": "10",
+      "testName": "Graph Structure & Analysis",
+      "category": "core",
+      "priority": "high",
+      "success": true,
+      "duration": 29976,
+      "error": null
+    },
+    {
+      "testId": "11",
+      "testName": "Graph States Management",
+      "category": "core",
+      "priority": "high",
+      "success": true,
+      "duration": 65688,
+      "error": null
+    },
+    {
+      "testId": "12",
+      "testName": "Graph Execution",
+      "category": "core",
+      "priority": "critical",
+      "success": false,
+      "duration": 300007,
+      "error": "❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 1): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 2): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 4): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 5): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 6): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 7): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 8): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 9): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 10): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 11): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 12): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 13): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 14): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 15): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 16): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 17): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 18): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 19): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 20): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 21): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 22): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 23): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 24): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 25): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 26): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 27): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 28): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 29): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 30): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 31): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 32): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 33): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 34): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 35): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 36): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 37): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 38): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 39): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 40): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 41): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 42): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 43): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 44): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 45): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 46): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 47): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 48): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n"
+    },
+    {
+      "testId": "13",
+      "testName": "Tool Collection Operations",
+      "category": "core",
+      "priority": "high",
+      "success": true,
+      "duration": 23108,
+      "error": null
+    },
+    {
+      "testId": "14",
+      "testName": "Individual Tool Operations",
+      "category": "core",
+      "priority": "high",
+      "success": false,
+      "duration": 25612,
+      "error": "❌ Request failed (Attempt 1/5): HTTP 404: {\"error\":{\"code\":\"ERROR\",\"message\":\"Tool 'non_existent_tool_1753549237272' not found\",\"status\":404}}\n❌ Request failed (Attempt 1/5): HTTP 404: {\"error\":{\"code\":\"ERROR\",\"message\":\"Tool 'non_existent_tool_1753549237272' not found\",\"status\":404}}\n❌ Request failed (Attempt 1/5): HTTP 404: {\"error\":{\"code\":\"ERROR\",\"message\":\"Tool 'non_existent_tool_1753549237272' not found\",\"status\":404}}\n❌ Request failed (Attempt 1/5): HTTP 422: {\"error\":{\"code\":\"VALIDATION_ERROR\",\"message\":\"Validation failed: body -> python_code: String should have at least 10 characters; body -> version: String should match pattern '^\\\\d+\\\\.\\\\d+\\\\.\\\\d+$'\",\"status\":422,\"details\":{\"validation_errors\":[{\"field\":\"body -> python_code\",\"message\":\"String should have at least 10 characters\",\"type\":\"string_too_short\",\"value\":\"\"},{\"field\":\"body -> version\",\"message\":\"String should match pattern '^\\\\d+\\\\.\\\\d+\\\\.\\\\d+$'\",\"type\":\"string_pattern_mismatch\",\"value\":\"invalid.version\"}],\"error_count\":2}}}\n❌ Request failed (Attempt 1/5): HTTP 422: {\"error\":{\"code\":\"VALIDATION_ERROR\",\"message\":\"Validation failed: path -> tool_name: String should match pattern '^[a-zA-Z0-9_-]+$'\",\"status\":422,\"details\":{\"validation_errors\":[{\"field\":\"path -> tool_name\",\"message\":\"String should match pattern '^[a-zA-Z0-9_-]+$'\",\"type\":\"string_pattern_mismatch\",\"value\":\"test tool with spaces\"}],\"error_count\":1}}}\n❌ Unexpected error for non-existent tool test tool with spaces: HTTP 422: {\"error\":{\"code\":\"VALIDATION_ERROR\",\"message\":\"Validation failed: path -> tool_name: String should match pattern '^[a-zA-Z0-9_-]+$'\",\"status\":422,\"details\":{\"validation_errors\":[{\"field\":\"path -> tool_name\",\"message\":\"String should match pattern '^[a-zA-Z0-9_-]+$'\",\"type\":\"string_pattern_mismatch\",\"value\":\"test tool with spaces\"}],\"error_count\":1}}}\n❌ Request failed (Attempt 1/5): HTTP 422: {\"error\":{\"code\":\"VALIDATION_ERROR\",\"message\":\"Validation failed: path -> tool_name: String should match pattern '^[a-zA-Z0-9_-]+$'\",\"status\":422,\"details\":{\"validation_errors\":[{\"field\":\"path -> tool_name\",\"message\":\"String should match pattern '^[a-zA-Z0-9_-]+$'\",\"type\":\"string_pattern_mismatch\",\"value\":\"test@tool\"}],\"error_count\":1}}}\n❌ Unexpected error for non-existent tool test@tool#invalid: HTTP 422: {\"error\":{\"code\":\"VALIDATION_ERROR\",\"message\":\"Validation failed: path -> tool_name: String should match pattern '^[a-zA-Z0-9_-]+$'\",\"status\":422,\"details\":{\"validation_errors\":[{\"field\":\"path -> tool_name\",\"message\":\"String should match pattern '^[a-zA-Z0-9_-]+$'\",\"type\":\"string_pattern_mismatch\",\"value\":\"test@tool\"}],\"error_count\":1}}}\n❌ Unexpected error for non-existent tool : Expected tool not to exist, but GET request succeeded\n❌ Request failed (Attempt 1/5): HTTP 422: {\"error\":{\"code\":\"VALIDATION_ERROR\",\"message\":\"Validation failed: path -> tool_name: String should have at most 100 characters\",\"status\":422,\"details\":{\"validation_errors\":[{\"field\":\"path -> tool_name\",\"message\":\"String should have at most 100 characters\",\"type\":\"string_too_long\",\"value\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}],\"error_count\":1}}}\n❌ Unexpected error for non-existent tool aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa: HTTP 422: {\"error\":{\"code\":\"VALIDATION_ERROR\",\"message\":\"Validation failed: path -> tool_name: String should have at most 100 characters\",\"status\":422,\"details\":{\"validation_errors\":[{\"field\":\"path -> tool_name\",\"message\":\"String should have at most 100 characters\",\"type\":\"string_too_long\",\"value\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}],\"error_count\":1}}}\n❌ Request failed (Attempt 1/5): HTTP 404: {\"error\":{\"code\":\"ERROR\",\"message\":\"Tool 'individual_test_tool_1753549224044_aedlem' not found\",\"status\":404}}\n"
+    },
+    {
+      "testId": "15",
+      "testName": "Tool Validation & Testing",
+      "category": "core",
+      "priority": "high",
+      "success": true,
+      "duration": 33610,
+      "error": null
+    },
+    {
+      "testId": "16",
+      "testName": "Security & Input Validation",
+      "category": "quality",
+      "priority": "critical",
+      "success": false,
+      "duration": 42032,
+      "error": "Exit code: 1"
+    },
+    {
+      "testId": "17",
+      "testName": "Performance & Load Testing",
+      "category": "quality",
+      "priority": "high",
+      "success": false,
+      "duration": 0,
+      "error": "Test file not found: test_17_performance_load.js"
+    },
+    {
+      "testId": "18",
+      "testName": "Error Handling & Edge Cases",
+      "category": "quality",
+      "priority": "high",
+      "success": true,
+      "duration": 5091,
+      "error": null
+    },
+    {
+      "testId": "19",
+      "testName": "Data Consistency & Integrity",
+      "category": "quality",
+      "priority": "high",
+      "success": false,
+      "duration": 0,
+      "error": "Test file not found: test_19_data_consistency.js"
+    },
+    {
+      "testId": "20",
+      "testName": "Schema Compliance",
+      "category": "quality",
+      "priority": "high",
+      "success": true,
+      "duration": 28465,
+      "error": null
+    },
+    {
+      "testId": "21",
+      "testName": "Unicode & International Support",
+      "category": "quality",
+      "priority": "medium",
+      "success": true,
+      "duration": 114731,
+      "error": null
+    },
+    {
+      "testId": "22",
+      "testName": "Graph Execution Edge Cases",
+      "category": "quality",
+      "priority": "high",
+      "success": false,
+      "duration": 0,
+      "error": "Test file not found: test_22_graph_execution_edge_cases.js"
+    },
+    {
+      "testId": "23",
+      "testName": "Model Provider Coverage",
+      "category": "quality",
+      "priority": "high",
+      "success": false,
+      "duration": 0,
+      "error": "Test file not found: test_23_model_provider_coverage.js"
+    },
+    {
+      "testId": "24",
+      "testName": "Tool Integration",
+      "category": "quality",
+      "priority": "high",
+      "success": false,
+      "duration": 0,
+      "error": "Test file not found: test_24_tool_integration.js"
+    },
+    {
+      "testId": "25",
+      "testName": "MCP Integration",
+      "category": "quality",
+      "priority": "medium",
+      "success": false,
+      "duration": 0,
+      "error": "Test file not found: test_25_mcp_integration.js"
+    },
+    {
+      "testId": "26",
+      "testName": "HTTP Compliance",
+      "category": "quality",
+      "priority": "medium",
+      "success": false,
+      "duration": 3654,
+      "error": "❌ HTTP Request failed (23ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (3ms): fetch failed\n❌ HTTP Request failed (3ms): fetch failed\n❌ HTTP Request failed (3ms): fetch failed\n❌ HTTP Request failed (3ms): fetch failed\n❌ HTTP Request failed (3ms): fetch failed\n❌ HTTP Request failed (3ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (3ms): fetch failed\n❌ HTTP Request failed (3ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (3ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (3ms): fetch failed\n❌ HTTP Request failed (3ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n"
+    },
+    {
+      "testId": "27",
+      "testName": "Concurrency & Race Conditions",
+      "category": "quality",
+      "priority": "high",
+      "success": false,
+      "duration": 0,
+      "error": "Test file not found: test_27_concurrency_race_conditions.js"
+    },
+    {
+      "testId": "28",
+      "testName": "Memory Management",
+      "category": "quality",
+      "priority": "medium",
+      "success": false,
+      "duration": 0,
+      "error": "Test file not found: test_28_memory_management.js"
+    },
+    {
+      "testId": "29",
+      "testName": "Rate Limiting",
+      "category": "quality",
+      "priority": "medium",
+      "success": false,
+      "duration": 0,
+      "error": "Test file not found: test_29_rate_limiting.js"
+    },
+    {
+      "testId": "30",
+      "testName": "Database Operations",
+      "category": "quality",
+      "priority": "high",
+      "success": false,
+      "duration": 0,
+      "error": "Test file not found: test_30_database_operations.js"
+    },
+    {
+      "testId": "31",
+      "testName": "API Versioning",
+      "category": "infrastructure",
+      "priority": "medium",
+      "success": false,
+      "duration": 0,
+      "error": "Test file not found: test_31_api_versioning.js"
+    },
+    {
+      "testId": "32",
+      "testName": "WebSocket & Real-time",
+      "category": "infrastructure",
+      "priority": "medium",
+      "success": false,
+      "duration": 0,
+      "error": "Test file not found: test_32_websocket_realtime.js"
+    },
+    {
+      "testId": "33",
+      "testName": "Monitoring & Observability",
+      "category": "infrastructure",
+      "priority": "high",
+      "success": false,
+      "duration": 0,
+      "error": "Test file not found: test_33_monitoring_observability.js"
+    },
+    {
+      "testId": "34",
+      "testName": "Configuration Management",
+      "category": "infrastructure",
+      "priority": "medium",
+      "success": false,
+      "duration": 0,
+      "error": "Test file not found: test_34_configuration_management.js"
+    },
+    {
+      "testId": "35",
+      "testName": "Deployment & DevOps",
+      "category": "infrastructure",
+      "priority": "high",
+      "success": false,
+      "duration": 0,
+      "error": "Test file not found: test_35_deployment_devops.js"
+    }
+  ],
+  "errors": [
+    {
+      "testId": "05",
+      "testName": "Worker States Management",
+      "error": "❌ Request failed (Attempt 1/5): HTTP 404: {\"error\":{\"code\":\"ERROR\",\"message\":\"Worker not found\",\"status\":404}}\n❌ Request failed (Attempt 1/5): HTTP 422: {\"error\":{\"code\":\"ERROR\",\"message\":\"Invalid worker name\",\"status\":422}}\n❌ Request failed (Attempt 1/5): HTTP 422: {\"error\":{\"code\":\"VALIDATION_ERROR\",\"message\":\"Validation failed: query -> limit: Input should be greater than or equal to 1\",\"status\":422,\"details\":{\"validation_errors\":[{\"field\":\"query -> limit\",\"message\":\"Input should be greater than or equal to 1\",\"type\":\"greater_than_equal\",\"value\":\"-1\"}],\"error_count\":1}}}\n❌ Request failed (Attempt 1/5): HTTP 422: {\"error\":{\"code\":\"VALIDATION_ERROR\",\"message\":\"Validation failed: query -> limit: Input should be a valid integer, unable to parse string as an integer\",\"status\":422,\"details\":{\"validation_errors\":[{\"field\":\"query -> limit\",\"message\":\"Input should be a valid integer, unable to parse string as an integer\",\"type\":\"int_parsing\",\"value\":\"abc\"}],\"error_count\":1}}}\n❌ Request failed (Attempt 1/5): HTTP 404: {\"error\":{\"code\":\"ERROR\",\"message\":\"No state found for worker\",\"status\":404}}\n"
+    },
+    {
+      "testId": "07",
+      "testName": "Worker States API",
+      "error": "❌ Request failed (Attempt 1/5): HTTP 422: {\"error\":{\"code\":\"VALIDATION_ERROR\",\"message\":\"Validation failed: body -> 0 -> worker_id: String should have at least 1 character\",\"status\":422,\"details\":{\"validation_errors\":[{\"field\":\"body -> 0 -> worker_id\",\"message\":\"String should have at least 1 character\",\"type\":\"string_too_short\",\"value\":\"\"}],\"error_count\":1}}}\n❌ Request failed (Attempt 1/5): HTTP 422: {\"error\":{\"code\":\"VALIDATION_ERROR\",\"message\":\"Validation failed: body -> 0 -> worker_name: Field required; body -> 0 -> state_type: Field required; body -> 0 -> worker_state: Field required\",\"status\":422,\"details\":{\"validation_errors\":[{\"field\":\"body -> 0 -> worker_name\",\"message\":\"Field required\",\"type\":\"missing\",\"value\":{\"worker_id\":\"test_worker\"}},{\"field\":\"body -> 0 -> state_type\",\"message\":\"Field required\",\"type\":\"missing\",\"value\":{\"worker_id\":\"test_worker\"}},{\"field\":\"body -> 0 -> worker_state\",\"message\":\"Field required\",\"type\":\"missing\",\"value\":{\"worker_id\":\"test_worker\"}}],\"error_count\":3}}}\n❌ Request failed (Attempt 1/5): HTTP 422: {\"error\":{\"code\":\"VALIDATION_ERROR\",\"message\":\"Validation failed: body -> 0 -> state_type: Value error, Invalid state type: 'invalid_state_type'. Must be one of: created, processing, completed, error, idle, active, default\",\"status\":422,\"details\":{\"validation_errors\":[{\"field\":\"body -> 0 -> state_type\",\"message\":\"Value error, Invalid state type: 'invalid_state_type'. Must be one of: created, processing, completed, error, idle, active, default\",\"type\":\"value_error\",\"value\":\"invalid_state_type\"}],\"error_count\":1}}}\n❌ Request failed (Attempt 1/5): HTTP 422: {\"error\":{\"code\":\"VALIDATION_ERROR\",\"message\":\"Validation failed: body -> 0 -> extra_field: Extra inputs are not permitted\",\"status\":422,\"details\":{\"validation_errors\":[{\"field\":\"body -> 0 -> extra_field\",\"message\":\"Extra inputs are not permitted\",\"type\":\"extra_forbidden\",\"value\":\"should_be_rejected\"}],\"error_count\":1}}}\n❌ Request failed (Attempt 1/5): HTTP 422: {\"error\":{\"code\":\"VALIDATION_ERROR\",\"message\":\"Validation failed: body: Field required\",\"status\":422,\"details\":{\"validation_errors\":[{\"field\":\"body\",\"message\":\"Field required\",\"type\":\"missing\",\"value\":null}],\"error_count\":1}}}\n❌ Request failed (Attempt 1/5): HTTP 422: {\"error\":{\"code\":\"VALIDATION_ERROR\",\"message\":\"Validation failed: body -> 12: JSON decode error\",\"status\":422,\"details\":{\"validation_errors\":[{\"field\":\"body -> 12\",\"message\":\"JSON decode error\",\"type\":\"json_invalid\",\"value\":{}}],\"error_count\":1}}}\n"
+    },
+    {
+      "testId": "12",
+      "testName": "Graph Execution",
+      "error": "❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 1): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 2): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 4): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 5): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 6): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 7): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 8): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 9): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 10): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 11): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 12): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 13): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 14): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 15): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 16): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 17): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 18): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 19): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 20): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 21): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 22): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 23): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 24): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 25): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 26): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 27): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 28): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 29): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 30): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 31): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 32): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 33): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 34): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 35): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 36): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 37): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 38): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 39): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 40): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 41): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 42): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 43): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 44): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 45): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 46): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 47): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 3/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Status poll failed (attempt 48): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 1/3): HTTP 404: {\"detail\":\"Not Found\"}\n❌ Request failed (Attempt 2/3): HTTP 404: {\"detail\":\"Not Found\"}\n"
+    },
+    {
+      "testId": "14",
+      "testName": "Individual Tool Operations",
+      "error": "❌ Request failed (Attempt 1/5): HTTP 404: {\"error\":{\"code\":\"ERROR\",\"message\":\"Tool 'non_existent_tool_1753549237272' not found\",\"status\":404}}\n❌ Request failed (Attempt 1/5): HTTP 404: {\"error\":{\"code\":\"ERROR\",\"message\":\"Tool 'non_existent_tool_1753549237272' not found\",\"status\":404}}\n❌ Request failed (Attempt 1/5): HTTP 404: {\"error\":{\"code\":\"ERROR\",\"message\":\"Tool 'non_existent_tool_1753549237272' not found\",\"status\":404}}\n❌ Request failed (Attempt 1/5): HTTP 422: {\"error\":{\"code\":\"VALIDATION_ERROR\",\"message\":\"Validation failed: body -> python_code: String should have at least 10 characters; body -> version: String should match pattern '^\\\\d+\\\\.\\\\d+\\\\.\\\\d+$'\",\"status\":422,\"details\":{\"validation_errors\":[{\"field\":\"body -> python_code\",\"message\":\"String should have at least 10 characters\",\"type\":\"string_too_short\",\"value\":\"\"},{\"field\":\"body -> version\",\"message\":\"String should match pattern '^\\\\d+\\\\.\\\\d+\\\\.\\\\d+$'\",\"type\":\"string_pattern_mismatch\",\"value\":\"invalid.version\"}],\"error_count\":2}}}\n❌ Request failed (Attempt 1/5): HTTP 422: {\"error\":{\"code\":\"VALIDATION_ERROR\",\"message\":\"Validation failed: path -> tool_name: String should match pattern '^[a-zA-Z0-9_-]+$'\",\"status\":422,\"details\":{\"validation_errors\":[{\"field\":\"path -> tool_name\",\"message\":\"String should match pattern '^[a-zA-Z0-9_-]+$'\",\"type\":\"string_pattern_mismatch\",\"value\":\"test tool with spaces\"}],\"error_count\":1}}}\n❌ Unexpected error for non-existent tool test tool with spaces: HTTP 422: {\"error\":{\"code\":\"VALIDATION_ERROR\",\"message\":\"Validation failed: path -> tool_name: String should match pattern '^[a-zA-Z0-9_-]+$'\",\"status\":422,\"details\":{\"validation_errors\":[{\"field\":\"path -> tool_name\",\"message\":\"String should match pattern '^[a-zA-Z0-9_-]+$'\",\"type\":\"string_pattern_mismatch\",\"value\":\"test tool with spaces\"}],\"error_count\":1}}}\n❌ Request failed (Attempt 1/5): HTTP 422: {\"error\":{\"code\":\"VALIDATION_ERROR\",\"message\":\"Validation failed: path -> tool_name: String should match pattern '^[a-zA-Z0-9_-]+$'\",\"status\":422,\"details\":{\"validation_errors\":[{\"field\":\"path -> tool_name\",\"message\":\"String should match pattern '^[a-zA-Z0-9_-]+$'\",\"type\":\"string_pattern_mismatch\",\"value\":\"test@tool\"}],\"error_count\":1}}}\n❌ Unexpected error for non-existent tool test@tool#invalid: HTTP 422: {\"error\":{\"code\":\"VALIDATION_ERROR\",\"message\":\"Validation failed: path -> tool_name: String should match pattern '^[a-zA-Z0-9_-]+$'\",\"status\":422,\"details\":{\"validation_errors\":[{\"field\":\"path -> tool_name\",\"message\":\"String should match pattern '^[a-zA-Z0-9_-]+$'\",\"type\":\"string_pattern_mismatch\",\"value\":\"test@tool\"}],\"error_count\":1}}}\n❌ Unexpected error for non-existent tool : Expected tool not to exist, but GET request succeeded\n❌ Request failed (Attempt 1/5): HTTP 422: {\"error\":{\"code\":\"VALIDATION_ERROR\",\"message\":\"Validation failed: path -> tool_name: String should have at most 100 characters\",\"status\":422,\"details\":{\"validation_errors\":[{\"field\":\"path -> tool_name\",\"message\":\"String should have at most 100 characters\",\"type\":\"string_too_long\",\"value\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}],\"error_count\":1}}}\n❌ Unexpected error for non-existent tool aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa: HTTP 422: {\"error\":{\"code\":\"VALIDATION_ERROR\",\"message\":\"Validation failed: path -> tool_name: String should have at most 100 characters\",\"status\":422,\"details\":{\"validation_errors\":[{\"field\":\"path -> tool_name\",\"message\":\"String should have at most 100 characters\",\"type\":\"string_too_long\",\"value\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}],\"error_count\":1}}}\n❌ Request failed (Attempt 1/5): HTTP 404: {\"error\":{\"code\":\"ERROR\",\"message\":\"Tool 'individual_test_tool_1753549224044_aedlem' not found\",\"status\":404}}\n"
+    },
+    {
+      "testId": "16",
+      "testName": "Security & Input Validation",
+      "error": "Exit code: 1"
+    },
+    {
+      "testId": "17",
+      "testName": "Performance & Load Testing",
+      "error": "Test file not found: test_17_performance_load.js"
+    },
+    {
+      "testId": "19",
+      "testName": "Data Consistency & Integrity",
+      "error": "Test file not found: test_19_data_consistency.js"
+    },
+    {
+      "testId": "22",
+      "testName": "Graph Execution Edge Cases",
+      "error": "Test file not found: test_22_graph_execution_edge_cases.js"
+    },
+    {
+      "testId": "23",
+      "testName": "Model Provider Coverage",
+      "error": "Test file not found: test_23_model_provider_coverage.js"
+    },
+    {
+      "testId": "24",
+      "testName": "Tool Integration",
+      "error": "Test file not found: test_24_tool_integration.js"
+    },
+    {
+      "testId": "25",
+      "testName": "MCP Integration",
+      "error": "Test file not found: test_25_mcp_integration.js"
+    },
+    {
+      "testId": "26",
+      "testName": "HTTP Compliance",
+      "error": "❌ HTTP Request failed (23ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (3ms): fetch failed\n❌ HTTP Request failed (3ms): fetch failed\n❌ HTTP Request failed (3ms): fetch failed\n❌ HTTP Request failed (3ms): fetch failed\n❌ HTTP Request failed (3ms): fetch failed\n❌ HTTP Request failed (3ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (3ms): fetch failed\n❌ HTTP Request failed (3ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (3ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (2ms): fetch failed\n❌ HTTP Request failed (3ms): fetch failed\n❌ HTTP Request failed (3ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (0ms): fetch failed\n❌ HTTP Request failed (1ms): fetch failed\n"
+    },
+    {
+      "testId": "27",
+      "testName": "Concurrency & Race Conditions",
+      "error": "Test file not found: test_27_concurrency_race_conditions.js"
+    },
+    {
+      "testId": "28",
+      "testName": "Memory Management",
+      "error": "Test file not found: test_28_memory_management.js"
+    },
+    {
+      "testId": "29",
+      "testName": "Rate Limiting",
+      "error": "Test file not found: test_29_rate_limiting.js"
+    },
+    {
+      "testId": "30",
+      "testName": "Database Operations",
+      "error": "Test file not found: test_30_database_operations.js"
+    },
+    {
+      "testId": "31",
+      "testName": "API Versioning",
+      "error": "Test file not found: test_31_api_versioning.js"
+    },
+    {
+      "testId": "32",
+      "testName": "WebSocket & Real-time",
+      "error": "Test file not found: test_32_websocket_realtime.js"
+    },
+    {
+      "testId": "33",
+      "testName": "Monitoring & Observability",
+      "error": "Test file not found: test_33_monitoring_observability.js"
+    },
+    {
+      "testId": "34",
+      "testName": "Configuration Management",
+      "error": "Test file not found: test_34_configuration_management.js"
+    },
+    {
+      "testId": "35",
+      "testName": "Deployment & DevOps",
+      "error": "Test file not found: test_35_deployment_devops.js"
+    }
+  ]
+}

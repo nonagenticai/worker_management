@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "decision_development output",
+  "type": "object",
+  "required": [
+    "name",
+    "body",
+    "considered_options",
+    "chosen_option",
+    "consequences"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "body": {
+      "type": "string",
+      "minLength": 1
+    },
+    "considered_options": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "chosen_option": {
+      "type": "string",
+      "minLength": 1
+    },
+    "consequences": {
+      "type": "string",
+      "minLength": 1
+    },
+    "derived_from_requirement_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

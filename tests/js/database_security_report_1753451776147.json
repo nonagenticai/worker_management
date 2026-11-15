@@ -1,0 +1,2809 @@
+{
+  "timestamp": "2025-07-25T13:56:16.147Z",
+  "summary": {
+    "overallSecurityScore": "49.33",
+    "criticalIssues": 1,
+    "warningIssues": 1,
+    "testsConducted": 11,
+    "testsPass": 2
+  },
+  "connectionSecurity": {
+    "healthChecks": [
+      {
+        "status": "success",
+        "responseTime": 530,
+        "details": {
+          "status": "healthy",
+          "service": "worker-management-api"
+        }
+      }
+    ],
+    "concurrentConnections": 10,
+    "connectionPoolLimit": null,
+    "connectionErrors": [],
+    "maxConnectionTime": 520,
+    "avgConnectionTime": 515
+  },
+  "injectionPrevention": {
+    "testedEndpoints": [
+      {
+        "endpoint": "GET /workers",
+        "payloadsTested": 3,
+        "blocked": 3,
+        "vulnerable": 0,
+        "errors": []
+      },
+      {
+        "endpoint": "POST /workers",
+        "payloadsTested": 3,
+        "blocked": 3,
+        "vulnerable": 0,
+        "errors": []
+      },
+      {
+        "endpoint": "GET /workers/{id}",
+        "payloadsTested": 3,
+        "blocked": 3,
+        "vulnerable": 0,
+        "errors": []
+      },
+      {
+        "endpoint": "GET /graphs/",
+        "payloadsTested": 3,
+        "blocked": 3,
+        "vulnerable": 0,
+        "errors": []
+      }
+    ],
+    "blockedAttempts": 12,
+    "vulnerableEndpoints": [],
+    "injectionPayloads": 3,
+    "securityScore": "100.00"
+  },
+  "transactionIntegrity": {
+    "atomicityTests": [
+      {
+        "test": "atomicity",
+        "passed": true,
+        "details": "0/2 operations succeeded",
+        "startTime": 1753451631217,
+        "duration": 8041
+      }
+    ],
+    "consistencyTests": [
+      {
+        "test": "consistency",
+        "passed": false,
+        "details": "3/4 invalid operations rejected",
+        "startTime": 1753451639258,
+        "duration": 12573
+      }
+    ],
+    "isolationTests": [
+      {
+        "test": "isolation",
+        "passed": false,
+        "details": "Error during isolation test: HTTP 422: {\"error\":{\"code\":\"VALIDATION_ERROR\",\"message\":\"Validation failed: body: Value error, Unsupported agent type: test\",\"status\":422,\"details\":{\"validation_errors\":[{\"field\":\"body\",\"message\":\"Value error, Unsupported agent type: test\",\"type\":\"value_error\",\"value\":{\"worker_name\":\"isolation_test_worker\",\"agent_type\":\"test\",\"agent_role\":\"test_role\",\"model_provider\":\"deepseek\",\"model\":\"deepseek-chat\",\"temperature\":0.5}}],\"error_count\":1}}}",
+        "startTime": 1753451651832,
+        "duration": 4021
+      }
+    ],
+    "durabilityTests": [
+      {
+        "test": "durability",
+        "passed": false,
+        "details": "Error during durability test: HTTP 422: {\"error\":{\"code\":\"VALIDATION_ERROR\",\"message\":\"Validation failed: body: Value error, Unsupported agent type: test\",\"status\":422,\"details\":{\"validation_errors\":[{\"field\":\"body\",\"message\":\"Value error, Unsupported agent type: test\",\"type\":\"value_error\",\"value\":{\"worker_name\":\"durability_test_worker\",\"agent_type\":\"test\",\"agent_role\":\"test_role\",\"model_provider\":\"deepseek\",\"model\":\"deepseek-chat\",\"temperature\":0.5}}],\"error_count\":1}}}",
+        "startTime": 1753451655853,
+        "duration": 4021
+      }
+    ],
+    "rollbackTests": [
+      {
+        "test": "rollback",
+        "passed": true,
+        "details": "Operation failed: true, Worker exists: false",
+        "startTime": 1753451659875,
+        "duration": 8062
+      }
+    ],
+    "overallScore": "40.00"
+  },
+  "schemaValidation": {
+    "constraintTests": [
+      {
+        "test": "required_fields",
+        "passed": false,
+        "details": "3/4 incomplete requests rejected",
+        "startTime": 1753451667938,
+        "duration": 12577
+      }
+    ],
+    "validationTests": [
+      {
+        "test": "field_lengths",
+        "passed": true,
+        "details": "Field length validation working",
+        "startTime": 1753451697113,
+        "duration": 4027
+      }
+    ],
+    "foreignKeyTests": [
+      {
+        "test": "foreign_keys",
+        "passed": false,
+        "details": "Foreign key violation not detected",
+        "startTime": 1753451696590,
+        "duration": 523
+      }
+    ],
+    "uniqueConstraintTests": [
+      {
+        "test": "unique_constraints",
+        "passed": false,
+        "details": "Error: HTTP 422: {\"error\":{\"code\":\"VALIDATION_ERROR\",\"message\":\"Validation failed: body: Value error, Unsupported agent type: test\",\"status\":422,\"details\":{\"validation_errors\":[{\"field\":\"body\",\"message\":\"Value error, Unsupported agent type: test\",\"type\":\"value_error\",\"value\":{\"worker_name\":\"unique_test_worker\",\"agent_type\":\"test\",\"agent_role\":\"test_role\",\"model_provider\":\"deepseek\",\"model\":\"deepseek-chat\",\"temperature\":0.5}}],\"error_count\":1}}}",
+        "startTime": 1753451692567,
+        "duration": 4023
+      }
+    ],
+    "dataTypeTests": [
+      {
+        "test": "data_types",
+        "passed": true,
+        "details": "3/3 invalid type requests rejected",
+        "startTime": 1753451680515,
+        "duration": 12052
+      }
+    ],
+    "overallScore": "40.00"
+  },
+  "performanceMetrics": {
+    "loadTests": [
+      {
+        "durationMs": 20000,
+        "totalRequests": 96,
+        "successfulRequests": 96,
+        "failedRequests": 0,
+        "successRate": 100,
+        "averageResponseTimeMs": 506.5416666666667,
+        "requestInterval": 200,
+        "score": 100
+      }
+    ],
+    "concurrencyTests": [
+      {
+        "concurrentUsers": 10,
+        "requestsPerUser": 3,
+        "totalRequests": 30,
+        "successfulRequests": 30,
+        "successRate": 100,
+        "averageResponseTimeMs": 522.4666666666667,
+        "score": 100
+      }
+    ],
+    "responseTimeAnalysis": {
+      "operations": [
+        {
+          "operation": "GET /health",
+          "averageMs": 506,
+          "minMs": 505,
+          "maxMs": 507,
+          "samples": 5
+        },
+        {
+          "operation": "GET /workers",
+          "averageMs": 511,
+          "minMs": 506,
+          "maxMs": 514,
+          "samples": 5
+        },
+        {
+          "operation": "GET /graphs/",
+          "averageMs": 515.4,
+          "minMs": 510,
+          "maxMs": 518,
+          "samples": 5
+        }
+      ],
+      "overallAverageMs": 510.8,
+      "score": 89.78399999999999
+    },
+    "throughputMetrics": {
+      "requestsPerSecond": 1.79,
+      "totalRequests": 18,
+      "successfulRequests": 18,
+      "failedRequests": 0,
+      "successRate": 100,
+      "durationMs": 10045,
+      "score": 100
+    },
+    "resourceUtilization": {},
+    "overallScore": "97.45"
+  },
+  "backupRecovery": {
+    "backupTests": [],
+    "recoveryTests": [
+      {
+        "test": "recovery_simulation",
+        "passed": true,
+        "details": "2/3 recovery scenarios successful",
+        "startTime": 1753451744984,
+        "duration": 7042
+      }
+    ],
+    "integrityTests": [
+      {
+        "test": "data_integrity",
+        "passed": false,
+        "details": "Error: HTTP 422: {\"error\":{\"code\":\"VALIDATION_ERROR\",\"message\":\"Validation failed: body: Value error, Unsupported agent type: test\",\"status\":422,\"details\":{\"validation_errors\":[{\"field\":\"body\",\"message\":\"Value error, Unsupported agent type: test\",\"type\":\"value_error\",\"value\":{\"worker_name\":\"integrity_test_worker\",\"agent_type\":\"test\",\"agent_role\":\"integrity_test\",\"model_provider\":\"deepseek\",\"model\":\"deepseek-chat\",\"temperature\":0.5,\"description\":\"Test worker for integrity validation\"}}],\"error_count\":1}}}",
+        "startTime": 1753451740960,
+        "duration": 4023
+      }
+    ],
+    "availabilityDuringBackup": [
+      {
+        "test": "availability_during_backup",
+        "passed": true,
+        "details": "15/15 requests successful (100.00%)",
+        "startTime": 1753451740424,
+        "duration": 536
+      }
+    ],
+    "overallScore": "66.67"
+  },
+  "migrationSafety": {
+    "versionCompatibility": [
+      {
+        "test": "schema_compatibility",
+        "passed": false,
+        "details": "0/3 configurations compatible",
+        "startTime": 1753451752026,
+        "duration": 12061
+      }
+    ],
+    "schemaEvolution": [
+      {
+        "test": "schema_evolution",
+        "passed": false,
+        "details": "0/2 evolution tests passed",
+        "startTime": 1753451768108,
+        "duration": 4022
+      }
+    ],
+    "dataPreservation": [
+      {
+        "test": "data_preservation",
+        "passed": false,
+        "details": "Error: HTTP 422: {\"error\":{\"code\":\"VALIDATION_ERROR\",\"message\":\"Validation failed: body: Value error, Unsupported agent type: test\",\"status\":422,\"details\":{\"validation_errors\":[{\"field\":\"body\",\"message\":\"Value error, Unsupported agent type: test\",\"type\":\"value_error\",\"value\":{\"worker_name\":\"preserve_test_worker\",\"agent_type\":\"test\",\"agent_role\":\"preservation_test\",\"model_provider\":\"deepseek\",\"model\":\"deepseek-chat\",\"temperature\":0.5,\"description\":\"Data preservation test worker\"}}],\"error_count\":1}}}",
+        "startTime": 1753451764087,
+        "duration": 4021
+      }
+    ],
+    "rollbackCapability": [
+      {
+        "test": "migration_rollback",
+        "passed": false,
+        "details": "Error: HTTP 422: {\"error\":{\"code\":\"VALIDATION_ERROR\",\"message\":\"Validation failed: body: Value error, Unsupported agent type: test\",\"status\":422,\"details\":{\"validation_errors\":[{\"field\":\"body\",\"message\":\"Value error, Unsupported agent type: test\",\"type\":\"value_error\",\"value\":{\"worker_name\":\"rollback_test_worker\",\"agent_type\":\"test\",\"agent_role\":\"rollback_test\",\"model_provider\":\"deepseek\",\"model\":\"deepseek-chat\",\"temperature\":0.5}}],\"error_count\":1}}}",
+        "startTime": 1753451772130,
+        "duration": 4016
+      }
+    ],
+    "overallScore": "0.00"
+  },
+  "recommendations": [
+    {
+      "severity": "CRITICAL",
+      "category": "Transaction Integrity",
+      "issue": "ACID properties not fully maintained",
+      "recommendation": "Review transaction handling and implement proper rollback mechanisms"
+    },
+    {
+      "severity": "WARNING",
+      "category": "Backup & Recovery",
+      "issue": "Backup and recovery procedures need improvement",
+      "recommendation": "Implement automated backup verification and recovery testing"
+    }
+  ],
+  "metrics": {
+    "connectionTests": [
+      {
+        "healthChecks": [
+          {
+            "status": "success",
+            "responseTime": 530,
+            "details": {
+              "status": "healthy",
+              "service": "worker-management-api"
+            }
+          }
+        ],
+        "concurrentConnections": 10,
+        "connectionPoolLimit": null,
+        "connectionErrors": [],
+        "maxConnectionTime": 520,
+        "avgConnectionTime": 515
+      }
+    ],
+    "injectionAttempts": [
+      {
+        "endpoint": "GET /workers",
+        "payload": "'; DROP TABLE workers; --",
+        "blocked": true,
+        "timestamp": "2025-07-25T13:53:24.526Z"
+      },
+      {
+        "endpoint": "GET /workers",
+        "payload": "' OR '1'='1",
+        "blocked": true,
+        "timestamp": "2025-07-25T13:53:25.039Z"
+      },
+      {
+        "endpoint": "GET /workers",
+        "payload": "' UNION SELECT * FROM sqlite_master --",
+        "blocked": true,
+        "timestamp": "2025-07-25T13:53:25.552Z"
+      },
+      {
+        "endpoint": "GET /graphs/",
+        "payload": "'; DROP TABLE workers; --",
+        "blocked": true,
+        "timestamp": "2025-07-25T13:53:50.177Z"
+      },
+      {
+        "endpoint": "GET /graphs/",
+        "payload": "' OR '1'='1",
+        "blocked": true,
+        "timestamp": "2025-07-25T13:53:50.697Z"
+      },
+      {
+        "endpoint": "GET /graphs/",
+        "payload": "' UNION SELECT * FROM sqlite_master --",
+        "blocked": true,
+        "timestamp": "2025-07-25T13:53:51.216Z"
+      }
+    ],
+    "transactionTests": [
+      {
+        "atomicityTests": [
+          {
+            "test": "atomicity",
+            "passed": true,
+            "details": "0/2 operations succeeded",
+            "startTime": 1753451631217,
+            "duration": 8041
+          }
+        ],
+        "consistencyTests": [
+          {
+            "test": "consistency",
+            "passed": false,
+            "details": "3/4 invalid operations rejected",
+            "startTime": 1753451639258,
+            "duration": 12573
+          }
+        ],
+        "isolationTests": [
+          {
+            "test": "isolation",
+            "passed": false,
+            "details": "Error during isolation test: HTTP 422: {\"error\":{\"code\":\"VALIDATION_ERROR\",\"message\":\"Validation failed: body: Value error, Unsupported agent type: test\",\"status\":422,\"details\":{\"validation_errors\":[{\"field\":\"body\",\"message\":\"Value error, Unsupported agent type: test\",\"type\":\"value_error\",\"value\":{\"worker_name\":\"isolation_test_worker\",\"agent_type\":\"test\",\"agent_role\":\"test_role\",\"model_provider\":\"deepseek\",\"model\":\"deepseek-chat\",\"temperature\":0.5}}],\"error_count\":1}}}",
+            "startTime": 1753451651832,
+            "duration": 4021
+          }
+        ],
+        "durabilityTests": [
+          {
+            "test": "durability",
+            "passed": false,
+            "details": "Error during durability test: HTTP 422: {\"error\":{\"code\":\"VALIDATION_ERROR\",\"message\":\"Validation failed: body: Value error, Unsupported agent type: test\",\"status\":422,\"details\":{\"validation_errors\":[{\"field\":\"body\",\"message\":\"Value error, Unsupported agent type: test\",\"type\":\"value_error\",\"value\":{\"worker_name\":\"durability_test_worker\",\"agent_type\":\"test\",\"agent_role\":\"test_role\",\"model_provider\":\"deepseek\",\"model\":\"deepseek-chat\",\"temperature\":0.5}}],\"error_count\":1}}}",
+            "startTime": 1753451655853,
+            "duration": 4021
+          }
+        ],
+        "rollbackTests": [
+          {
+            "test": "rollback",
+            "passed": true,
+            "details": "Operation failed: true, Worker exists: false",
+            "startTime": 1753451659875,
+            "duration": 8062
+          }
+        ],
+        "overallScore": "40.00"
+      }
+    ],
+    "performanceMetrics": [
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 26,
+        "status": 200,
+        "timestamp": "2025-07-25T13:53:22.460Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "GET",
+        "responseTime": 6,
+        "status": 200,
+        "timestamp": "2025-07-25T13:53:22.970Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "GET",
+        "responseTime": 11,
+        "status": 200,
+        "timestamp": "2025-07-25T13:53:22.977Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "GET",
+        "responseTime": 11,
+        "status": 200,
+        "timestamp": "2025-07-25T13:53:22.977Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "GET",
+        "responseTime": 15,
+        "status": 200,
+        "timestamp": "2025-07-25T13:53:22.981Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "GET",
+        "responseTime": 15,
+        "status": 200,
+        "timestamp": "2025-07-25T13:53:22.981Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "GET",
+        "responseTime": 16,
+        "status": 200,
+        "timestamp": "2025-07-25T13:53:22.982Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "GET",
+        "responseTime": 17,
+        "status": 200,
+        "timestamp": "2025-07-25T13:53:22.982Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "GET",
+        "responseTime": 16,
+        "status": 200,
+        "timestamp": "2025-07-25T13:53:22.983Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "GET",
+        "responseTime": 17,
+        "status": 200,
+        "timestamp": "2025-07-25T13:53:22.984Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "GET",
+        "responseTime": 20,
+        "status": 200,
+        "timestamp": "2025-07-25T13:53:22.985Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 12,
+        "status": 200,
+        "timestamp": "2025-07-25T13:53:23.499Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 14,
+        "status": 200,
+        "timestamp": "2025-07-25T13:53:23.500Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 14,
+        "status": 200,
+        "timestamp": "2025-07-25T13:53:23.500Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 15,
+        "status": 200,
+        "timestamp": "2025-07-25T13:53:23.503Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 15,
+        "status": 200,
+        "timestamp": "2025-07-25T13:53:23.503Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 16,
+        "status": 200,
+        "timestamp": "2025-07-25T13:53:23.503Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 15,
+        "status": 200,
+        "timestamp": "2025-07-25T13:53:23.504Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 18,
+        "status": 200,
+        "timestamp": "2025-07-25T13:53:23.505Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 17,
+        "status": 200,
+        "timestamp": "2025-07-25T13:53:23.505Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 17,
+        "status": 200,
+        "timestamp": "2025-07-25T13:53:23.506Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 16,
+        "status": 200,
+        "timestamp": "2025-07-25T13:53:23.506Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 17,
+        "status": 200,
+        "timestamp": "2025-07-25T13:53:23.507Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 15,
+        "status": 200,
+        "timestamp": "2025-07-25T13:53:23.507Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 16,
+        "status": 200,
+        "timestamp": "2025-07-25T13:53:23.507Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 16,
+        "status": 200,
+        "timestamp": "2025-07-25T13:53:23.507Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 16,
+        "status": 200,
+        "timestamp": "2025-07-25T13:53:23.508Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 18,
+        "status": 200,
+        "timestamp": "2025-07-25T13:53:23.510Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 17,
+        "status": 200,
+        "timestamp": "2025-07-25T13:53:23.510Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 18,
+        "status": 200,
+        "timestamp": "2025-07-25T13:53:23.510Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 18,
+        "status": 200,
+        "timestamp": "2025-07-25T13:53:23.510Z"
+      },
+      {
+        "url": "http://localhost:8887/workers?name=%27%3B+DROP+TABLE+workers%3B+--&status=%27%3B+DROP+TABLE+workers%3B+--&limit=%27%3B+DROP+TABLE+workers%3B+--",
+        "method": "GET",
+        "responseTime": 12,
+        "status": 200,
+        "timestamp": "2025-07-25T13:53:24.024Z"
+      },
+      {
+        "url": "http://localhost:8887/workers?name=%27+OR+%271%27%3D%271&status=%27+OR+%271%27%3D%271&limit=%27+OR+%271%27%3D%271",
+        "method": "GET",
+        "responseTime": 12,
+        "status": 200,
+        "timestamp": "2025-07-25T13:53:24.538Z"
+      },
+      {
+        "url": "http://localhost:8887/workers?name=%27+UNION+SELECT+*+FROM+sqlite_master+--&status=%27+UNION+SELECT+*+FROM+sqlite_master+--&limit=%27+UNION+SELECT+*+FROM+sqlite_master+--",
+        "method": "GET",
+        "responseTime": 13,
+        "status": 200,
+        "timestamp": "2025-07-25T13:53:25.052Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 7,
+        "status": 422,
+        "timestamp": "2025-07-25T13:53:25.559Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 5,
+        "status": 422,
+        "timestamp": "2025-07-25T13:53:27.565Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 5,
+        "status": 422,
+        "timestamp": "2025-07-25T13:53:29.571Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 3,
+        "status": 422,
+        "timestamp": "2025-07-25T13:53:29.574Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 5,
+        "status": 422,
+        "timestamp": "2025-07-25T13:53:31.582Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 6,
+        "status": 422,
+        "timestamp": "2025-07-25T13:53:33.590Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 4,
+        "status": 422,
+        "timestamp": "2025-07-25T13:53:33.595Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 7,
+        "status": 422,
+        "timestamp": "2025-07-25T13:53:35.603Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 7,
+        "status": 422,
+        "timestamp": "2025-07-25T13:53:37.612Z"
+      },
+      {
+        "url": "http://localhost:8887/workers/'%3B%20DROP%20TABLE%20workers%3B%20--",
+        "method": "GET",
+        "responseTime": 4,
+        "status": 422,
+        "timestamp": "2025-07-25T13:53:37.617Z"
+      },
+      {
+        "url": "http://localhost:8887/workers/'%3B%20DROP%20TABLE%20workers%3B%20--",
+        "method": "GET",
+        "responseTime": 4,
+        "status": 422,
+        "timestamp": "2025-07-25T13:53:39.624Z"
+      },
+      {
+        "url": "http://localhost:8887/workers/'%3B%20DROP%20TABLE%20workers%3B%20--",
+        "method": "GET",
+        "responseTime": 5,
+        "status": 422,
+        "timestamp": "2025-07-25T13:53:41.630Z"
+      },
+      {
+        "url": "http://localhost:8887/workers/'%20OR%20'1'%3D'1",
+        "method": "GET",
+        "responseTime": 4,
+        "status": 422,
+        "timestamp": "2025-07-25T13:53:41.635Z"
+      },
+      {
+        "url": "http://localhost:8887/workers/'%20OR%20'1'%3D'1",
+        "method": "GET",
+        "responseTime": 6,
+        "status": 422,
+        "timestamp": "2025-07-25T13:53:43.642Z"
+      },
+      {
+        "url": "http://localhost:8887/workers/'%20OR%20'1'%3D'1",
+        "method": "GET",
+        "responseTime": 3,
+        "status": 422,
+        "timestamp": "2025-07-25T13:53:45.647Z"
+      },
+      {
+        "url": "http://localhost:8887/workers/'%20UNION%20SELECT%20*%20FROM%20sqlite_master%20--",
+        "method": "GET",
+        "responseTime": 5,
+        "status": 422,
+        "timestamp": "2025-07-25T13:53:45.652Z"
+      },
+      {
+        "url": "http://localhost:8887/workers/'%20UNION%20SELECT%20*%20FROM%20sqlite_master%20--",
+        "method": "GET",
+        "responseTime": 6,
+        "status": 422,
+        "timestamp": "2025-07-25T13:53:47.660Z"
+      },
+      {
+        "url": "http://localhost:8887/workers/'%20UNION%20SELECT%20*%20FROM%20sqlite_master%20--",
+        "method": "GET",
+        "responseTime": 2,
+        "status": 422,
+        "timestamp": "2025-07-25T13:53:49.663Z"
+      },
+      {
+        "url": "http://localhost:8887/graphs/?name=%27%3B+DROP+TABLE+workers%3B+--&status=%27%3B+DROP+TABLE+workers%3B+--&limit=%27%3B+DROP+TABLE+workers%3B+--",
+        "method": "GET",
+        "responseTime": 11,
+        "status": 200,
+        "timestamp": "2025-07-25T13:53:49.674Z"
+      },
+      {
+        "url": "http://localhost:8887/graphs/?name=%27+OR+%271%27%3D%271&status=%27+OR+%271%27%3D%271&limit=%27+OR+%271%27%3D%271",
+        "method": "GET",
+        "responseTime": 19,
+        "status": 200,
+        "timestamp": "2025-07-25T13:53:50.196Z"
+      },
+      {
+        "url": "http://localhost:8887/graphs/?name=%27+UNION+SELECT+*+FROM+sqlite_master+--&status=%27+UNION+SELECT+*+FROM+sqlite_master+--&limit=%27+UNION+SELECT+*+FROM+sqlite_master+--",
+        "method": "GET",
+        "responseTime": 18,
+        "status": 200,
+        "timestamp": "2025-07-25T13:53:50.715Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 4,
+        "status": 422,
+        "timestamp": "2025-07-25T13:53:51.221Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 6,
+        "status": 422,
+        "timestamp": "2025-07-25T13:53:53.229Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 7,
+        "status": 422,
+        "timestamp": "2025-07-25T13:53:55.239Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 5,
+        "status": 422,
+        "timestamp": "2025-07-25T13:53:55.245Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 3,
+        "status": 422,
+        "timestamp": "2025-07-25T13:53:57.251Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 6,
+        "status": 422,
+        "timestamp": "2025-07-25T13:53:59.258Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 5,
+        "status": 422,
+        "timestamp": "2025-07-25T13:53:59.263Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 6,
+        "status": 422,
+        "timestamp": "2025-07-25T13:54:01.271Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 5,
+        "status": 422,
+        "timestamp": "2025-07-25T13:54:03.279Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 8,
+        "status": 422,
+        "timestamp": "2025-07-25T13:54:03.287Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 2,
+        "status": 422,
+        "timestamp": "2025-07-25T13:54:05.291Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 2,
+        "status": 422,
+        "timestamp": "2025-07-25T13:54:07.293Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 12,
+        "status": 200,
+        "timestamp": "2025-07-25T13:54:07.306Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 5,
+        "status": 422,
+        "timestamp": "2025-07-25T13:54:07.813Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 6,
+        "status": 422,
+        "timestamp": "2025-07-25T13:54:09.822Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 6,
+        "status": 422,
+        "timestamp": "2025-07-25T13:54:11.831Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 4,
+        "status": 422,
+        "timestamp": "2025-07-25T13:54:11.836Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 6,
+        "status": 422,
+        "timestamp": "2025-07-25T13:54:13.844Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 6,
+        "status": 422,
+        "timestamp": "2025-07-25T13:54:15.852Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 5,
+        "status": 422,
+        "timestamp": "2025-07-25T13:54:15.858Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 7,
+        "status": 422,
+        "timestamp": "2025-07-25T13:54:17.867Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 6,
+        "status": 422,
+        "timestamp": "2025-07-25T13:54:19.874Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 5,
+        "status": 422,
+        "timestamp": "2025-07-25T13:54:19.880Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 5,
+        "status": 422,
+        "timestamp": "2025-07-25T13:54:21.888Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 6,
+        "status": 422,
+        "timestamp": "2025-07-25T13:54:23.895Z"
+      },
+      {
+        "url": "http://localhost:8887/workers/rollback_test_worker",
+        "method": "GET",
+        "responseTime": 11,
+        "status": 404,
+        "timestamp": "2025-07-25T13:54:23.907Z"
+      },
+      {
+        "url": "http://localhost:8887/workers/rollback_test_worker",
+        "method": "GET",
+        "responseTime": 14,
+        "status": 404,
+        "timestamp": "2025-07-25T13:54:25.924Z"
+      },
+      {
+        "url": "http://localhost:8887/workers/rollback_test_worker",
+        "method": "GET",
+        "responseTime": 12,
+        "status": 404,
+        "timestamp": "2025-07-25T13:54:27.937Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 4,
+        "status": 422,
+        "timestamp": "2025-07-25T13:54:27.942Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 4,
+        "status": 422,
+        "timestamp": "2025-07-25T13:54:29.949Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 6,
+        "status": 422,
+        "timestamp": "2025-07-25T13:54:31.957Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 21,
+        "status": 200,
+        "timestamp": "2025-07-25T13:54:31.979Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 3,
+        "status": 422,
+        "timestamp": "2025-07-25T13:54:32.483Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 3,
+        "status": 422,
+        "timestamp": "2025-07-25T13:54:34.489Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 5,
+        "status": 422,
+        "timestamp": "2025-07-25T13:54:36.495Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 6,
+        "status": 422,
+        "timestamp": "2025-07-25T13:54:36.502Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 3,
+        "status": 422,
+        "timestamp": "2025-07-25T13:54:38.507Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 6,
+        "status": 422,
+        "timestamp": "2025-07-25T13:54:40.514Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 4,
+        "status": 422,
+        "timestamp": "2025-07-25T13:54:40.519Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 7,
+        "status": 422,
+        "timestamp": "2025-07-25T13:54:42.528Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 4,
+        "status": 422,
+        "timestamp": "2025-07-25T13:54:44.534Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 4,
+        "status": 422,
+        "timestamp": "2025-07-25T13:54:44.538Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 6,
+        "status": 422,
+        "timestamp": "2025-07-25T13:54:46.546Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 2,
+        "status": 422,
+        "timestamp": "2025-07-25T13:54:48.550Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 3,
+        "status": 422,
+        "timestamp": "2025-07-25T13:54:48.553Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 5,
+        "status": 422,
+        "timestamp": "2025-07-25T13:54:50.559Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 6,
+        "status": 422,
+        "timestamp": "2025-07-25T13:54:52.566Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 6,
+        "status": 422,
+        "timestamp": "2025-07-25T13:54:52.573Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 7,
+        "status": 422,
+        "timestamp": "2025-07-25T13:54:54.582Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 6,
+        "status": 422,
+        "timestamp": "2025-07-25T13:54:56.590Z"
+      },
+      {
+        "url": "http://localhost:8887/graphs/",
+        "method": "POST",
+        "responseTime": 19,
+        "status": 201,
+        "timestamp": "2025-07-25T13:54:56.611Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 6,
+        "status": 422,
+        "timestamp": "2025-07-25T13:54:57.120Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 7,
+        "status": 422,
+        "timestamp": "2025-07-25T13:54:59.130Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 7,
+        "status": 422,
+        "timestamp": "2025-07-25T13:55:01.140Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 4,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:01.145Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 3,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:01.649Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 6,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:02.157Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 6,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:02.664Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 6,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:03.170Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "GET",
+        "responseTime": 12,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:03.683Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "GET",
+        "responseTime": 8,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:04.193Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "GET",
+        "responseTime": 5,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:04.700Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "GET",
+        "responseTime": 10,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:05.211Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "GET",
+        "responseTime": 12,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:05.724Z"
+      },
+      {
+        "url": "http://localhost:8887/graphs/",
+        "method": "GET",
+        "responseTime": 16,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:06.242Z"
+      },
+      {
+        "url": "http://localhost:8887/graphs/",
+        "method": "GET",
+        "responseTime": 14,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:06.757Z"
+      },
+      {
+        "url": "http://localhost:8887/graphs/",
+        "method": "GET",
+        "responseTime": 9,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:07.267Z"
+      },
+      {
+        "url": "http://localhost:8887/graphs/",
+        "method": "GET",
+        "responseTime": 16,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:07.784Z"
+      },
+      {
+        "url": "http://localhost:8887/graphs/",
+        "method": "GET",
+        "responseTime": 17,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:08.302Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 5,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:08.809Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 5,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:09.367Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 6,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:09.925Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 5,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:10.483Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 3,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:11.040Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 5,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:11.599Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 6,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:12.159Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 5,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:12.715Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 6,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:13.272Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 5,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:13.830Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 7,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:14.390Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 6,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:14.949Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 5,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:15.505Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 3,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:16.060Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 6,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:16.619Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 5,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:17.177Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 5,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:17.736Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 5,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:18.295Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "GET",
+        "responseTime": 18,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:18.868Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "GET",
+        "responseTime": 20,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:18.869Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "GET",
+        "responseTime": 19,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:18.870Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "GET",
+        "responseTime": 24,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:18.875Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "GET",
+        "responseTime": 24,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:18.875Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "GET",
+        "responseTime": 25,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:18.876Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "GET",
+        "responseTime": 25,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:18.876Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "GET",
+        "responseTime": 26,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:18.877Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "GET",
+        "responseTime": 27,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:18.878Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "GET",
+        "responseTime": 27,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:18.879Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "GET",
+        "responseTime": 17,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:19.388Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "GET",
+        "responseTime": 20,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:19.390Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "GET",
+        "responseTime": 20,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:19.391Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "GET",
+        "responseTime": 17,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:19.393Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "GET",
+        "responseTime": 18,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:19.394Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "GET",
+        "responseTime": 19,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:19.395Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "GET",
+        "responseTime": 20,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:19.396Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "GET",
+        "responseTime": 17,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:19.397Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "GET",
+        "responseTime": 19,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:19.397Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "GET",
+        "responseTime": 20,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:19.398Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "GET",
+        "responseTime": 15,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:19.913Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "GET",
+        "responseTime": 19,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:19.913Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "GET",
+        "responseTime": 20,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:19.916Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "GET",
+        "responseTime": 24,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:19.918Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "GET",
+        "responseTime": 26,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:19.918Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "GET",
+        "responseTime": 23,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:19.919Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "GET",
+        "responseTime": 28,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:19.919Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "GET",
+        "responseTime": 24,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:19.920Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "GET",
+        "responseTime": 28,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:19.920Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "GET",
+        "responseTime": 22,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:19.920Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 3,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:20.626Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 6,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:20.832Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 4,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:21.032Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 6,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:21.236Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 6,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:21.438Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 7,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:21.641Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 5,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:21.841Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 6,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:22.044Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 5,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:22.245Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 6,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:22.448Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 6,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:22.649Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 7,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:22.853Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 4,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:23.051Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 2,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:23.252Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 6,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:23.457Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 5,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:23.658Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 6,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:23.861Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 5,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:24.062Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 6,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:24.265Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 6,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:24.467Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 2,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:24.665Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 6,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:24.871Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 5,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:25.073Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 5,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:25.275Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 2,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:25.475Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 3,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:25.676Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 5,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:25.879Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 4,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:26.080Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 5,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:26.283Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 5,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:26.485Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 3,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:26.684Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 6,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:26.887Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 6,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:27.089Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 1,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:27.285Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 2,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:27.488Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 5,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:27.692Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 6,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:27.895Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 5,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:28.096Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 6,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:28.299Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 6,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:28.501Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 3,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:28.699Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 6,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:28.904Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 3,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:29.103Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 5,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:29.308Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 5,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:29.507Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 4,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:29.708Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 6,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:29.912Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 4,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:30.111Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 5,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:30.314Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 5,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:30.515Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 3,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:30.715Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 4,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:30.917Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 4,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:31.118Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 6,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:31.322Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 4,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:31.521Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 5,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:31.725Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 4,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:31.925Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 6,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:32.129Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 7,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:32.333Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 6,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:32.533Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 6,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:32.735Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 6,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:32.935Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 5,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:33.135Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 5,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:33.334Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 6,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:33.537Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 6,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:33.739Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 5,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:33.940Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 6,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:34.142Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 6,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:34.344Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 2,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:34.543Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 2,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:34.743Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 7,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:34.948Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 1,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:35.144Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 5,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:35.350Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 5,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:35.552Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 5,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:35.755Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 5,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:35.957Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 7,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:36.160Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 5,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:36.360Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 6,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:36.563Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 7,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:36.767Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 6,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:36.967Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 5,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:37.169Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 3,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:37.368Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 6,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:37.572Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 6,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:37.774Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 6,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:37.976Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 6,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:38.178Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 7,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:38.380Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 2,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:38.577Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 5,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:38.782Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 3,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:38.982Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 6,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:39.187Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 6,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:39.389Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 3,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:39.587Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 5,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:39.790Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 6,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:39.993Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 5,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:40.194Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 5,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:40.397Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "GET",
+        "responseTime": 23,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:40.447Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "GET",
+        "responseTime": 27,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:40.452Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "GET",
+        "responseTime": 27,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:40.453Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "GET",
+        "responseTime": 29,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:40.453Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "GET",
+        "responseTime": 29,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:40.454Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "GET",
+        "responseTime": 29,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:40.454Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "GET",
+        "responseTime": 30,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:40.455Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "GET",
+        "responseTime": 31,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:40.456Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "GET",
+        "responseTime": 31,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:40.456Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "GET",
+        "responseTime": 30,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:40.456Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "GET",
+        "responseTime": 32,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:40.457Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "GET",
+        "responseTime": 31,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:40.457Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "GET",
+        "responseTime": 33,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:40.457Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "GET",
+        "responseTime": 33,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:40.458Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "GET",
+        "responseTime": 33,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:40.459Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 5,
+        "status": 422,
+        "timestamp": "2025-07-25T13:55:40.965Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 6,
+        "status": 422,
+        "timestamp": "2025-07-25T13:55:42.973Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 7,
+        "status": 422,
+        "timestamp": "2025-07-25T13:55:44.983Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 6,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:46.991Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 3,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:47.494Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 5,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:47.497Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 4,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:47.497Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 7,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:47.500Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 7,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:47.500Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 8,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:47.500Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 7,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:47.500Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 8,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:47.501Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 8,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:47.501Z"
+      },
+      {
+        "url": "http://localhost:8887/health",
+        "method": "GET",
+        "responseTime": 8,
+        "status": 200,
+        "timestamp": "2025-07-25T13:55:47.501Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 6,
+        "status": 422,
+        "timestamp": "2025-07-25T13:55:48.008Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 6,
+        "status": 422,
+        "timestamp": "2025-07-25T13:55:50.017Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 6,
+        "status": 422,
+        "timestamp": "2025-07-25T13:55:52.025Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 4,
+        "status": 422,
+        "timestamp": "2025-07-25T13:55:52.030Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 6,
+        "status": 422,
+        "timestamp": "2025-07-25T13:55:54.038Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 5,
+        "status": 422,
+        "timestamp": "2025-07-25T13:55:56.045Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 5,
+        "status": 422,
+        "timestamp": "2025-07-25T13:55:56.050Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 6,
+        "status": 422,
+        "timestamp": "2025-07-25T13:55:58.059Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 5,
+        "status": 422,
+        "timestamp": "2025-07-25T13:56:00.066Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 5,
+        "status": 422,
+        "timestamp": "2025-07-25T13:56:00.072Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 6,
+        "status": 422,
+        "timestamp": "2025-07-25T13:56:02.080Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 6,
+        "status": 422,
+        "timestamp": "2025-07-25T13:56:04.087Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 6,
+        "status": 422,
+        "timestamp": "2025-07-25T13:56:04.093Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 5,
+        "status": 422,
+        "timestamp": "2025-07-25T13:56:06.100Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 5,
+        "status": 422,
+        "timestamp": "2025-07-25T13:56:08.107Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 5,
+        "status": 422,
+        "timestamp": "2025-07-25T13:56:08.113Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 6,
+        "status": 422,
+        "timestamp": "2025-07-25T13:56:08.114Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 7,
+        "status": 422,
+        "timestamp": "2025-07-25T13:56:10.122Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 6,
+        "status": 422,
+        "timestamp": "2025-07-25T13:56:10.123Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 5,
+        "status": 422,
+        "timestamp": "2025-07-25T13:56:12.128Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 6,
+        "status": 422,
+        "timestamp": "2025-07-25T13:56:12.130Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 3,
+        "status": 422,
+        "timestamp": "2025-07-25T13:56:12.133Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 6,
+        "status": 422,
+        "timestamp": "2025-07-25T13:56:14.140Z"
+      },
+      {
+        "url": "http://localhost:8887/workers",
+        "method": "POST",
+        "responseTime": 3,
+        "status": 422,
+        "timestamp": "2025-07-25T13:56:16.146Z"
+      }
+    ],
+    "backupTests": [
+      {
+        "backupTests": [],
+        "recoveryTests": [
+          {
+            "test": "recovery_simulation",
+            "passed": true,
+            "details": "2/3 recovery scenarios successful",
+            "startTime": 1753451744984,
+            "duration": 7042
+          }
+        ],
+        "integrityTests": [
+          {
+            "test": "data_integrity",
+            "passed": false,
+            "details": "Error: HTTP 422: {\"error\":{\"code\":\"VALIDATION_ERROR\",\"message\":\"Validation failed: body: Value error, Unsupported agent type: test\",\"status\":422,\"details\":{\"validation_errors\":[{\"field\":\"body\",\"message\":\"Value error, Unsupported agent type: test\",\"type\":\"value_error\",\"value\":{\"worker_name\":\"integrity_test_worker\",\"agent_type\":\"test\",\"agent_role\":\"integrity_test\",\"model_provider\":\"deepseek\",\"model\":\"deepseek-chat\",\"temperature\":0.5,\"description\":\"Test worker for integrity validation\"}}],\"error_count\":1}}}",
+            "startTime": 1753451740960,
+            "duration": 4023
+          }
+        ],
+        "availabilityDuringBackup": [
+          {
+            "test": "availability_during_backup",
+            "passed": true,
+            "details": "15/15 requests successful (100.00%)",
+            "startTime": 1753451740424,
+            "duration": 536
+          }
+        ],
+        "overallScore": "66.67"
+      }
+    ],
+    "migrationTests": [
+      {
+        "versionCompatibility": [
+          {
+            "test": "schema_compatibility",
+            "passed": false,
+            "details": "0/3 configurations compatible",
+            "startTime": 1753451752026,
+            "duration": 12061
+          }
+        ],
+        "schemaEvolution": [
+          {
+            "test": "schema_evolution",
+            "passed": false,
+            "details": "0/2 evolution tests passed",
+            "startTime": 1753451768108,
+            "duration": 4022
+          }
+        ],
+        "dataPreservation": [
+          {
+            "test": "data_preservation",
+            "passed": false,
+            "details": "Error: HTTP 422: {\"error\":{\"code\":\"VALIDATION_ERROR\",\"message\":\"Validation failed: body: Value error, Unsupported agent type: test\",\"status\":422,\"details\":{\"validation_errors\":[{\"field\":\"body\",\"message\":\"Value error, Unsupported agent type: test\",\"type\":\"value_error\",\"value\":{\"worker_name\":\"preserve_test_worker\",\"agent_type\":\"test\",\"agent_role\":\"preservation_test\",\"model_provider\":\"deepseek\",\"model\":\"deepseek-chat\",\"temperature\":0.5,\"description\":\"Data preservation test worker\"}}],\"error_count\":1}}}",
+            "startTime": 1753451764087,
+            "duration": 4021
+          }
+        ],
+        "rollbackCapability": [
+          {
+            "test": "migration_rollback",
+            "passed": false,
+            "details": "Error: HTTP 422: {\"error\":{\"code\":\"VALIDATION_ERROR\",\"message\":\"Validation failed: body: Value error, Unsupported agent type: test\",\"status\":422,\"details\":{\"validation_errors\":[{\"field\":\"body\",\"message\":\"Value error, Unsupported agent type: test\",\"type\":\"value_error\",\"value\":{\"worker_name\":\"rollback_test_worker\",\"agent_type\":\"test\",\"agent_role\":\"rollback_test\",\"model_provider\":\"deepseek\",\"model\":\"deepseek-chat\",\"temperature\":0.5}}],\"error_count\":1}}}",
+            "startTime": 1753451772130,
+            "duration": 4016
+          }
+        ],
+        "overallScore": "0.00"
+      }
+    ],
+    "schemaValidationTests": [
+      {
+        "constraintTests": [
+          {
+            "test": "required_fields",
+            "passed": false,
+            "details": "3/4 incomplete requests rejected",
+            "startTime": 1753451667938,
+            "duration": 12577
+          }
+        ],
+        "validationTests": [
+          {
+            "test": "field_lengths",
+            "passed": true,
+            "details": "Field length validation working",
+            "startTime": 1753451697113,
+            "duration": 4027
+          }
+        ],
+        "foreignKeyTests": [
+          {
+            "test": "foreign_keys",
+            "passed": false,
+            "details": "Foreign key violation not detected",
+            "startTime": 1753451696590,
+            "duration": 523
+          }
+        ],
+        "uniqueConstraintTests": [
+          {
+            "test": "unique_constraints",
+            "passed": false,
+            "details": "Error: HTTP 422: {\"error\":{\"code\":\"VALIDATION_ERROR\",\"message\":\"Validation failed: body: Value error, Unsupported agent type: test\",\"status\":422,\"details\":{\"validation_errors\":[{\"field\":\"body\",\"message\":\"Value error, Unsupported agent type: test\",\"type\":\"value_error\",\"value\":{\"worker_name\":\"unique_test_worker\",\"agent_type\":\"test\",\"agent_role\":\"test_role\",\"model_provider\":\"deepseek\",\"model\":\"deepseek-chat\",\"temperature\":0.5}}],\"error_count\":1}}}",
+            "startTime": 1753451692567,
+            "duration": 4023
+          }
+        ],
+        "dataTypeTests": [
+          {
+            "test": "data_types",
+            "passed": true,
+            "details": "3/3 invalid type requests rejected",
+            "startTime": 1753451680515,
+            "duration": 12052
+          }
+        ],
+        "overallScore": "40.00"
+      }
+    ]
+  }
+}

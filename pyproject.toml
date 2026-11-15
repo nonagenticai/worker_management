@@ -1,0 +1,318 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
+
+[project]
+name = "worker_management"
+version = "0.1.0"
+description = "A worker management system"
+authors = [
+    { name = "George Dekker", email = "georgiedekker@gmail.com" }
+]
+license = { text = "MIT" }
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "fastapi>=0.115.2",
+    "starlette>=1.0.1",  # PYSEC-2026-161 fixed in 1.0.1 (transitive via fastapi)
+    "pydantic>=2.12.0",
+    "pydantic-settings>=2.14.2",  # GHSA-4xgf-cpjx-pc3j fixed in 2.14.2
+    "httpx>=0.28.1",
+    "uvicorn[standard]>=0.35.0",
+    "aiohttp>=3.14.4",
+    "urllib3>=2.8.0",  # CVE-2026-44431, CVE-2026-44432 fixed in 2.7.0
+    "werkzeug>=3.1.9",
+    "kubernetes>=35.0.0a1",
+    "asyncio>=3.4.3",
+    "sqlalchemy[asyncio]>=2.0",
+    "python-multipart>=0.0.27",
+    "typing-extensions>=4.13.2",
+    "jinja2>=3.1.4",
+    "python-dotenv>=1.1.0",
+    "traceloop-sdk>=0.40.3",
+    "opentelemetry-exporter-otlp-proto-http>=1.24.0",
+    "opentelemetry-instrumentation-fastapi>=0.53b1",
+    "opentelemetry-instrumentation-sqlalchemy>=0.53b1",
+    "opentelemetry-instrumentation-httpx>=0.53b1",
+    "opentelemetry-instrumentation-logging>=0.53b1",
+    "opentelemetry-sdk>=1.24.0",
+    # Bridges the OTel instruments this service already increments onto a
+    # prometheus_client REGISTRY, so the DEDICATED /metrics listener can serve
+    # them. Pulls prometheus-client transitively.
+    "opentelemetry-exporter-prometheus>=0.50b0",
+    "opentelemetry-api>=1.24.0",
+    "structlog>=24.4.0",
+    "mcp>=1.28.1",
+    "cohere>=5.18.0",
+    "pydantic-ai>=1.107.7",
+    "pydantic-graph>=1.0.18",
+    "psycopg[binary,pool]>=3.2.12",
+    "groq>=0.25.0",
+    "openai>=1.107.2",
+    "PyJWT>=2.15.1",
+    "redis>=5.0.0",
+    "PyYAML>=6.0",
+    "aiodocker>=0.21.0",
+    "minio>=7.2.0",
+    "cachetools>=5.3.0",
+    "jsonschema>=4.26.0",
+    "cryptography>=49.0.0",  # AES-256-GCM for per-tenant BYO LLM key encryption (src/security/secret_box.py)
+    # Security floor: pin pyasn1 ≥ 0.6.5 for CVE-2026-119194..119197 (0.6.4 was for PYSEC-2026-3455/3456/3457).
+    # Transitive (pyasn1-modules ← google-auth); floored here because the
+    # archetype's pip-audit gate is repo-scoped.
+    "pyasn1>=0.6.5",
+    # Security floor: pin nltk ≥ 3.10.4 (3.10.4 fixes CVE-2026-81726 and the older
+    # advisories below; was 3.10.2 for CVE-2026-12075/12061/12074 and
+    # PYSEC-2026-3726 (raised from 3.10.0 on 2026-08-29; 3.10.1 is affected,
+    # 3.10.2 is the fix). Transitive (nltk ← safety); floored here for the same
+    # reason as pyasn1. NOT ignored: an upstream fix exists, so the floor is the
+    # correct lever — contrast the nltk entries in the archetype's FLEET_IGNORES,
+    # which are there only because no fix had shipped.
+    # main is green only because its last run predates these advisories — the
+    # gate is time-dependent, not branch-dependent.
+    "nltk>=3.10.4",
+]
+
+[project.optional-dependencies]
+contract = [
+    "schemathesis>=3.36.0",
+]
+dev = [
+    "pytest>=9.0.2",
+    "pytest-asyncio>=0.25.3",
+    "pytest-cov>=6.0.0",
+    "pytest-mock>=3.14.0",
+    "pytest-timeout>=2.3.1",
+    "bandit>=1.8.0",
+    "coverage>=7.6.10",
+    "vulture>=2.14",
+    "xenon>=0.9.1",
+    "pydocstyle>=6.3.0",
+    "mkdocs>=1.5.3",
+    "Sphinx>=7.4.7",
+]
+
+[project.scripts]
+worker-management = "src.api.worker_management_api:app"
+
+[dependency-groups]
+dev = [
+    "detect-secrets>=1.5.0",
+    "kubernetes>=35.0.0a1",
+    "ty>=0.0.24",
+    "pytest>=9.0.2",
+    "pytest-asyncio>=1.3.0",
+    "pytest-cov>=6.0.0",
+    "pytest-timeout>=2.3.1",
+    "ruff>=0.15.7",
+    "sqlalchemy>=2.0.44",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+norecursedirs = ["pydantic-ai/tests", ".venv", "dist", "build", "src/__pycache__"]
+asyncio_mode = "strict"
+addopts = "-m 'not integration and not e2e and not pg'"
+markers = [
+    "integration: tests that hit live services in the cluster",
+    "pg: tests that need a real PostgreSQL (DATABASE_URL), no cluster — run in CI via the archetype DB-integration pass",
+]
+
+[tool.vulture]
+exclude = [".venv", "pydantic-ai", "dist", "build", "__pycache__"]
+ignore_decorators = ["@router.*", "@field_validator", "@model_validator", "@app.*"]
+ignore_names = ["validate_*", "model_config", "cls"]
+min_confidence = 80
+
+[tool.ruff]
+line-length = 100
+target-version = "py314"
+# `examples/` holds reference snippets / scaffolding pasted from
+# external sources; they are not on the import path and not shipped.
+# The top-level `decoupling_tools_from_agents.py` is a demo file in the
+# same category. Keep them out of the lint baseline; if you want to fix
+# them, do it in a dedicated pass.
+extend-exclude = [
+    "examples/",
+    "decoupling_tools_from_agents.py",
+]
+
+[tool.ruff.lint]
+select = [
+    "E", "F", "I", "W", "N", "UP",  # baseline
+    "COM",   # flake8-commas — trailing-comma discipline (mostly autofixable)
+    "PIE",   # flake8-pie — misc anti-patterns
+    "RUF",   # ruff-specific lints (catches things others miss)
+    "TID",   # flake8-tidy-imports
+    "PERF",  # perflint — real perf issues, small finding count
+    "TC",    # flake8-type-checking — runtime-cast-value etc.
+    "ARG",   # flake8-unused-arguments
+    "FBT",   # flake8-boolean-trap
+    "TRY",   # tryceratops — try/except discipline (TRY003 ignored: see below)
+    "B",     # flake8-bugbear — real bug patterns
+    "SIM",   # flake8-simplify — refactor obviousness
+    "S",     # flake8-bandit — security; bandit-covered too but ruff catches src/-level patterns
+    "PL",    # pylint — magic values, too-many-args, too-many-branches, error/warn classes; tests ignored (see per-file-ignores) — bulk is test-file noise
+    "D",     # pydocstyle (google) — docstring shape + presence on public surface; tests ignored (no docstring expectation on test_* functions)
+    "ANN",   # flake8-annotations — type-annotation presence; tests ignored (pytest fixture-arg typing adds noise, not safety)
+]
+ignore = [
+    "E501",  # line too long, handled by formatter
+    "E402",  # module-import-not-at-top-of-file
+    "W293",  # blank-line-with-whitespace
+    "COM812",  # missing-trailing-comma — conflicts with ruff format; format handles
+    # Pre-existing violations — fix incrementally
+    "N802",  # invalid-function-name
+    "N806",  # non-lowercase-variable-in-function
+    "N818",  # error-suffix-on-exception-name
+    "UP031", # printf-string-formatting
+    "UP042", # replace-str-enum
+    "UP045", # non-pep604-annotation-optional
+    "RUF002", # ambiguous-unicode-docstring — em-dashes are deliberate
+    "RUF003", # ambiguous-unicode-comment — em-dashes are deliberate
+    "PERF401", # manual-list-comprehension — multi-line dict-literal appends read worse as comprehensions
+    "S608",    # hardcoded-sql-expression — every f-string SQL interpolates only `scope_clause(...)` which emits `$N` placeholders; bandit B608 is suppressed for the same reason
+    "TRY003",  # long-message-outside-raise-class — intentional for our error model; concise per-call message is part of the error contract
+    "TRY300",  # try-consider-else — moving the success path into `else:` is stylistic; mid-block success-then-cleanup is clearer in our handlers
+    "TRY301",  # raise-within-try — many of our handlers convert one exception to another inside the try block; that IS the cleanup
+    "TRY002",  # raise-vanilla-class — `raise ValueError(...)` / `raise RuntimeError(...)` is fine for internal precondition failures; we add custom errors only when callers must distinguish them
+    "SIM117",  # multiple-with-statements — collapsing nested `with patch(...)` blocks into a single statement with line continuations hurts pytest-mock readability; keep nested
+    # ----- pylint (PL) rules silenced project-wide -----
+    "PLR2004", # magic-value-comparison — our validation/security code is full of contextual numeric thresholds (max-length 500/1000/5000/100000, ASCII byte boundary 32, heuristic command-injection length 500, etc.). The rule fires on intentional, semantically-clear limits where naming them would add indirection without aiding readers. HTTP-status comparisons specifically have been migrated to `http.HTTPStatus` where applicable; the remaining magic values are genuinely contextual constants.
+    "PLC0415", # import-outside-top-level — pervasive intentional pattern in this codebase: (1) circular-import avoidance for pydantic field_validator → security_validation → models loops, (2) lazy-loading of optional providers (anthropic/cohere/groq/openai/mlx) only when the configured agent backend requires them, (3) FastAPI/Starlette middleware imports inside handler branches for response shaping. ~97 sites in src/, every one was placed deliberately. The rule's signal:noise here is negative.
+    # ----- pydocstyle (D) rules silenced project-wide -----
+    "D203",  # incompatible with D211 (no-blank-line-before-class) which matches our style
+    "D213",  # incompatible with D212 (multi-line-summary-first-line) which matches our style
+    "D401",  # non-imperative-mood — many existing docstrings start with "Returns ..." / "Get ..." matching descriptive style; not worth a project-wide rewrite
+    "D417",  # undocumented-param — Google sections are populated where they add value; not every param needs an explicit Args entry on small helpers
+    "D107",  # undocumented __init__ — project convention is to document the class itself; __init__ docstrings would just repeat the class docstring
+    "D403",  # first-word-capitalized — docstrings legitimately start with lowercase domain terms (mlx, httpx, vLLM, etc.); the rule's auto-fix would break the meaning
+    # ----- flake8-annotations (ANN) rule silenced project-wide -----
+    "ANN401", # Any in signatures — at our boundaries (JSON parsing, kwargs spread, pydantic dynamic types, plugin/protocol interfaces) `Any` is the correct annotation; the rule's noise:signal is poor here.
+]
+
+[tool.ruff.lint.pylint]
+# Practical thresholds for this codebase. Defaults (5/12/6/50) over-fire on
+# our service factories, validation pipelines, and graph node handlers,
+# producing noise without indicating real complexity problems. These higher
+# limits still flag truly egregious cases. Bump only when a real refactor is
+# needed; never to silence a specific offender.
+max-args = 10        # factory/constructor patterns legitimately take many config args
+max-branches = 20    # validation/error handlers fan out by error class
+max-returns = 10     # short-circuit early-return style is preferred over flag mutation
+max-statements = 70  # default 50 was too tight for setup-heavy service initializers
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.flake8-annotations]
+# `*args: Any` / `**kwargs: Any` is fine — common pattern for plugin wrappers
+allow-star-arg-any = true
+# Don't flag positional-only convention args ($self, _ctx, etc.)
+suppress-dummy-args = true
+
+[tool.ruff.lint.flake8-type-checking]
+# Pydantic v2 BaseModel resolves field annotations at runtime, so imports used
+# in field annotations must stay at runtime — never moved into `if TYPE_CHECKING:`.
+# Add other libraries here (e.g. dataclasses, msgspec.Struct) if they share the
+# same runtime-introspection behavior.
+runtime-evaluated-base-classes = [
+    "pydantic.BaseModel",
+    "pydantic_settings.BaseSettings",
+]
+runtime-evaluated-decorators = [
+    "pydantic.validate_call",
+    "pydantic.field_validator",
+]
+
+[tool.ruff.lint.isort]
+# The first-party code lives under `src/` and is imported as `src.*`. Pin it as
+# known-first-party so isort's section grouping is DETERMINISTIC: auto-detection
+# classified `src` as first-party locally but third-party in CI (where `uv sync
+# --all-extras` installs the project), flipping the blank-line grouping verdict
+# on files that mix third-party + `src.*` imports (e.g. tests/test_llm_config_resolver.py
+# tripped I001 in CI while passing locally). Explicit config makes both agree.
+known-first-party = ["src"]
+
+[tool.ruff.lint.per-file-ignores]
+# Cleanup script intentionally contains malformed unicode strings (the data
+# being cleaned). RUF001 (ambiguous-unicode-string) is the wrong rule here.
+"scripts/cleanup_schemathesis_workers.py" = ["RUF001"]
+# Tests have different conventions:
+#   B017 (assert-raises-exception) — pytest.raises(Exception) is fine in many places
+#   ARG001/002 (unused args) — pytest fixtures and stub callbacks routinely take args they don't use
+#   FBT001/002/003 (boolean traps) — parameterised tests pass positional bools deliberately
+"tests/**/*.py" = [
+    "B017", "ARG001", "ARG002", "FBT001", "FBT002", "FBT003",
+    # Test-only S rules: assert (S101) and small inline-cred patterns are
+    # standard pytest idioms; bandit ignores these in test trees too.
+    "S101", "S105", "S106", "S108", "S311", "S603", "S607",
+    # Test-only PL rules: magic values (PLR2004) and lazy/conditional imports
+    # (PLC0415) are intentional in tests (assert == 200 is clearer than
+    # HTTPStatus.OK; parametrized tests guard optional-dep imports). Test
+    # fixtures legitimately take many args (PLR0913) and test methods can be
+    # long (PLR0915, PLR0911, PLR0912) — readability wins over the metric.
+    # PLW0108 (unnecessary-lambda) and PLW2901 (redefined-loop-name) sometimes
+    # appear in parametrize fixtures; the bug class isn't real in test code.
+    "PLR2004", "PLC0415", "PLR0913", "PLR0915", "PLR0911", "PLR0912",
+    "PLW0108", "PLW2901",
+    # PLW1510: subprocess.run without check= — test harnesses inspect returncode directly
+    "PLW1510",
+    # D: docstring rules — test names + comments are the documentation
+    "D100", "D101", "D102", "D103", "D104", "D105", "D107",
+    "D200", "D202", "D205", "D209", "D212", "D400", "D415",
+    # ANN: tests don't need typed signatures — pytest fixtures are dynamically resolved,
+    # `*args`/`**kwargs` patterns in parametrize-helpers don't benefit from `Any` annotations.
+    "ANN001", "ANN002", "ANN003", "ANN201", "ANN202", "ANN204", "ANN205", "ANN206", "ANN401",
+]
+# Top-level dev scripts (smoke runners, manual probes, migration utilities) —
+# not part of the library surface; docstring + annotation discipline is overhead for these.
+"api_test.py" = ["D", "ANN"]
+"production_readiness_check.py" = ["D", "ANN"]
+"run_full_coverage_test.py" = ["D", "ANN"]
+"quick_api_test.py" = ["D", "ANN"]
+"api_prefect_create_file.py" = ["D", "ANN"]
+"services/test_orchestrator.py" = ["D", "ANN"]
+"services/example_usage.py" = ["D", "ANN"]
+"scripts/*.py" = ["D", "ANN"]
+"setup.py" = ["ANN"]
+"setup_test_data.py" = ["ANN"]
+# Middleware files are bound by Starlette/FastAPI callable signatures (request,
+# call_next, scope, receive, send); they cannot adopt FBT001/FBT002 (kwarg-only)
+# without breaking the framework contract, and ARG002 unused-method-args are
+# routine here (e.g. middleware __init__ recording config it doesn't apply).
+"src/api/*_middleware.py" = ["FBT001", "FBT002", "ARG002"]
+"src/api/error_handlers.py" = ["FBT001", "FBT002"]
+"src/api/security_validation.py" = ["FBT001", "FBT002"]
+# Pydantic-model-heavy files: `@field_validator` classmethods carry their meaning
+# in the validator name + the field they decorate; an extra docstring + signature
+# annotations on every such method is filler. Class docstrings (D101) still required.
+# ANN001/ANN201/ANN202: validator signature `cls, v` is pydantic-canonical — `v` is
+# typed by the decorated field, return type is the field type. Repeating that is noise.
+"src/worker/graphs/graph_models.py" = ["D102", "ANN001", "ANN201", "ANN202", "ANN206"]
+"src/api/workers/models.py" = ["D102", "ANN001", "ANN201", "ANN202", "ANN206"]
+"src/api/worker_states.py" = ["D102", "ANN001", "ANN201", "ANN202", "ANN206"]
+
+[tool.ty.environment]
+python-version = "3.14"
+
+[tool.ty.src]
+# Tests use dict-unpacking patterns (defaults.update → **defaults) that ty
+# cannot narrow through dict.update(); Pydantic coerces at runtime.
+exclude = ["tests/"]
+
+[tool.ty.rules]
+unresolved-import = "ignore"
+
+[tool.bandit]
+# B608 (hardcoded_sql_expressions) is suppressed project-wide. Every f-string
+# SQL query in this codebase interpolates only ``scope_clause(...)`` from
+# ``src/repositories/visibility.py``, which emits positional parameter
+# placeholders ``$N`` — never user data. Bandit cannot prove this statically.
+# Existing inline ``# nosec B608`` annotations on single-line queries are
+# retained for documentation but are now redundant; any NEW f-string SQL that
+# is NOT scope_clause-only must be reviewed by hand before merge.
+skips = ["B608"]

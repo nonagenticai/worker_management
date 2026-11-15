@@ -1,0 +1,732 @@
+{
+  "timestamp": "2025-07-27T10:46:11.571Z",
+  "environment": {
+    "platform": "darwin",
+    "cpus": 10,
+    "totalMemory": 17179869184,
+    "nodeVersion": "v24.4.1"
+  },
+  "tests": {
+    "singleRequestBaseline": {
+      "Health Check": {
+        "count": 10,
+        "mean": 5.707299700000001,
+        "median": 6.3225419999999986,
+        "min": 2.3155829999999966,
+        "max": 8.165874999999915,
+        "p95": 8.165874999999915,
+        "p99": 8.165874999999915,
+        "stdDev": 1.528083717459935
+      },
+      "List Workers": {
+        "count": 10,
+        "mean": 12.541279100000043,
+        "median": 12.121124999999893,
+        "min": 7.851000000000113,
+        "max": 19.607375000000047,
+        "p95": 19.607375000000047,
+        "p99": 19.607375000000047,
+        "stdDev": 2.7091975528546133
+      },
+      "List Graphs": {
+        "count": 10,
+        "mean": 17.64601660000003,
+        "median": 18.05049999999983,
+        "min": 12.130916999999954,
+        "max": 20.6232500000001,
+        "p95": 20.6232500000001,
+        "p99": 20.6232500000001,
+        "stdDev": 2.2150028549002845
+      },
+      "List Tools": {
+        "count": 10,
+        "mean": 16.572795799999994,
+        "median": 18.77829100000008,
+        "min": 8.378875000000335,
+        "max": 20.28491699999995,
+        "p95": 20.28491699999995,
+        "p99": 20.28491699999995,
+        "stdDev": 3.6846734069721516
+      },
+      "List Worker States": {
+        "count": 10,
+        "mean": 33.868112299999936,
+        "median": 36.458708000000115,
+        "min": 25.523457999999664,
+        "max": 42.804707999999664,
+        "p95": 42.804707999999664,
+        "p99": 42.804707999999664,
+        "stdDev": 5.418359891822448
+      }
+    },
+    "concurrentRequests": {
+      "1_concurrent": {
+        "concurrency": 1,
+        "avgSuccessRate": 100,
+        "avgTotalTime": 3.9972584000002827,
+        "throughput": 250.17146752382314,
+        "iterations": [
+          {
+            "totalTime": 4.9227920000003,
+            "successCount": 1,
+            "failureCount": 0,
+            "stats": {
+              "count": 1,
+              "mean": 4.9976669999996375,
+              "median": 4.9976669999996375,
+              "min": 4.9976669999996375,
+              "max": 4.9976669999996375,
+              "p95": 4.9976669999996375,
+              "p99": 4.9976669999996375,
+              "stdDev": 0
+            }
+          },
+          {
+            "totalTime": 1.6390420000006998,
+            "successCount": 1,
+            "failureCount": 0,
+            "stats": {
+              "count": 1,
+              "mean": 2.1609580000003916,
+              "median": 2.1609580000003916,
+              "min": 2.1609580000003916,
+              "max": 2.1609580000003916,
+              "p95": 2.1609580000003916,
+              "p99": 2.1609580000003916,
+              "stdDev": 0
+            }
+          },
+          {
+            "totalTime": 5.873666000000412,
+            "successCount": 1,
+            "failureCount": 0,
+            "stats": {
+              "count": 1,
+              "mean": 6.288250000000517,
+              "median": 6.288250000000517,
+              "min": 6.288250000000517,
+              "max": 6.288250000000517,
+              "p95": 6.288250000000517,
+              "p99": 6.288250000000517,
+              "stdDev": 0
+            }
+          },
+          {
+            "totalTime": 5.659666999999899,
+            "successCount": 1,
+            "failureCount": 0,
+            "stats": {
+              "count": 1,
+              "mean": 6.128042000000278,
+              "median": 6.128042000000278,
+              "min": 6.128042000000278,
+              "max": 6.128042000000278,
+              "p95": 6.128042000000278,
+              "p99": 6.128042000000278,
+              "stdDev": 0
+            }
+          },
+          {
+            "totalTime": 1.8911250000001019,
+            "successCount": 1,
+            "failureCount": 0,
+            "stats": {
+              "count": 1,
+              "mean": 2.3780420000002778,
+              "median": 2.3780420000002778,
+              "min": 2.3780420000002778,
+              "max": 2.3780420000002778,
+              "p95": 2.3780420000002778,
+              "p99": 2.3780420000002778,
+              "stdDev": 0
+            }
+          }
+        ]
+      },
+      "5_concurrent": {
+        "concurrency": 5,
+        "avgSuccessRate": 100,
+        "avgTotalTime": 9.467224800000258,
+        "throughput": 528.1378762654779,
+        "iterations": [
+          {
+            "totalTime": 11.796416000001045,
+            "successCount": 5,
+            "failureCount": 0,
+            "stats": {
+              "count": 5,
+              "mean": 11.530658400000174,
+              "median": 12.123999999999796,
+              "min": 8.707334000000628,
+              "max": 13.052625000000262,
+              "p95": 13.052625000000262,
+              "p99": 13.052625000000262,
+              "stdDev": 1.5204659049853297
+            }
+          },
+          {
+            "totalTime": 8.336083000000144,
+            "successCount": 5,
+            "failureCount": 0,
+            "stats": {
+              "count": 5,
+              "mean": 8.527758200000244,
+              "median": 8.646416000001409,
+              "min": 8.121999999999389,
+              "max": 8.749499999999898,
+              "p95": 8.749499999999898,
+              "p99": 8.749499999999898,
+              "stdDev": 0.22711327453299104
+            }
+          },
+          {
+            "totalTime": 9.304249999999229,
+            "successCount": 5,
+            "failureCount": 0,
+            "stats": {
+              "count": 5,
+              "mean": 9.080999999999767,
+              "median": 9.287583999999697,
+              "min": 8.241374999999607,
+              "max": 10.114583000000493,
+              "p95": 10.114583000000493,
+              "p99": 10.114583000000493,
+              "stdDev": 0.6915628290172544
+            }
+          },
+          {
+            "totalTime": 8.708708000000115,
+            "successCount": 5,
+            "failureCount": 0,
+            "stats": {
+              "count": 5,
+              "mean": 8.218749999999636,
+              "median": 7.987957999999708,
+              "min": 7.314167000000452,
+              "max": 9.360499999998865,
+              "p95": 9.360499999998865,
+              "p99": 9.360499999998865,
+              "stdDev": 0.6793226553416976
+            }
+          },
+          {
+            "totalTime": 9.190667000000758,
+            "successCount": 5,
+            "failureCount": 0,
+            "stats": {
+              "count": 5,
+              "mean": 9.345966800000316,
+              "median": 9.378791000001002,
+              "min": 8.925332999999227,
+              "max": 9.70404199999939,
+              "p95": 9.70404199999939,
+              "p99": 9.70404199999939,
+              "stdDev": 0.24947249865876903
+            }
+          }
+        ]
+      },
+      "10_concurrent": {
+        "concurrency": 10,
+        "avgSuccessRate": 100,
+        "avgTotalTime": 13.781041599999662,
+        "throughput": 725.6345558089198,
+        "iterations": [
+          {
+            "totalTime": 14.85070799999994,
+            "successCount": 10,
+            "failureCount": 0,
+            "stats": {
+              "count": 10,
+              "mean": 12.498554299999705,
+              "median": 12.31079200000022,
+              "min": 10.937167000000045,
+              "max": 14.846958000000086,
+              "p95": 14.846958000000086,
+              "p99": 14.846958000000086,
+              "stdDev": 1.3223989382672765
+            }
+          },
+          {
+            "totalTime": 14.533708999999362,
+            "successCount": 10,
+            "failureCount": 0,
+            "stats": {
+              "count": 10,
+              "mean": 13.033970799999588,
+              "median": 13.175583000000188,
+              "min": 12.247624999999971,
+              "max": 13.860291999997571,
+              "p95": 13.860291999997571,
+              "p99": 13.860291999997571,
+              "stdDev": 0.4367167894690521
+            }
+          },
+          {
+            "totalTime": 13.332416000001103,
+            "successCount": 10,
+            "failureCount": 0,
+            "stats": {
+              "count": 10,
+              "mean": 12.212816799999928,
+              "median": 11.976375000002008,
+              "min": 10.9185830000024,
+              "max": 14.454624999998487,
+              "p95": 14.454624999998487,
+              "p99": 14.454624999998487,
+              "stdDev": 0.9190603829356755
+            }
+          },
+          {
+            "totalTime": 12.243666999998823,
+            "successCount": 10,
+            "failureCount": 0,
+            "stats": {
+              "count": 10,
+              "mean": 10.992120699999214,
+              "median": 10.725291999999172,
+              "min": 10.357166999998299,
+              "max": 12.684790999999677,
+              "p95": 12.684790999999677,
+              "p99": 12.684790999999677,
+              "stdDev": 0.7344247722587234
+            }
+          },
+          {
+            "totalTime": 13.944707999999082,
+            "successCount": 10,
+            "failureCount": 0,
+            "stats": {
+              "count": 10,
+              "mean": 12.42866639999993,
+              "median": 12.548040999998193,
+              "min": 11.79241699999693,
+              "max": 13.923915999999736,
+              "p95": 13.923915999999736,
+              "p99": 13.923915999999736,
+              "stdDev": 0.5994483245177876
+            }
+          }
+        ]
+      },
+      "25_concurrent": {
+        "concurrency": 25,
+        "avgSuccessRate": 100,
+        "avgTotalTime": 22.675883399999293,
+        "throughput": 1102.4928801671638,
+        "iterations": [
+          {
+            "totalTime": 17.29804199999853,
+            "successCount": 25,
+            "failureCount": 0,
+            "stats": {
+              "count": 25,
+              "mean": 13.75155151999963,
+              "median": 14.266999999999825,
+              "min": 9.404708000001847,
+              "max": 17.68708300000071,
+              "p95": 17.40904099999898,
+              "p99": 17.68708300000071,
+              "stdDev": 3.0530088929121044
+            }
+          },
+          {
+            "totalTime": 24.915624999997817,
+            "successCount": 25,
+            "failureCount": 0,
+            "stats": {
+              "count": 25,
+              "mean": 23.32759327999971,
+              "median": 23.90650000000096,
+              "min": 19.871707999998762,
+              "max": 25.717082999999548,
+              "p95": 25.358291000000463,
+              "p99": 25.717082999999548,
+              "stdDev": 1.671703575827403
+            }
+          },
+          {
+            "totalTime": 26.37866700000086,
+            "successCount": 25,
+            "failureCount": 0,
+            "stats": {
+              "count": 25,
+              "mean": 22.772901600000186,
+              "median": 22.99370899999849,
+              "min": 19.401541000002908,
+              "max": 24.677292000000307,
+              "p95": 24.461208000000624,
+              "p99": 24.677292000000307,
+              "stdDev": 1.4214001513711976
+            }
+          },
+          {
+            "totalTime": 22.93908300000112,
+            "successCount": 25,
+            "failureCount": 0,
+            "stats": {
+              "count": 25,
+              "mean": 20.163061759999692,
+              "median": 19.741666999998415,
+              "min": 17.315708999998606,
+              "max": 22.76629200000025,
+              "p95": 22.701625000001513,
+              "p99": 22.76629200000025,
+              "stdDev": 1.7820637980047485
+            }
+          },
+          {
+            "totalTime": 21.847999999998137,
+            "successCount": 25,
+            "failureCount": 0,
+            "stats": {
+              "count": 25,
+              "mean": 19.967400160000107,
+              "median": 19.92841700000281,
+              "min": 18.443833999997878,
+              "max": 21.755084000000352,
+              "p95": 20.996792000001733,
+              "p99": 21.755084000000352,
+              "stdDev": 0.77822780930929
+            }
+          }
+        ]
+      },
+      "50_concurrent": {
+        "concurrency": 50,
+        "avgSuccessRate": 100,
+        "avgTotalTime": 49.7877502000003,
+        "throughput": 1004.2630928119282,
+        "iterations": [
+          {
+            "totalTime": 22.18841699999757,
+            "successCount": 50,
+            "failureCount": 0,
+            "stats": {
+              "count": 50,
+              "mean": 16.09100588000023,
+              "median": 14.633332999997947,
+              "min": 10.865540999999212,
+              "max": 23.511374999998225,
+              "p95": 22.9898749999993,
+              "p99": 23.511374999998225,
+              "stdDev": 4.207053752223104
+            }
+          },
+          {
+            "totalTime": 122.01604200000293,
+            "successCount": 50,
+            "failureCount": 0,
+            "stats": {
+              "count": 50,
+              "mean": 116.62481665999978,
+              "median": 116.51633299999958,
+              "min": 113.94708299999911,
+              "max": 120.7958749999998,
+              "p95": 119.39366599999994,
+              "p99": 120.7958749999998,
+              "stdDev": 1.4505849005386988
+            }
+          },
+          {
+            "totalTime": 35.67045800000051,
+            "successCount": 50,
+            "failureCount": 0,
+            "stats": {
+              "count": 50,
+              "mean": 31.541157499999898,
+              "median": 31.300916000000143,
+              "min": 29.650666999998066,
+              "max": 36.06941699999879,
+              "p95": 34.17783299999792,
+              "p99": 36.06941699999879,
+              "stdDev": 1.3196508402676164
+            }
+          },
+          {
+            "totalTime": 35.447917000001326,
+            "successCount": 50,
+            "failureCount": 0,
+            "stats": {
+              "count": 50,
+              "mean": 32.352030800000286,
+              "median": 32.10504200000287,
+              "min": 29.85229199999958,
+              "max": 36.09320800000205,
+              "p95": 35.3718340000014,
+              "p99": 36.09320800000205,
+              "stdDev": 1.5308019300712072
+            }
+          },
+          {
+            "totalTime": 33.61591699999917,
+            "successCount": 50,
+            "failureCount": 0,
+            "stats": {
+              "count": 50,
+              "mean": 30.71287420000008,
+              "median": 30.294041000001016,
+              "min": 27.548542000000452,
+              "max": 34.54200000000128,
+              "p95": 33.88862499999959,
+              "p99": 34.54200000000128,
+              "stdDev": 2.0751076241373827
+            }
+          }
+        ]
+      },
+      "100_concurrent": {
+        "concurrency": 100,
+        "avgSuccessRate": 98.79999999999998,
+        "avgTotalTime": 75.46517459999886,
+        "throughput": 1325.1145383290682,
+        "iterations": [
+          {
+            "totalTime": 61.92974999999933,
+            "successCount": 100,
+            "failureCount": 0,
+            "stats": {
+              "count": 100,
+              "mean": 46.683524169999835,
+              "median": 41.99487500000032,
+              "min": 38.44370799999888,
+              "max": 61.947125000002416,
+              "p95": 61.50354099999822,
+              "p99": 61.947125000002416,
+              "stdDev": 7.9494604485802975
+            }
+          },
+          {
+            "totalTime": 107.08220799999617,
+            "successCount": 100,
+            "failureCount": 0,
+            "stats": {
+              "count": 100,
+              "mean": 97.33425002000021,
+              "median": 96.35979099999895,
+              "min": 93.12987500000236,
+              "max": 105.8291250000002,
+              "p95": 104.47704199999862,
+              "p99": 105.8291250000002,
+              "stdDev": 3.1589729014612002
+            }
+          },
+          {
+            "totalTime": 54.56879100000515,
+            "successCount": 100,
+            "failureCount": 0,
+            "stats": {
+              "count": 100,
+              "mean": 49.566259149999894,
+              "median": 49.75666700000147,
+              "min": 45.14233299999614,
+              "max": 54.67320800000016,
+              "p95": 53.40562499999942,
+              "p99": 54.67320800000016,
+              "stdDev": 2.3243050279349458
+            }
+          },
+          {
+            "totalTime": 54.8366659999956,
+            "successCount": 100,
+            "failureCount": 0,
+            "stats": {
+              "count": 100,
+              "mean": 49.788903780000254,
+              "median": 49.558624999997846,
+              "min": 45.88933299999917,
+              "max": 55.39741700000013,
+              "p95": 54.1270419999928,
+              "p99": 55.39741700000013,
+              "stdDev": 2.1756374060353347
+            }
+          },
+          {
+            "totalTime": 98.90845799999806,
+            "successCount": 94,
+            "failureCount": 6,
+            "stats": {
+              "count": 100,
+              "mean": 92.91795710999978,
+              "median": 93.84562499999447,
+              "min": 75.30229099999997,
+              "max": 99.49024999999529,
+              "p95": 97.93370899999718,
+              "p99": 99.49024999999529,
+              "stdDev": 4.913662798055288
+            }
+          }
+        ]
+      }
+    },
+    "databasePerformance": {
+      "singleWorkerQueries": null,
+      "bulkQueries": null,
+      "concurrentDbOps": {
+        "totalRequests": 20,
+        "successCount": 0,
+        "totalTime": 2.390166000004683,
+        "avgTimePerRequest": 0.11950830000023416,
+        "throughput": 8367.619654852766
+      }
+    },
+    "memoryUsage": {
+      "baseline": {
+        "label": "baseline",
+        "timestamp": 1753613209674,
+        "rss": 125960192,
+        "heapTotal": 47742976,
+        "heapUsed": 26472776,
+        "external": 3681055,
+        "arrayBuffers": 262430
+      },
+      "afterWorkerCreation": {
+        "label": "after_worker_creation",
+        "timestamp": 1753613209701,
+        "rss": 129368064,
+        "heapTotal": 52461568,
+        "heapUsed": 20826160,
+        "external": 3592106,
+        "arrayBuffers": 173481
+      },
+      "afterMessaging": {
+        "label": "after_messaging",
+        "timestamp": 1753613209726,
+        "rss": 129449984,
+        "heapTotal": 52461568,
+        "heapUsed": 23118760,
+        "external": 3602331,
+        "arrayBuffers": 183706
+      },
+      "afterCleanup": {
+        "label": "after_cleanup",
+        "timestamp": 1753613211738,
+        "rss": 129499136,
+        "heapTotal": 52461568,
+        "heapUsed": 24185480,
+        "external": 3605041,
+        "arrayBuffers": 186416
+      },
+      "leakDetected": false
+    },
+    "endpointResponseTimes": {
+      "List Workers": [
+        {
+          "concurrency": 1,
+          "successCount": 0,
+          "totalTime": 2.964916999997513,
+          "avgResponseTime": 3.1674999999959255,
+          "throughput": 0
+        },
+        {
+          "concurrency": 5,
+          "successCount": 0,
+          "totalTime": 5.320791999998619,
+          "avgResponseTime": 5.0655664000005345,
+          "throughput": 0
+        },
+        {
+          "concurrency": 10,
+          "successCount": 0,
+          "totalTime": 8.064208000003418,
+          "avgResponseTime": 7.848558300000877,
+          "throughput": 0
+        }
+      ],
+      "Create Worker": [
+        {
+          "concurrency": 1,
+          "successCount": 0,
+          "totalTime": 5.33037499999773,
+          "avgResponseTime": 6.000915999997233,
+          "throughput": 0
+        },
+        {
+          "concurrency": 5,
+          "successCount": 0,
+          "totalTime": 7.703874999999243,
+          "avgResponseTime": 7.743999999998778,
+          "throughput": 0
+        },
+        {
+          "concurrency": 10,
+          "successCount": 0,
+          "totalTime": 13.450958000001265,
+          "avgResponseTime": 12.98315419999999,
+          "throughput": 0
+        }
+      ],
+      "List Graphs": [
+        {
+          "concurrency": 1,
+          "successCount": 0,
+          "totalTime": 3.7580830000006245,
+          "avgResponseTime": 4.081000000005588,
+          "throughput": 0
+        },
+        {
+          "concurrency": 5,
+          "successCount": 0,
+          "totalTime": 6.515541000000667,
+          "avgResponseTime": 6.240016399999149,
+          "throughput": 0
+        },
+        {
+          "concurrency": 10,
+          "successCount": 0,
+          "totalTime": 9.928874999997788,
+          "avgResponseTime": 8.097333299999445,
+          "throughput": 0
+        }
+      ],
+      "List Tools": [
+        {
+          "concurrency": 1,
+          "successCount": 0,
+          "totalTime": 4.5897079999995185,
+          "avgResponseTime": 4.935125000003609,
+          "throughput": 0
+        },
+        {
+          "concurrency": 5,
+          "successCount": 0,
+          "totalTime": 9.210084000005736,
+          "avgResponseTime": 9.00120820000011,
+          "throughput": 0
+        },
+        {
+          "concurrency": 10,
+          "successCount": 0,
+          "totalTime": 9.293958000002021,
+          "avgResponseTime": 8.283120799999597,
+          "throughput": 0
+        }
+      ],
+      "Worker States": [
+        {
+          "concurrency": 1,
+          "successCount": 0,
+          "totalTime": 1.1841249999997672,
+          "avgResponseTime": 1.4365840000027674,
+          "throughput": 0
+        },
+        {
+          "concurrency": 5,
+          "successCount": 0,
+          "totalTime": 7.360915999997815,
+          "avgResponseTime": 6.523966800003836,
+          "throughput": 0
+        },
+        {
+          "concurrency": 10,
+          "successCount": 0,
+          "totalTime": 9.058834000003117,
+          "avgResponseTime": 8.184054299998389,
+          "throughput": 0
+        }
+      ]
+    },
+    "stressWithLargePayloads": {}
+  },
+  "summary": {}
+}
