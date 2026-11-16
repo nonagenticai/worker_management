@@ -897,7 +897,10 @@ def _usage_from_result(result: Any) -> ChatCompletionsUsage:
     """Best-effort token-usage extraction from a pydantic-ai RunResult."""
     usage = ChatCompletionsUsage()
     try:
-        u = result.usage()
+        # pydantic-ai 2 exposes `usage` as a property; 1.x made it a method.
+        u = result.usage
+        if callable(u):
+            u = u()
     except Exception:
         return usage
     if u is None:

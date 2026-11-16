@@ -743,7 +743,7 @@ WORKER_SCHEMAS = {
     "contact_extractor": {
         "description": "Extracts contact information from text",
         "input": "Free-form text containing contact details",
-        "output": "Object with name, email, phone, company fields"
+        "output": "Object with name, email, phone, company fields",
     }
 }
 ```

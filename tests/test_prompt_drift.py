@@ -41,7 +41,7 @@ def _row(
     published: str | None = PUBLISHED,
     status: str | None = "PUBLISHED",
     worker_found: bool = True,
-    owner: str | None | EllipsisType = ...,
+    owner: str | EllipsisType | None = ...,
 ) -> dict[str, Any]:
     return {
         "tenant_id": tenant,

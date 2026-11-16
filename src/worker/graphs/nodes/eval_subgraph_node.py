@@ -102,7 +102,7 @@ def create_eval_subgraph_node_class(
             return None
 
         async def run(
-            self, ctx: GraphRunContext[WorkflowState]
+            self, ctx: GraphRunContext[WorkflowState, None]
         ) -> BaseNode[WorkflowState, None, Any] | End[Any]:
             """Validate the winning response, record result, hand off."""
             bag = ctx.state.framework_state.get(WorkflowState.INFERENCE_KEY) or {}

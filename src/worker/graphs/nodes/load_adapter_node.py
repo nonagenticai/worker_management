@@ -149,7 +149,9 @@ def create_load_adapter_node_class(
                     return cls_
             return None
 
-        def _record_load(self, ctx: GraphRunContext[WorkflowState], entry: dict[str, Any]) -> None:
+        def _record_load(
+            self, ctx: GraphRunContext[WorkflowState, None], entry: dict[str, Any]
+        ) -> None:
             """Append a load-attempt record to ``framework_state['adapter_loads']``."""
             bag = ctx.state.framework_state.setdefault("adapter_loads", [])
             if isinstance(bag, list):
@@ -161,7 +163,7 @@ def create_load_adapter_node_class(
                 ctx.state.framework_state["adapter_loads"] = [entry]
 
         def _not_configured(
-            self, ctx: GraphRunContext[WorkflowState], adapter_id: str
+            self, ctx: GraphRunContext[WorkflowState, None], adapter_id: str
         ) -> BaseNode[WorkflowState, None, Any] | End[Any]:
             """Fail the load step without any HTTP call: no adapter manager is set."""
             message = (
@@ -194,7 +196,7 @@ def create_load_adapter_node_class(
             return successor() if successor is not None else failed
 
         async def run(
-            self, ctx: GraphRunContext[WorkflowState]
+            self, ctx: GraphRunContext[WorkflowState, None]
         ) -> BaseNode[WorkflowState, None, Any] | End[Any]:
             """POST to the adapter-manager and route the chain forward."""
             cfg = self._adapter_config

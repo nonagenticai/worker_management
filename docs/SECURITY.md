@@ -215,9 +215,7 @@ All requests pass through authentication middleware:
 ```python
 # Automatic authentication
 @router.get("/workers")
-async def list_workers(
-    tenant_id: str = Depends(get_tenant_id_from_token)
-):
+async def list_workers(tenant_id: str = Depends(get_tenant_id_from_token)):
     # tenant_id is guaranteed to be from validated token
     return await db.list_workers(tenant_id)
 ```
@@ -267,7 +265,7 @@ async def list_workers(self, tenant_id: str) -> List[str]:
     async with self.get_connection() as conn:
         rows = await conn.fetch(
             "SELECT worker_name FROM workers WHERE tenant_id = $1",
-            tenant_id  # ← Filters by authenticated user's tenant_id
+            tenant_id,  # ← Filters by authenticated user's tenant_id
         )
         return [row["worker_name"] for row in rows]
 ```
@@ -286,7 +284,7 @@ async def list_workers(self, tenant_id: str) -> List[str]:
 @router.post("/workers")
 async def create_worker(
     request: WorkerCreateRequest,  # No tenant_id field!
-    tenant_id: str = Depends(get_tenant_id_from_token)  # From JWT token
+    tenant_id: str = Depends(get_tenant_id_from_token),  # From JWT token
 ):
     # tenant_id from validated token, cannot be forged
     return await db.create_worker(tenant_id, request)

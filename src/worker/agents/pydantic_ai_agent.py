@@ -38,8 +38,6 @@ from pydantic_ai.models.openai import (
     OpenAIChatModelSettings,
     OpenAIStreamedResponse,
 )
-from pydantic_ai.profiles.anthropic import AnthropicModelProfile
-from pydantic_ai.profiles.openai import OpenAIModelProfile
 from pydantic_ai.providers.anthropic import AnthropicProvider
 from pydantic_ai.providers.cohere import CohereProvider
 from pydantic_ai.providers.deepseek import DeepSeekProvider
@@ -2839,7 +2837,10 @@ class ResponseExtractor:
         try:
             run_usage = None
             if run_result and hasattr(run_result, "usage"):
-                run_usage = run_result.usage()
+                # pydantic-ai 2 exposes `usage` as a property; 1.x made it a method.
+                run_usage = run_result.usage
+                if callable(run_usage):
+                    run_usage = run_usage()
 
             if run_usage and getattr(run_usage, "has_values", lambda: False)():
                 prompt_tokens = getattr(run_usage, "input_tokens", None)
@@ -2997,19 +2998,24 @@ def _temperature_unsent_reason_unguarded(
     name = getattr(model_instance, "model_name", "?")
     # The classes are read from pydantic-ai's own modules, not this module's
     # names: tests patch ``OpenAIChatModel`` here with a MagicMock.
+    # pydantic-ai 2 makes the profile a typed dict returned by `model.profile`
+    # itself; `OpenAIModelProfile.from_profile` / `AnthropicModelProfile.from_profile`
+    # are gone. Every field is optional, so absent means "default" (False / empty).
     if isinstance(model_instance, _pai_openai.OpenAIChatModel):
-        profile = OpenAIModelProfile.from_profile(model_instance.profile)
-        if "temperature" in profile.openai_unsupported_model_settings:
+        profile = model_instance.profile
+        if "temperature" in profile.get("openai_unsupported_model_settings", ()):
             return f"model {name!r} profile lists temperature as unsupported"
-        if profile.openai_supports_reasoning:
-            effort = settings.get("openai_reasoning_effort")
-            if not profile.openai_supports_reasoning_effort_none or effort not in (None, "none"):
-                return f"reasoning model {name!r} rejects sampling parameters"
+        effort = settings.get("openai_reasoning_effort")
+        if profile.get("openai_supports_reasoning", False) and (
+            not profile.get("openai_supports_reasoning_effort_none", False)
+            or effort not in (None, "none")
+        ):
+            return f"reasoning model {name!r} rejects sampling parameters"
         return None
-    if isinstance(model_instance, _pai_anthropic.AnthropicModel):
-        profile = AnthropicModelProfile.from_profile(model_instance.profile)
-        if profile.anthropic_disallows_sampling_settings:
-            return f"model {name!r} disallows sampling settings"
+    if isinstance(model_instance, _pai_anthropic.AnthropicModel) and model_instance.profile.get(
+        "anthropic_disallows_sampling_settings", False
+    ):
+        return f"model {name!r} disallows sampling settings"
     return None
 
 

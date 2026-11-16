@@ -337,7 +337,7 @@ def create_inference_provider_node_class(
             return self._resolve_successor("other")
 
         async def _call_provider(
-            self, ctx: GraphRunContext[WorkflowState]
+            self, ctx: GraphRunContext[WorkflowState, None]
         ) -> tuple[Any, int | None, int | None]:
             """Invoke the provider; return (response_payload, prompt_tokens, completion_tokens).
 
@@ -417,7 +417,7 @@ def create_inference_provider_node_class(
             return response_dict, prompt_tokens, completion_tokens
 
         async def run(
-            self, ctx: GraphRunContext[WorkflowState]
+            self, ctx: GraphRunContext[WorkflowState, None]
         ) -> BaseNode[WorkflowState, None, Any] | End[Any]:
             """Attempt this provider and dispatch to the success or failure successor.
 

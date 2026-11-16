@@ -118,7 +118,7 @@ class WorkerNode(BaseNode[WorkflowState, None, Any]):
     retry_count: int = 0
     framework_config: dict = field(default_factory=dict)
 
-    async def run(self, ctx: GraphRunContext[WorkflowState]) -> Any:
+    async def run(self, ctx: GraphRunContext[WorkflowState, None]) -> Any:
         """Execute worker task following CORRECT pydantic-graph pattern.
 
         NOTE: Return type is determined by next node class in GraphFactory
@@ -178,7 +178,7 @@ class WorkerNode(BaseNode[WorkflowState, None, Any]):
                 ctx.state.mark_node_failed(self.node_id, error_msg)
                 raise Exception(error_msg) from e
 
-    def _maybe_record_quality(self, ctx: GraphRunContext[WorkflowState], output: Any) -> None:
+    def _maybe_record_quality(self, ctx: GraphRunContext[WorkflowState, None], output: Any) -> None:
         """Lift a numeric ``quality_score`` from worker output into the inference bag.
 
         No-op unless ``output`` is a dict carrying a usable numeric

@@ -40,7 +40,7 @@ This guide explains how to execute Claude Code and Codex agents in **remote Dock
 agent = create_remote_claude_agent(
     name="repo-analyzer",
     executor_endpoint="https://mini1.local:8889",
-    container_id="repo-abc123"  # Managed by code_graph_helper
+    container_id="repo-abc123",  # Managed by code_graph_helper
 )
 # Executes in remote repo container
 ```
@@ -52,28 +52,29 @@ agent = create_remote_claude_agent(
 ```python
 # Example orchestrator workflow for repo analysis
 
+
 async def analyze_repository_workflow(github_url: str):
     """Analyze a GitHub repository using remote execution."""
 
     # Step 1: Provision repo in code_graph_helper
-    repo_response = await code_graph_helper.provision_repo({
-        "github_url": github_url
-    })
+    repo_response = await code_graph_helper.provision_repo({"github_url": github_url})
     container_id = repo_response["container_id"]
 
     # Step 2: Create worker in worker_management for this repo
-    worker_response = await worker_management.create_worker({
-        "name": f"analyzer-{container_id[:8]}",
-        "agent_type": "remote_claude",
-        "config": {
-            "executor_endpoint": "https://mini1.local:8889",
-            "api_key": os.environ["CODE_GRAPH_HELPER_API_KEY"],
-            "container_id": container_id,
-            "workspace": "/workspace/repo",
-            "model": "sonnet",
-            "system_prompt": "You are a code analysis expert."
+    worker_response = await worker_management.create_worker(
+        {
+            "name": f"analyzer-{container_id[:8]}",
+            "agent_type": "remote_claude",
+            "config": {
+                "executor_endpoint": "https://mini1.local:8889",
+                "api_key": os.environ["CODE_GRAPH_HELPER_API_KEY"],
+                "container_id": container_id,
+                "workspace": "/workspace/repo",
+                "model": "sonnet",
+                "system_prompt": "You are a code analysis expert.",
+            },
         }
-    })
+    )
     worker_id = worker_response["id"]
 
     # Step 3: Execute analysis tasks
@@ -81,14 +82,11 @@ async def analyze_repository_workflow(github_url: str):
     tasks = [
         "Analyze the authentication flow",
         "Identify potential security vulnerabilities",
-        "Document the API endpoints"
+        "Document the API endpoints",
     ]
 
     for task in tasks:
-        result = await worker_management.execute_worker({
-            "worker_id": worker_id,
-            "task": task
-        })
+        result = await worker_management.execute_worker({"worker_id": worker_id, "task": task})
         results.append(result)
 
     # Step 4: Cleanup (optional)
@@ -183,6 +181,7 @@ import asyncio
 
 router = APIRouter()
 
+
 class AgentExecutionRequest(BaseModel):
     cli: str  # "claude" or "codex"
     prompt: str
@@ -190,6 +189,7 @@ class AgentExecutionRequest(BaseModel):
     model: Optional[str] = None
     workspace: str = "/workspace"
     timeout: int = 300
+
 
 class AgentExecutionResponse(BaseModel):
     success: bool
@@ -199,10 +199,10 @@ class AgentExecutionResponse(BaseModel):
     execution_time: float
     container_id: str
 
+
 @router.post("/containers/{container_id}/execute-agent")
 async def execute_agent(
-    container_id: str,
-    request: AgentExecutionRequest
+    container_id: str, request: AgentExecutionRequest
 ) -> AgentExecutionResponse:
     """Execute CLI agent in a container."""
 
@@ -235,6 +235,7 @@ async def execute_agent(
 
     # 3. Execute in container using docker exec
     import time
+
     start_time = time.time()
 
     try:
@@ -242,7 +243,7 @@ async def execute_agent(
             container_id=container_id,
             command=cmd,
             workdir=request.workspace,
-            timeout=request.timeout
+            timeout=request.timeout,
         )
 
         execution_time = time.time() - start_time
@@ -253,7 +254,7 @@ async def execute_agent(
             error=result.stderr if result.exit_code != 0 else None,
             exit_code=result.exit_code,
             execution_time=execution_time,
-            container_id=container_id
+            container_id=container_id,
         )
 
     except asyncio.TimeoutError:
@@ -263,7 +264,7 @@ async def execute_agent(
             error=f"Execution timed out after {request.timeout}s",
             exit_code=-1,
             execution_time=request.timeout,
-            container_id=container_id
+            container_id=container_id,
         )
     except Exception as e:
         return AgentExecutionResponse(
@@ -272,14 +273,12 @@ async def execute_agent(
             error=str(e),
             exit_code=-1,
             execution_time=time.time() - start_time,
-            container_id=container_id
+            container_id=container_id,
         )
 
+
 async def docker_exec(
-    container_id: str,
-    command: list[str],
-    workdir: str,
-    timeout: int
+    container_id: str, command: list[str], workdir: str, timeout: int
 ) -> ExecResult:
     """Execute command in Docker container."""
     import aiodocker
@@ -296,13 +295,10 @@ async def docker_exec(
     )
 
     # Start and wait with timeout
-    result = await asyncio.wait_for(
-        exec_instance.start(),
-        timeout=timeout
-    )
+    result = await asyncio.wait_for(exec_instance.start(), timeout=timeout)
 
     # Get output
-    output = result.output.decode() if hasattr(result, 'output') else ""
+    output = result.output.decode() if hasattr(result, "output") else ""
 
     # Inspect to get exit code
     inspect = await exec_instance.inspect()
@@ -310,11 +306,7 @@ async def docker_exec(
 
     await docker.close()
 
-    return ExecResult(
-        stdout=output,
-        stderr="",
-        exit_code=exit_code
-    )
+    return ExecResult(stdout=output, stderr="", exit_code=exit_code)
 ```
 
 #### GET /containers/{container_id}
@@ -356,15 +348,16 @@ Health check endpoint.
 agent = create_remote_claude_agent(
     executor_endpoint="https://mini1.local:8889",
     api_key=os.environ["CODE_GRAPH_HELPER_API_KEY"],
-    container_id="repo-abc123"
+    container_id="repo-abc123",
 )
+
 
 # code_graph_helper validates
 @router.post("/containers/{container_id}/execute-agent")
 async def execute_agent(
     container_id: str,
     request: AgentExecutionRequest,
-    api_key: str = Header(None, alias="Authorization")
+    api_key: str = Header(None, alias="Authorization"),
 ):
     if not validate_api_key(api_key):
         raise HTTPException(401, "Invalid API key")
@@ -402,8 +395,8 @@ iptables -A INPUT -p tcp --dport 8889 -j DROP
 **3. HTTPS with TLS:**
 ```python
 # Always use HTTPS in production
-executor_endpoint="https://mini1.local:8889"  # ✅
-executor_endpoint="http://mini1.local:8889"   # ❌
+executor_endpoint = "https://mini1.local:8889"  # ✅
+executor_endpoint = "http://mini1.local:8889"  # ❌
 ```
 
 ## Deployment Scenarios
@@ -592,7 +585,7 @@ result = docker_exec(container_id, command)
 
 ✅ **DO**: Authenticate all requests
 ```python
-api_key=os.environ["CODE_GRAPH_HELPER_API_KEY"]
+api_key = os.environ["CODE_GRAPH_HELPER_API_KEY"]
 ```
 
 ❌ **DON'T**: Expose endpoints without auth
@@ -610,7 +603,7 @@ if container.owner_id != request.user.id:
 
 ✅ **DO**: Use HTTPS in production
 ```python
-executor_endpoint="https://mini1.local:8889"
+executor_endpoint = "https://mini1.local:8889"
 ```
 
 ❌ **DON'T**: Use HTTP (except localhost development)
@@ -634,7 +627,7 @@ for attempt in range(3):
     except RuntimeError:
         if attempt == 2:
             raise
-        await asyncio.sleep(2 ** attempt)
+        await asyncio.sleep(2**attempt)
 ```
 
 ## Summary
