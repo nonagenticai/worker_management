@@ -57,7 +57,7 @@ dependencies = [
     # client constructs and only fails against an unreachable endpoint), but `ty check
     # src/` — the gate every agent's pre-push runs — fails on the mismatch, which makes
     # the repository unpushable for everyone. Lift this bound when the transport is ported.
-    "openai>=1.107.2,<3",
+    "openai>=1.107.2,<4",
     "PyJWT>=2.15.1",
     "redis>=5.0.0",
     "PyYAML>=6.0",
