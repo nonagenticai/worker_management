@@ -22,7 +22,7 @@ from src.api.auth_middleware import (
     _is_trusted_network,
     get_current_user,
 )
-from src.api.tenant_constants import BYPASS_TENANT_UUID, TENANT_UUIDS
+from src.api.tenant_constants import BYPASS_TENANT_UUID, tenant_uuids
 
 # ============================================================================
 # _is_trusted_network
@@ -296,12 +296,12 @@ class TestMiddlewareDispatchIntegration:
         client = TestClient(app, raise_server_exceptions=False)
 
         with patch("src.api.auth_middleware._is_trusted_network", return_value=True):
-            resp = client.get("/api/workers", headers={"X-Tenant-Id": TENANT_UUIDS["george-dev"]})
+            resp = client.get("/api/workers", headers={"X-Tenant-Id": tenant_uuids()["george-dev"]})
         assert resp.status_code == 200
         # Resolved to the tenant's uuid, not stored verbatim. `george-dev` is
         # deliberately NOT the default tenant, so this still discriminates from
         # test_trusted_network_no_token_uses_default_tenant above.
-        assert resp.json()["tenant_id"] == TENANT_UUIDS["george-dev"]
+        assert resp.json()["tenant_id"] == tenant_uuids()["george-dev"]
 
     def test_correlation_headers_read_into_context(self):
         """X-Correlation-Id + X-Stage are stashed in ContextVars for cost attribution."""
@@ -312,7 +312,7 @@ class TestMiddlewareDispatchIntegration:
             resp = client.get(
                 "/api/workers",
                 headers={
-                    "X-Tenant-Id": TENANT_UUIDS["george-dev"],
+                    "X-Tenant-Id": tenant_uuids()["george-dev"],
                     "X-Correlation-Id": "run-123",
                     "X-Stage": "script_generation",
                 },
@@ -328,7 +328,7 @@ class TestMiddlewareDispatchIntegration:
         client = TestClient(app, raise_server_exceptions=False)
 
         with patch("src.api.auth_middleware._is_trusted_network", return_value=True):
-            resp = client.get("/api/workers", headers={"X-Tenant-Id": TENANT_UUIDS["george-dev"]})
+            resp = client.get("/api/workers", headers={"X-Tenant-Id": tenant_uuids()["george-dev"]})
         assert resp.status_code == 200
         data = resp.json()
         assert data["ctx_correlation_id"] == ""
@@ -343,7 +343,7 @@ class TestMiddlewareDispatchIntegration:
             resp = client.get(
                 "/api/workers",
                 headers={
-                    "X-Tenant-Id": TENANT_UUIDS["george-dev"],
+                    "X-Tenant-Id": tenant_uuids()["george-dev"],
                     "X-App-Id": "requirements_management",
                 },
             )
@@ -358,7 +358,7 @@ class TestMiddlewareDispatchIntegration:
         client = TestClient(app, raise_server_exceptions=False)
 
         with patch("src.api.auth_middleware._is_trusted_network", return_value=True):
-            resp = client.get("/api/workers", headers={"X-Tenant-Id": TENANT_UUIDS["george-dev"]})
+            resp = client.get("/api/workers", headers={"X-Tenant-Id": tenant_uuids()["george-dev"]})
         assert resp.status_code == 200
         assert resp.json()["ctx_app_id"] == ""
 
@@ -591,9 +591,9 @@ class TestMiddlewareDispatchIntegration:
         """A NAME still delegates — resolved to its uuid, never stored as a name.
 
         ⛔ THIS PINS A KNOWN-OPEN DEFECT, DELIBERATELY. `n8n-dev` resolves through
-        the PORTAL REALM's map to `0195f48b-…0001` (`n8n-dev-portal-realm`, the
+        the PORTAL REALM's map to `aaaaaaaa-…0001` (`n8n-dev-portal-realm`, the
         SEED tenant) while the licences registry has `n8n-dev` as
-        `019de842-c92a-7e37-8fdd-eb0d8c5396f9` — the same misattribution as issue
+        `bbbbbbbb-0000-4000-8000-0000000000a5` — the same misattribution as issue
         #264, on the delegation header instead of the tokenless one.
 
         ⚠️ I briefly inverted this test to assert a 400, and that was reverted on
@@ -643,7 +643,7 @@ class TestMiddlewareDispatchIntegration:
                 },
             )
         assert resp.status_code == 200
-        assert resp.json()["tenant_id"] == TENANT_UUIDS["george-dev"]
+        assert resp.json()["tenant_id"] == tenant_uuids()["george-dev"]
 
     def test_introspected_tenant_that_is_not_a_uuid_is_refused(self):
         """Licences is trusted, but it still returns a string into a uuid column.
@@ -1030,10 +1030,10 @@ class TestMiddlewareDispatchIntegration:
         client = TestClient(app, raise_server_exceptions=False)
 
         with patch("src.api.auth_middleware._is_trusted_network", return_value=True):
-            resp = client.get("/api/workers", headers={"X-Tenant-Id": TENANT_UUIDS["george-dev"]})
+            resp = client.get("/api/workers", headers={"X-Tenant-Id": tenant_uuids()["george-dev"]})
         assert resp.status_code == 200
         data = resp.json()
-        assert data["ctx_tenant_id"] == TENANT_UUIDS["george-dev"]
+        assert data["ctx_tenant_id"] == tenant_uuids()["george-dev"]
         assert data["ctx_license_id"] == ""
         assert data["ctx_subject_id"] == ""
 

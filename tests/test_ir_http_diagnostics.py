@@ -245,7 +245,7 @@ async def test_agent_run_error_line_carries_elapsed_target_and_request_id(
         base_url="http://inference-router.example.com/v1",
         api_key="test-key",  # pragma: allowlist secret
         # The owner's keys admit a PROVEN platform tenant only (rulings 2026-10-01/03).
-        tenant_id="0195f48b-d000-7000-8000-000000000001",
+        tenant_id="aaaaaaaa-0000-4000-8000-000000000001",
     )
     # ⚠️ `openai` is EXTERNAL and refused unless the tenant is a proven platform
     # workspace. This test asserts the shape of the error LOG LINE, not egress,

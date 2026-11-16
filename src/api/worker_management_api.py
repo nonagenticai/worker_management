@@ -31,7 +31,7 @@ from src.api.security_middleware import (
     RequestValidationMiddleware,
     SecurityHeadersMiddleware,
 )
-from src.api.tenant_constants import DEFAULT_TENANT_UUID
+from src.api.tenant_constants import default_tenant_uuid
 from src.api.workers.prompt_drift import start_drift_task
 from src.db.db_config import close_pg_pool, init_pg_pool, run_migrations
 from src.services.tenant_llm_audit_retention import start_audit_retention_task
@@ -522,7 +522,7 @@ async def custom_swagger_ui() -> Any:
             "persistAuthorization": True,
             "requestInterceptor": (
                 "function(req){req.headers['X-Tenant-ID']='"
-                + DEFAULT_TENANT_UUID
+                + default_tenant_uuid()
                 + "';return req;}"
             ),
         },

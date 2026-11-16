@@ -1,26 +1,41 @@
-"""worker_management#339 — WM ``PLATFORM_TENANT_IDS`` must equal fr's.
+"""worker_management#339 — WM's ``PLATFORM_TENANT_IDS`` must equal fr's.
 
-fr and WM each hard-code the platform tenant set (coordinator ruling: do NOT
+fr and WM each hold the platform tenant set (coordinator ruling: do NOT
 unify). WM#336 depends on them agreeing: fr says a card is platform-owned, then
 WM re-checks the tenant against its OWN set, so a drift 422s legitimate
 releases or admits a stale id.
 
-Two layers, no runtime dependency on fr:
+⛔ WHAT CHANGED 2026-11-16, AND WHY IT IS STRONGER. Both sides used to carry the
+set as a source literal, and this test compared the two literals. That put real
+production tenant uuids in a PUBLIC repository, so both sides moved to
+configuration: WM reads ``PLATFORM_TENANT_IDS`` from its Deployment env, fr reads
+its own from its runtime config. The comparison therefore changed from "two
+literals agree" to "the two DEPLOYED values agree", which is the comparison that
+actually governs behaviour.
 
-1. ALWAYS RUNS — WM's frozenset == the pinned copy of fr's set in
-   ``tests/fixtures/fr_platform_tenant_ids.json`` (which records the fr commit
-   it was copied from).
-2. OPTIONAL — when a checkout of fr is available (``FR_REPO_DIR``, or a sibling
+Because the ids may no longer appear in this repository, the pinned copy of fr's
+set is a FINGERPRINT (``sha256`` over the sorted, newline-joined uuids) recorded
+with the fr commit it was taken from.
+
+Three layers, no runtime dependency on fr:
+
+1. ALWAYS RUNS — the fixture is well formed and its hash is of the documented
+   shape.
+2. RUNS WHEN A REAL SET IS CONFIGURED — WM's configured set hashes to the pinned
+   fingerprint. The unit suite runs a SYNTHETIC set (``tests/_platform_tenant.py``)
+   and skips this with that reason; a deployment or a CI job that exports the
+   estate value gets the real check.
+3. OPTIONAL — when a checkout of fr is available (``FR_REPO_DIR``, or a sibling
    ``fr`` directory next to this repo), parse fr's TypeScript definition and
-   compare it with BOTH the fixture and WM. Skips, with the reason, otherwise;
-   layer 1 is the coverage that never skips.
+   compare its hash with the same fingerprint. Skips, with the reason, otherwise.
 
 ⛔ Never compare against gitops ``COMMERCIAL_PLATFORM_TENANT_IDS``: it is a
-DIFFERENT set (it adds ``00000000-…-0001``).
+DIFFERENT set (it adds the ``00000000-…-0001`` system row).
 """
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import re
@@ -28,57 +43,72 @@ from pathlib import Path
 
 import pytest
 
-from src.api.tenant_constants import PLATFORM_TENANT_IDS
+from src.api.tenant_constants import platform_tenant_ids
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 FIXTURE = REPO_ROOT / "tests" / "fixtures" / "fr_platform_tenant_ids.json"
 UUID_RE = r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
-# In gitops COMMERCIAL_PLATFORM_TENANT_IDS only — must never be in this set.
-SYSTEM_ZERO_TENANT = "00000000-0000-0000-0000-000000000001"
+# Only the SYNTHETIC namespace ``tests/_platform_tenant.py`` fabricates. A set
+# drawn entirely from it is the unit suite's, not an estate's.
+SYNTHETIC_PREFIXES = (
+    "aaaaaaaa-0000-4000-8000-",
+    "bbbbbbbb-0000-4000-8000-",
+    "cccccccc-0000-4000-8000-",
+)
 
 
 def _fixture() -> dict[str, object]:
     return json.loads(FIXTURE.read_text(encoding="utf-8"))
 
 
-def _fixture_ids() -> frozenset[str]:
-    ids = _fixture()["tenant_ids"]
-    assert isinstance(ids, list)
-    return frozenset(str(i) for i in ids)
+def tenant_set_hash(ids: frozenset[str] | set[str]) -> str:
+    """The pinned fingerprint: sha256 over the sorted, newline-joined uuids."""
+    return hashlib.sha256("\n".join(sorted(ids)).encode("utf-8")).hexdigest()
 
 
-# --- layer 1: the pinned copy (always runs) ---------------------------------
+def _is_synthetic(ids: frozenset[str]) -> bool:
+    return bool(ids) and all(i.startswith(SYNTHETIC_PREFIXES) for i in ids)
 
 
-def test_fixture_is_pinned_to_an_fr_commit() -> None:
+# --- layer 1: the fixture (always runs) -------------------------------------
+
+
+def test_fixture_is_pinned_to_an_fr_commit_and_a_hash() -> None:
     data = _fixture()
     assert data["fr_repo"] == "nonagenticai/fr"
     assert re.fullmatch(r"[0-9a-f]{40}", str(data["fr_ref"])), "fr_ref must be a full commit SHA"
     assert data["fr_source"] == "backend/src/middleware/internal-tenant-only.ts"
     assert data["fr_symbol"] == "PLATFORM_TENANT_IDS"
-    ids = data["tenant_ids"]
-    assert isinstance(ids, list)
-    assert len(ids) == len(set(ids)), "duplicate id in the fixture"
-    for tenant_id in ids:
-        assert re.fullmatch(UUID_RE, tenant_id), f"not a canonical lowercase uuid: {tenant_id!r}"
+    assert data["hash_algorithm"] == "sha256"
+    assert re.fullmatch(r"[0-9a-f]{64}", str(data["tenant_set_sha256"]))
 
 
-def test_wm_platform_tenant_ids_equal_frs_pinned_set() -> None:
-    fr_ids = _fixture_ids()
-    only_wm = sorted(PLATFORM_TENANT_IDS - fr_ids)
-    only_fr = sorted(fr_ids - PLATFORM_TENANT_IDS)
-    assert not only_wm and not only_fr, (
-        "WM PLATFORM_TENANT_IDS drifted from fr's (fixture "
-        f"{FIXTURE.name} @ fr {_fixture()['fr_ref']}): only in WM {only_wm}, only in fr {only_fr}"
+def test_the_fixture_carries_no_tenant_uuids() -> None:
+    """The whole point of the fingerprint: a public repo holds no real ids."""
+    assert not re.search(UUID_RE, FIXTURE.read_text(encoding="utf-8")), (
+        "the drift fixture must hold a hash, never tenant uuids"
     )
 
 
-def test_not_the_gitops_commercial_set() -> None:
-    assert SYSTEM_ZERO_TENANT not in PLATFORM_TENANT_IDS
-    assert SYSTEM_ZERO_TENANT not in _fixture_ids()
+# --- layer 2: the configured set (runs when an estate value is present) -----
 
 
-# --- layer 2: fr's live source, when a checkout is available ----------------
+def test_configured_platform_set_matches_frs_pinned_fingerprint() -> None:
+    configured = platform_tenant_ids()
+    if not configured:
+        pytest.skip("PLATFORM_TENANT_IDS is unset (fail-closed default) — nothing to compare")
+    if _is_synthetic(configured):
+        pytest.skip(
+            "the unit suite runs the synthetic tenant set from tests/_platform_tenant.py; "
+            "the estate value is checked by a deployment or CI that exports PLATFORM_TENANT_IDS"
+        )
+    assert tenant_set_hash(configured) == _fixture()["tenant_set_sha256"], (
+        "WM's configured PLATFORM_TENANT_IDS no longer matches fr's set at "
+        f"{_fixture()['fr_ref']} — re-pin the hash and the Deployment env together"
+    )
+
+
+# --- layer 3: fr's live source, when a checkout is available ----------------
 
 
 def parse_fr_platform_tenant_ids(ts_source: str) -> frozenset[str]:
@@ -128,29 +158,29 @@ def parse_fr_platform_tenant_ids(ts_source: str) -> frozenset[str]:
 
 _SAMPLE_TS = """
 export const A_ID =
-  '0195f48b-d000-7000-8000-000000000001';
-export const B_ID = '0195f48b-d000-7000-8000-000000000002';
+  '00000000-0000-4000-8000-000000000001';
+export const B_ID = '00000000-0000-4000-8000-000000000002';
 export const INTERNAL_TENANT_IDS = [
   A_ID,
   B_ID,
 ] as const;
-export const C_ID = '019de842-c92a-7e37-8fdd-eb0d8c5396f9';
+export const C_ID = '00000000-0000-4000-8000-000000000003';
 export const PLATFORM_TENANT_IDS: ReadonlySet<string> = new Set<string>([
   ...INTERNAL_TENANT_IDS,
   C_ID,
-  '0195f48b-d000-7000-8000-000000000003',
+  '00000000-0000-4000-8000-000000000004',
 ]);
 """
 
 
 def test_parser_resolves_the_shapes_fr_uses() -> None:
-    # Keeps the parser honest when layer 2 skips (no fr checkout).
+    # Keeps the parser honest when layer 3 skips (no fr checkout).
     assert parse_fr_platform_tenant_ids(_SAMPLE_TS) == frozenset(
         {
-            "0195f48b-d000-7000-8000-000000000001",
-            "0195f48b-d000-7000-8000-000000000002",
-            "019de842-c92a-7e37-8fdd-eb0d8c5396f9",
-            "0195f48b-d000-7000-8000-000000000003",
+            "00000000-0000-4000-8000-000000000001",
+            "00000000-0000-4000-8000-000000000002",
+            "00000000-0000-4000-8000-000000000003",
+            "00000000-0000-4000-8000-000000000004",
         }
     )
     with pytest.raises(ValueError, match="cannot resolve"):
@@ -170,7 +200,7 @@ def _fr_source_file() -> Path | None:
     return None
 
 
-def test_fr_checkout_matches_wm_and_the_fixture() -> None:
+def test_fr_checkout_matches_the_pinned_fingerprint() -> None:
     path = _fr_source_file()
     if path is None:
         pytest.skip(
@@ -178,9 +208,7 @@ def test_fr_checkout_matches_wm_and_the_fixture() -> None:
             "comparison above still ran"
         )
     live = parse_fr_platform_tenant_ids(path.read_text(encoding="utf-8"))
-    assert live == _fixture_ids(), (
-        f"fr's set at {path} differs from the pinned fixture "
-        f"(re-copy it with the new fr ref): only in fr {sorted(live - _fixture_ids())}, "
-        f"only in fixture {sorted(_fixture_ids() - live)}"
+    assert tenant_set_hash(live) == _fixture()["tenant_set_sha256"], (
+        f"fr's set at {path} differs from the pinned fingerprint "
+        f"({_fixture()['fr_ref']}) — re-pin the hash and WM's Deployment env together"
     )
-    assert live == PLATFORM_TENANT_IDS

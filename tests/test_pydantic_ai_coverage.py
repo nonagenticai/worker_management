@@ -557,13 +557,13 @@ class TestMLXWrappers:
 
         provider = InferenceRouterOpenAIProvider(
             base_url="http://ir:8150/v1",
-            tenant_id="0195f48b-d000-7000-8000-000000000001",
+            tenant_id="aaaaaaaa-0000-4000-8000-000000000001",
             license_id="lic-uuid-1",
             subject_id="subj-uuid-2",
         )
         headers = provider._client.default_headers
         assert "X-Schema-Id" not in headers
-        assert headers.get("X-Tenant-Id") == "0195f48b-d000-7000-8000-000000000001"
+        assert headers.get("X-Tenant-Id") == "aaaaaaaa-0000-4000-8000-000000000001"
         assert headers.get("X-License-Id") == "lic-uuid-1"
         assert headers.get("X-Subject-Id") == "subj-uuid-2"
 
@@ -580,7 +580,7 @@ class TestMLXWrappers:
 
         provider = InferenceRouterOpenAIProvider(
             base_url="http://ir:8150/v1",
-            tenant_id="0195f48b-d000-7000-8000-000000000001",
+            tenant_id="aaaaaaaa-0000-4000-8000-000000000001",
             subject_id=None,
         )
         assert "X-Subject-Id" not in provider._client.default_headers
@@ -599,7 +599,7 @@ class TestMLXWrappers:
             model="my-schema",
             db_path="",
             base_url="http://ir:8150",
-            tenant_id="0195f48b-d000-7000-8000-000000000001",
+            tenant_id="aaaaaaaa-0000-4000-8000-000000000001",
             license_id="lic-1",
             subject_id="subj-2",
         )
@@ -610,7 +610,7 @@ class TestMLXWrappers:
             agent._create_inference_router_model(config)
 
         call_kwargs = mock_provider.call_args.kwargs
-        assert call_kwargs["tenant_id"] == "0195f48b-d000-7000-8000-000000000001"
+        assert call_kwargs["tenant_id"] == "aaaaaaaa-0000-4000-8000-000000000001"
         assert call_kwargs["license_id"] == "lic-1"
         assert call_kwargs["subject_id"] == "subj-2"
         assert "schema_id" not in call_kwargs

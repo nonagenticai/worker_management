@@ -603,11 +603,11 @@ async def test_resolve_passthrough_on_concrete_model_unchanged(monkeypatch):
 async def test_resolve_passthrough_on_platform_tenant_unchanged(monkeypatch):
     """Platform tiers target local-llm only (ruling 1.0.7): a platform tenant's
     ``tier-medium`` would auto-pin to the owner's paid deepseek in IR."""
-    from src.api.tenant_constants import DEFAULT_TENANT_UUID
+    from src.api.tenant_constants import default_tenant_uuid
 
     monkeypatch.setenv("WM_TIER_ALIAS_PASSTHROUGH", "true")
     _install_db(monkeypatch, None)
-    out = await resolve_llm_config(_ir_cfg("local-llm", work_tier="medium"), DEFAULT_TENANT_UUID)
+    out = await resolve_llm_config(_ir_cfg("local-llm", work_tier="medium"), default_tenant_uuid())
     assert out["model"] == "local-llm"
 
 

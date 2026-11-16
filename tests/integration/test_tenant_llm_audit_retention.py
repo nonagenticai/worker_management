@@ -28,8 +28,8 @@ if TYPE_CHECKING:
 
 pytestmark = pytest.mark.pg
 
-TENANT_A = "0195f48b-d000-7000-8000-0000000005aa"
-TENANT_B = "0195f48b-d000-7000-8000-0000000005bb"
+TENANT_A = "aaaaaaaa-0000-4000-8000-0000000005aa"
+TENANT_B = "aaaaaaaa-0000-4000-8000-0000000005bb"
 NOW = datetime(2026, 10, 2, 12, 0, tzinfo=UTC)
 
 

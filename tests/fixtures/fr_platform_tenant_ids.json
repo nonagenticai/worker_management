@@ -1,15 +1,10 @@
 {
-  "_doc": "worker_management#339 — fr's PLATFORM_TENANT_IDS, copied by hand from fr at the pinned ref below. tests/test_platform_tenant_ids_drift.py asserts WM src/api/tenant_constants.py PLATFORM_TENANT_IDS equals this set. When fr changes its set: re-copy it here with the new ref, AND change WM's set in the same PR (or justify the divergence in the issue). NOT gitops COMMERCIAL_PLATFORM_TENANT_IDS — a different set.",
+  "_doc": "worker_management#339 — a FINGERPRINT of fr's PLATFORM_TENANT_IDS at the pinned ref below, never the ids themselves (this repository is public). The hash is sha256 over the sorted, newline-joined canonical uuids. tests/test_platform_tenant_ids_drift.py compares WM's CONFIGURED set (PLATFORM_TENANT_IDS, gitops-supplied) against this fingerprint, and — when a checkout of fr is available — resolves fr's live source and compares that too. Re-copy the hash with a new fr ref whenever fr changes its set, and change WM's Deployment env in the same change.",
   "fr_repo": "nonagenticai/fr",
-  "fr_ref": "32661051c7234da34687d70263aa353c73934ff8",
+  "fr_ref": "a281ba284d3de0344f5b7f293f6a07add4062731",
   "fr_source": "backend/src/middleware/internal-tenant-only.ts",
   "fr_symbol": "PLATFORM_TENANT_IDS",
-  "tenant_ids": [
-    "0195f48b-d000-7000-8000-000000000001",
-    "0195f48b-d000-7000-8000-000000000002",
-    "0195f48b-d000-7000-8000-000000000003",
-    "0195f48b-d000-7000-8000-000000000004",
-    "0195f48b-d000-7000-8000-000000000005",
-    "019de842-c92a-7e37-8fdd-eb0d8c5396f9"
-  ]
+  "hash_algorithm": "sha256",
+  "hash_input": "sorted canonical tenant uuids, joined with '\\n'",
+  "tenant_set_sha256": "01f926b3185112fe18685abb42bc54293ae4b92a7121d1a168da23f1fe2106e0"
 }

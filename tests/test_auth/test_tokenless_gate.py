@@ -57,7 +57,7 @@ from fastapi.routing import APIRoute
 from fastapi.testclient import TestClient
 
 import src.auth.tokenless_gate as tokenless_gate_module
-from src.api.auth_middleware import DEFAULT_TENANT_ID, AuthenticationMiddleware
+from src.api.auth_middleware import AuthenticationMiddleware
 from src.api.identity_context import (
     TENANT_PROVENANCE_ASSERTED,
     TENANT_PROVENANCE_DEFAULT,
@@ -68,6 +68,7 @@ from src.api.identity_context import (
 )
 from src.api.providers._router import router as providers_router
 from src.api.router import api_router
+from src.api.tenant_constants import default_tenant_uuid
 from src.auth.tokenless_gate import (
     ROUTE_PROVIDERS_LIST,
     _enforce_tokenless_tenant_gate,
@@ -86,7 +87,7 @@ from src.telemetry.agent_metrics import (
 )
 
 ENV_VAR = "WORKER_MANAGEMENT_REQUIRE_AUTHENTICATED_TENANT"
-ASSERTED_TENANT = "0195f48b-d000-7000-8000-000000000003"
+ASSERTED_TENANT = "aaaaaaaa-0000-4000-8000-000000000003"
 
 
 @pytest.fixture(autouse=True)
@@ -429,7 +430,7 @@ class TestEnforceCore:
         self, monkeypatch: pytest.MonkeyPatch, flag: str
     ) -> None:
         """Absent X-Tenant-Id: the middleware lands the request on
-        DEFAULT_TENANT_ID with provenance `default`. `request.state.tenant_id`
+        default_tenant_uuid() with provenance `default`. `request.state.tenant_id`
         is TRUTHY here — that is exactly the value the gate used to key on —
         yet the caller asserted nothing, so: not counted (matching the
         sibling counter, which skips the absent-header case) and, with the
@@ -440,7 +441,9 @@ class TestEnforceCore:
         metrics = MagicMock()
         with patch.object(tokenless_gate_module, "get_metrics_client", return_value=metrics):
             await _enforce_tokenless_tenant_gate(
-                _fake_request(tenant_id=DEFAULT_TENANT_ID, provenance=TENANT_PROVENANCE_DEFAULT),
+                _fake_request(
+                    tenant_id=default_tenant_uuid(), provenance=TENANT_PROVENANCE_DEFAULT
+                ),
                 self.ROUTE,
             )
         metrics.record_tokenless_tenant_request.assert_not_called()
@@ -588,7 +591,7 @@ class TestEndToEnd:
         self, app: FastAPI
     ) -> None:
         """The auditor's repro, flag OFF: no X-Tenant-Id, trusted peer. The
-        middleware lands it on DEFAULT_TENANT_ID with provenance `default`
+        middleware lands it on default_tenant_uuid() with provenance `default`
         (and its own byo lookup grace-opens, exactly as in the asserted case
         above — so if the gate keyed on `state.tenant_id` this would be
         counted `grace_open` for a tenant nobody asserted). It must be served

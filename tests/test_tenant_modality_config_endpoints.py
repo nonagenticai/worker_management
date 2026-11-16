@@ -28,7 +28,7 @@ from src.auth import (
 from src.security.secret_box import encrypt_secret
 
 TENANT = "019edc1e-0000-7000-8000-000000000001"
-PLATFORM_TENANT = "0195f48b-d000-7000-8000-000000000001"  # n8n-dev, a platform tenant
+PLATFORM_TENANT = "aaaaaaaa-0000-4000-8000-000000000001"  # n8n-dev, a platform tenant
 
 # Fake provider credential for the tests. Referenced as a NAME (not a string
 # literal after an `apiKey:` key) so the detect-secrets keyword plugin — which

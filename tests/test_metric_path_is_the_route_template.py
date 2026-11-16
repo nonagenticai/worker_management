@@ -60,7 +60,7 @@ MESSAGE_TEMPLATE = "/workers/{worker_name}/message"
 WORKER_TEMPLATE = "/workers/{worker_name}"
 
 # A canonical uuid that is spelled correctly and proves nothing.
-ASSERTED_TENANT = "0195f48b-d000-7000-8000-000000000003"
+ASSERTED_TENANT = "aaaaaaaa-0000-4000-8000-000000000003"
 
 # Deliberately ALPHABETIC-after-stripping: this is precisely the class the old
 # character heuristic let through raw. It also matches the worker-name pattern
@@ -230,7 +230,7 @@ def test_an_unmatched_path_gets_a_bounded_label_with_no_caller_string(app: FastA
 
 @pytest.mark.parametrize(
     "segment",
-    ["0195f48b-d000-7000-8000-000000000003", "12345"],
+    ["aaaaaaaa-0000-4000-8000-000000000003", "12345"],
     ids=["uuid", "numeric"],
 )
 def test_id_bearing_segments_still_collapse(app: FastAPI, segment: str) -> None:

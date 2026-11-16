@@ -40,7 +40,7 @@ from src.api.auth_middleware import AuthenticationMiddleware
 from src.api.tenant_constants import NIL_TENANT_UUID, resolve_tenant_id
 
 NIL = "00000000-0000-0000-0000-000000000000"
-REAL_TENANT = "0195f48b-d000-7000-8000-000000000001"
+REAL_TENANT = "aaaaaaaa-0000-4000-8000-000000000001"
 SA_SUBJECT = "8382f0b3-c082-4f97-8d47-120ce5a18e05"
 
 

@@ -23,7 +23,7 @@ from src.settings import reset_settings_cache
 
 _IR_URL = "http://inference-router.inference-router.svc.cluster.local:8150"
 _COMPLETIONS = f"{_IR_URL}/v1/chat/completions"
-_N8N_DEV = "019de842-c92a-7e37-8fdd-eb0d8c5396f9"  # commercial-platform (conftest set)
+_N8N_DEV = "bbbbbbbb-0000-4000-8000-0000000000a5"  # commercial-platform (conftest set)
 _CUSTOMER = "01a0b1c2-d3e4-7f56-8a9b-0c1d2e3f4a5b"
 
 

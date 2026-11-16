@@ -30,12 +30,12 @@ from src.settings import reset_settings_cache
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
-TENANT = "0195f48b-d000-7000-8000-000000000001"
-SUBJECT = "0195f48b-d000-7000-8000-0000000000b2"
-PROJECT_ID = "0195f48b-d000-7000-8000-0000000000a1"
+TENANT = "aaaaaaaa-0000-4000-8000-000000000001"
+SUBJECT = "aaaaaaaa-0000-4000-8000-0000000000b2"
+PROJECT_ID = "aaaaaaaa-0000-4000-8000-0000000000a1"
 VERIFIED_AZP = "improvement-loop-service"  # in the built-in caller allowlist
-LICENSE_ID = "0195f48b-d000-7000-8000-0000000000f1"
-LICENSE_ID_2 = "0195f48b-d000-7000-8000-0000000000f2"
+LICENSE_ID = "aaaaaaaa-0000-4000-8000-0000000000f1"
+LICENSE_ID_2 = "aaaaaaaa-0000-4000-8000-0000000000f2"
 LIC = f"licence:{LICENSE_ID}"  # label of an UNMAPPED verified licence
 
 
@@ -157,8 +157,8 @@ def test_flag_off_absent_proceeds_and_counts_by_auth_branch() -> None:
     [
         "not-a-uuid",
         "00000000-0000-0000-0000-000000000000",
-        "{0195f48b-d000-7000-8000-0000000000a1}",
-        "0195f48bd00070008000" + "0000000000a1",
+        "{aaaaaaaa-0000-4000-8000-0000000000a1}",
+        "aaaaaaaad00070008000" + "0000000000a1",
     ],
 )
 def test_flag_off_invalid_proceeds_counted_invalid_and_still_relayed(bad: str) -> None:

@@ -35,7 +35,7 @@ from src.auth.tenant import get_tenant_id
 from src.worker.factory.llm_config_resolver import _SYSTEM_TENANTS, _system_tenants
 
 NIL = "00000000-0000-0000-0000-000000000000"
-REAL_TENANT = "0195f48b-d000-7000-8000-000000000001"
+REAL_TENANT = "aaaaaaaa-0000-4000-8000-000000000001"
 
 
 def _request(state: dict[str, Any], headers: dict[str, str] | None = None) -> Request:

@@ -136,7 +136,7 @@ def test_036_refuses_when_a_row_exists_and_changes_nothing(conn):
     conn.execute(
         "INSERT INTO workflow_routing_pointer "
         "(card_type, list, active_workflow_id, observation_window_until) "
-        "VALUES ('c', 'READY', '0195f48b-d000-7000-8000-0000000000ff', now())"
+        "VALUES ('c', 'READY', 'aaaaaaaa-0000-4000-8000-0000000000ff', now())"
     )
     conn.execute("SAVEPOINT s")
     with pytest.raises(psycopg.errors.RaiseException, match="not empty"):
@@ -208,7 +208,7 @@ def test_036_canary_equal_to_active_is_rejected(conn):
 )
 @pytest.mark.parametrize(
     "bad",
-    ["A" * 15, "A" * 17, "0195f48b-d000-7000-8000-0000000000ff"],
+    ["A" * 15, "A" * 17, "aaaaaaaa-0000-4000-8000-0000000000ff"],
     ids=["15", "17", "uuid"],
 )
 def test_036_workflow_ids_must_be_16_char_n8n_ids(conn, column, bad):

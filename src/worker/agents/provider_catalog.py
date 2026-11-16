@@ -329,7 +329,7 @@ def assert_local_preset_stays_on_hardware(preset_key: str, model: str) -> None:
     """Refuse a stored config that claims platform inference but bills a paid API.
 
     ⭐ WHAT THIS COST, measured on prod 2026-08-26. Two ``tenant_llm_config``
-    rows for tenant ``0195f48b-d000-7000-8000-000000000001`` read
+    rows for tenant ``aaaaaaaa-0000-4000-8000-000000000001`` read
     ``provider='local', model='tier-medium'`` for roles ``tier:medium`` and
     ``tier:high``. ``tier-medium`` is owned solely by the paid ``deepseek``
     provider in the live routing configmap, so those rows spent **$140.31 over

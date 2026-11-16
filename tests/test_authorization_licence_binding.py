@@ -34,8 +34,8 @@ from src.api.auth_middleware import AuthenticationMiddleware
 from src.settings import reset_settings_cache
 from src.telemetry.attribution_metrics import LICENCE_TENANT_MISMATCH_TOTAL
 
-LICENCE_TENANT = "0195f48b-d000-7000-8000-0000000000aa"
-OTHER_TENANT = "0195f48b-d000-7000-8000-0000000000bb"
+LICENCE_TENANT = "aaaaaaaa-0000-4000-8000-0000000000aa"
+OTHER_TENANT = "aaaaaaaa-0000-4000-8000-0000000000bb"
 SUBJECT = "01a0dd02-0000-7000-8000-000000000001"  # NOT delegating
 DELEGATOR = "019ffe9f-0000-7000-8000-00000000f00d"
 LICENCE_ID = "lic-0001"

@@ -101,7 +101,7 @@ def _token(key: object, kid: str, realm: str) -> str:
         "sub": "a6d29e5c-0000-0000-0000-000000000000",
         "azp": "fr-frontend",
         "typ": "Bearer",
-        "tenant_id": "0195f48b-d000-7000-8000-000000000003",
+        "tenant_id": "aaaaaaaa-0000-4000-8000-000000000003",
         "iat": now,
         "exp": now + 300,
     }

@@ -61,7 +61,7 @@ def _make_provider_node(
 # ``api_key_env`` for a PLATFORM tenant only. These tests exercise the node's
 # provider-call mechanics, so they run as a platform tenant explicitly; the
 # customer refusal is pinned in tests/test_tenant_byo_fix2.py.
-PLATFORM_TENANT = "0195f48b-d000-7000-8000-000000000001"
+PLATFORM_TENANT = "aaaaaaaa-0000-4000-8000-000000000001"
 
 
 @pytest.fixture(autouse=True)

@@ -38,7 +38,7 @@ if TYPE_CHECKING:
 
 pytestmark = pytest.mark.pg
 
-P3 = "0195f48b-d000-7000-8000-000000000003"  # platform (george-dev)
+P3 = "aaaaaaaa-0000-4000-8000-000000000003"  # platform (george-dev)
 
 
 @pytest_asyncio.fixture(scope="module")

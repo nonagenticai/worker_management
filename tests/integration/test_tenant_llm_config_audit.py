@@ -59,9 +59,9 @@ _UP_038 = _ROOT / "038_tenant_llm_config_audit_test_refused.sql"
 _DOWN_038 = _ROOT / "down" / "038_tenant_llm_config_audit_test_refused.down.sql"
 _SCHEMA = "u6_mig037"
 
-TENANT_A = "0195f48b-d000-7000-8000-0000000037aa"
-TENANT_B = "0195f48b-d000-7000-8000-0000000037bb"
-OWNER_TENANT = "0195f48b-d000-7000-8000-000000000001"
+TENANT_A = "aaaaaaaa-0000-4000-8000-0000000037aa"
+TENANT_B = "aaaaaaaa-0000-4000-8000-0000000037bb"
+OWNER_TENANT = "aaaaaaaa-0000-4000-8000-000000000001"
 OWNER_SUB = "owner-sub-037-should-never-be-stored"
 KEY = "sk-tenant-a-plaintext-037-key"  # pragma: allowlist secret
 

@@ -3,7 +3,7 @@
 -- Date: 2026-08-26
 --
 -- ⭐ WHAT THIS COST, measured on prod 2026-08-26. Tenant
--- 0195f48b-d000-7000-8000-000000000001 (platform-cp-1) spent **$140.31 lifetime
+-- aaaaaaaa-0000-4000-8000-000000000001 (platform-cp-1) spent **$140.31 lifetime
 -- over 46,102 requests** on paid DeepSeek. Nobody ever named DeepSeek: every
 -- metered row reads model='tier-medium' -> served_model='deepseek-v4-pro'.
 -- The whole spend traces to two rows inserted 2026-07-19 16:11 (billing starts
@@ -66,7 +66,7 @@
 BEGIN;
 
 DELETE FROM tenant_llm_config
- WHERE tenant_id = '0195f48b-d000-7000-8000-000000000001'::uuid
+ WHERE tenant_id = 'aaaaaaaa-0000-4000-8000-000000000001'::uuid
    AND role IN ('tier:medium', 'tier:high')
    AND provider = 'local'
    AND model = 'tier-medium'

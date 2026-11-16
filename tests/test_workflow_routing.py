@@ -242,7 +242,7 @@ def app():
         install_production_exception_handlers(a)
         # A PLATFORM tenant: the reads answer every other tenant as a miss
         # (strict tenant separation, tests/test_workflow_routing_release.py).
-        a.dependency_overrides[get_tenant_id] = lambda: "0195f48b-d000-7000-8000-000000000001"
+        a.dependency_overrides[get_tenant_id] = lambda: "aaaaaaaa-0000-4000-8000-000000000001"
         # The service-internal write gate (worker_management#230) is exercised
         # end to end, with the real middleware and a real SA JWT, in
         # tests/test_workflow_routing_write_gate.py. Here it is lifted so these
@@ -319,7 +319,7 @@ class TestPromote:
         [
             "A" * 15,  # one short
             "A" * 17,  # one long
-            "0195f48b-d000-7000-8000-0000000000ff",  # a uuid is not an n8n id
+            "aaaaaaaa-0000-4000-8000-0000000000ff",  # a uuid is not an n8n id
             "abcdefgh-jklmnop",  # 16 chars, not alphanumeric
             "not-a-uuid",
         ],
@@ -763,14 +763,14 @@ class TestRoutingCallCounter:
         A request that authenticated with a LICENCE token must land its real
         tenant in the label — otherwise the counter ships, increments, and still
         cannot answer step 2 of #230. The tenant used here is ``n8n-dev``
-        (``0195f48b-d000-7000-8000-000000000001``), measured live in the WM pod
+        (``aaaaaaaa-0000-4000-8000-000000000001``), measured live in the WM pod
         log on 2026-09-08 and registered ``kind='internal'`` in
         ``licenses.tenants``; it is the deployment's own DEFAULT_TENANT_ID and
         the tenant the n8n callers' licence tokens belong to.
         """
         from src.telemetry import get_metrics_client
 
-        n8n_dev = "0195f48b-d000-7000-8000-000000000001"
+        n8n_dev = "aaaaaaaa-0000-4000-8000-000000000001"
 
         # Stand in for AuthenticationMiddleware's token branch, which stamps a
         # licence id alongside the introspected tenant.
@@ -826,7 +826,7 @@ class TestRoutingCallCounter:
         """
         from src.telemetry import get_metrics_client
 
-        attacker_uuid = "0195f48b-dead-7000-8000-ffffffffffff"
+        attacker_uuid = "aaaaaaaa-dead-7000-8000-ffffffffffff"
 
         # A licence id with NO provenance flags — what a partial rollback, or a
         # future branch that forgets to stamp, would produce.
@@ -868,7 +868,7 @@ class TestRoutingCallCounter:
         """
         from src.telemetry import get_metrics_client
 
-        attacker_chosen = "0195f48b-dead-7000-8000-ffffffffffff"
+        attacker_chosen = "aaaaaaaa-dead-7000-8000-ffffffffffff"
 
         @app.middleware("http")
         async def _stamp(request, call_next):
@@ -926,7 +926,7 @@ class TestRoutingCallCounter:
             TestClient(app, raise_server_exceptions=False).get(
                 "/api/workflow-routing/active",
                 params={"asset_key": ASSET},
-                headers={"X-Tenant-Id": "0195f48b-d000-7000-8000-000000000001"},
+                headers={"X-Tenant-Id": "aaaaaaaa-0000-4000-8000-000000000001"},
             )
         assert rec.call_count == 1, f"counter never fired: {rec.call_args_list}"
         return dict(rec.call_args.kwargs)
@@ -946,7 +946,7 @@ class TestRoutingCallCounter:
         different fixes — "present a token" vs "present a token FOR THAT
         TENANT". Merging them makes the smaller one unmeasurable.
         """
-        adopted = "0195f48b-c0de-7000-8000-000000000042"
+        adopted = "aaaaaaaa-c0de-7000-8000-000000000042"
         self._stamp(
             app,
             tenant_id=adopted,
@@ -973,7 +973,7 @@ class TestRoutingCallCounter:
         counter's own docstring claims ("emits a raw tenant ONLY when it came
         from licence INTROSPECTION").
         """
-        adopted = "0195f48b-dead-7000-8000-ffffffffffff"
+        adopted = "aaaaaaaa-dead-7000-8000-ffffffffffff"
         self._stamp(
             app,
             tenant_id=adopted,
@@ -995,7 +995,7 @@ class TestRoutingCallCounter:
         """
         self._stamp(
             app,
-            tenant_id="0195f48b-d000-7000-8000-000000000001",
+            tenant_id="aaaaaaaa-0000-4000-8000-000000000001",
             license_id=None,
             identity_proven=False,
             tenant_proven=False,
@@ -1008,7 +1008,7 @@ class TestRoutingCallCounter:
         ``tenant_proven=not delegated`` is True here, so this must still be
         ``license`` with the real tenant in the label.
         """
-        n8n_dev = "0195f48b-d000-7000-8000-000000000001"
+        n8n_dev = "aaaaaaaa-0000-4000-8000-000000000001"
         self._stamp(
             app,
             tenant_id=n8n_dev,

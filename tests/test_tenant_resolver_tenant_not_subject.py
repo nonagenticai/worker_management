@@ -25,7 +25,7 @@ from fastapi import HTTPException
 from src.auth.tenant import get_tenant_id
 
 SUBJECT = "8382f0b3-c082-4f97-8d47-120ce5a18e05"
-TENANT_A = "019de842-c92a-7e37-8fdd-eb0d8c5396f9"
+TENANT_A = "bbbbbbbb-0000-4000-8000-0000000000a5"
 TENANT_B = "01a1113b-674f-72b0-a84b-dc746d39afca"
 
 

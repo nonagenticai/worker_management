@@ -40,8 +40,8 @@ from src.auth import get_tenant_id
 from src.settings import get_settings, reset_settings_cache
 from src.worker.agents.pydantic_ai_agent import PydanticAIAgentConfig
 
-PLATFORM_TENANT = "0195f48b-d000-7000-8000-000000000003"  # george-dev / EXECUTION
-CUSTOMER_TENANT = "0195f48b-d000-7000-8000-000000000100"  # cdmsfirst
+PLATFORM_TENANT = "aaaaaaaa-0000-4000-8000-000000000003"  # george-dev / EXECUTION
+CUSTOMER_TENANT = "aaaaaaaa-0000-4000-8000-000000000100"  # cdmsfirst
 WORKER = "worker-src-test"
 WORKER_ID = "wid-src-1"
 _MP = "src.api.workers.message_endpoints"
@@ -365,7 +365,7 @@ class TestPublishedSource:
 
     @pytest.mark.parametrize(
         "owner",
-        ["0195f48b-d000-7000-8000-000000000001", None],
+        ["aaaaaaaa-0000-4000-8000-000000000001", None],
         ids=["owned_by_another_platform_tenant", "no_owner"],
     )
     def test_a_prompt_owned_by_another_tenant_is_refused(self, client, env, settings, owner):

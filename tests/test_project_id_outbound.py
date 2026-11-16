@@ -58,8 +58,8 @@ from src.worker.agents.pydantic_ai_agent import (
 IR_URL = "http://inference-router.inference-router.svc.cluster.local:8150/api"
 API_KEY = "test"  # pragma: allowlist secret  (dummy key for provider construction)
 
-PROJECT_ID = "0195f48b-d000-7000-8000-0000000000a1"
-TENANT = "0195f48b-d000-7000-8000-000000000001"
+PROJECT_ID = "aaaaaaaa-0000-4000-8000-0000000000a1"
+TENANT = "aaaaaaaa-0000-4000-8000-000000000001"
 
 # Deliberately not a uuid. This is the regression guard's input: WM must relay
 # it unchanged rather than validating/dropping it here.
@@ -176,7 +176,7 @@ def test_middleware_reads_inbound_project_id_case_insensitively(header_name: str
     """HTTP header names are case-insensitive, so the relay must be too — a
     caller spelling it `x-project-id` must not silently lose its attribution."""
     assert (
-        _probe({"X-Tenant-Id": "0195f48b-d000-7000-8000-000000000003", header_name: PROJECT_ID})
+        _probe({"X-Tenant-Id": "aaaaaaaa-0000-4000-8000-000000000003", header_name: PROJECT_ID})
         == PROJECT_ID
     )
 
@@ -185,7 +185,7 @@ def test_middleware_leaves_project_id_empty_when_the_header_is_absent() -> None:
     """No inbound header ⇒ empty ContextVar. worker_management never invents a
     project id: it fans in from many upstream callers and a guessed value would
     collapse their distinct projects into one bucket on every cost event."""
-    assert _probe({"X-Tenant-Id": "0195f48b-d000-7000-8000-000000000003"}) == ""
+    assert _probe({"X-Tenant-Id": "aaaaaaaa-0000-4000-8000-000000000003"}) == ""
 
 
 # --------------------------------------- outbound: the pydantic-ai httpx hook
@@ -258,7 +258,7 @@ async def test_a_malformed_project_id_is_relayed_verbatim_on_every_path() -> Non
     # Inbound relay.
     assert _probe(
         {
-            "X-Tenant-Id": "0195f48b-d000-7000-8000-000000000003",
+            "X-Tenant-Id": "aaaaaaaa-0000-4000-8000-000000000003",
             "X-Project-Id": MALFORMED_PROJECT_ID,
         }
     ) == (MALFORMED_PROJECT_ID)

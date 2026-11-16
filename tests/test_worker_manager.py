@@ -196,7 +196,7 @@ class TestSendMessageIdentityHeaders:
     async def test_tenant_id_forwarded_as_raw_non_bearer_header(self):
         wm = WorkerManager()
         wm.client = self._mock_client()
-        tenant = "0195f48b-d000-7000-8000-000000000099"
+        tenant = "aaaaaaaa-0000-4000-8000-000000000099"
 
         await wm.send_message_to_worker("w", "m", tenant_id=tenant)
 

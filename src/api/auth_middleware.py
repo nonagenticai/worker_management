@@ -45,10 +45,10 @@ from src.api.identity_context import (
 )
 from src.api.tenant_constants import (
     BYPASS_TENANT_UUID,
-    DEFAULT_TENANT_UUID,
-    TENANT_UUIDS,
+    default_tenant_uuid,
     resolve_asserted_tenant_id,
     resolve_tenant_id,
+    tenant_uuids,
 )
 from src.auth.keycloak_roles import (
     CallerTokenInvalidError,
@@ -278,18 +278,25 @@ def _default_tenant_id() -> str:
     `uuid` column, fail with 22P02 at the first query rather than at startup.
     Failing here names the variable and the value.
     """
-    raw = os.getenv("DEFAULT_TENANT_ID", DEFAULT_TENANT_UUID)
-    resolved = resolve_tenant_id(raw)
+    raw = os.getenv("DEFAULT_TENANT_ID") or default_tenant_uuid()
+    resolved = resolve_tenant_id(raw) if raw else None
     if resolved is None:
         raise ValueError(
             f"DEFAULT_TENANT_ID={raw!r} is neither a UUID nor a known tenant name. "
             "tenant_id is a uuid column; a name must be one of "
-            f"{sorted(TENANT_UUIDS)}."
+            f"{sorted(tenant_uuids())}. (Empty means the Deployment sets neither "
+            "DEFAULT_TENANT_ID nor TENANT_UUIDS — the tokenless no-header path "
+            "refuses rather than picking a tenant.)"
         )
     return resolved
 
 
-DEFAULT_TENANT_ID = _default_tenant_id()
+# ⛔ NO MODULE-LEVEL CACHE OF IT. It used to be ``DEFAULT_TENANT_ID =
+# _default_tenant_id()`` right here, which resolves the tenant at IMPORT time —
+# so a deployment (or a test process) with no env could not even import this
+# module, and the refusal happened far from the request it protects. It is now
+# resolved per call: absent config refuses the one request that needed a default
+# instead of taking the whole service down at import.
 
 _TRUSTED_CIDRS_RAW = os.getenv(
     "TRUSTED_CIDRS",
@@ -1521,7 +1528,7 @@ class AuthenticationMiddleware(BaseHTTPMiddleware):
                         # MISSING UNTIL 2026-09-16. Until now this logged only
                         # `eff_tenant` — the RESOLVED uuid — so a caller sending
                         # the NAME `n8n-dev` and one sending the uuid
-                        # `0195f48b-…0001` produced BYTE-IDENTICAL lines. That
+                        # `aaaaaaaa-…0001` produced BYTE-IDENTICAL lines. That
                         # made the one question anybody needs to ask about this
                         # header unanswerable after the fact: measured over 30d,
                         # 58,710 of 72,351 delegated requests (81.1%) resolved to
@@ -1548,7 +1555,7 @@ class AuthenticationMiddleware(BaseHTTPMiddleware):
                             auth_subject,
                             eff_tenant,
                             eff_raw[:64],
-                            eff_raw.strip() in TENANT_UUIDS,
+                            eff_raw.strip() in tenant_uuids(),
                             tenant_id,
                         )
                         tenant_id = eff_tenant
@@ -1755,7 +1762,7 @@ class AuthenticationMiddleware(BaseHTTPMiddleware):
                 # ⛔ A NAME NO LONGER WORKS, AS OF 2026-09-16, AND THAT IS THE
                 # POINT. It used to: `resolve_tenant_id` maps `n8n-dev` to
                 # `…0001`, while the licences registry has `n8n-dev` as
-                # `019de842-…` and `…0001` as the SEED tenant
+                # `aaaaaaaa-…` and `…0001` as the SEED tenant
                 # `n8n-dev-portal-realm`. A caller aiming at production landed on
                 # the seed tenant with a 200 and wrote there. `fr-test` collides
                 # the same way. `resolve_asserted_tenant_id` refuses names for
@@ -2486,7 +2493,7 @@ class AuthenticationMiddleware(BaseHTTPMiddleware):
         The reasoning lives at the call site.
         """
         if not x_tenant_id:
-            return DEFAULT_TENANT_ID
+            return _default_tenant_id()
         resolved = resolve_asserted_tenant_id(x_tenant_id)
         if resolved is None:
             raise _TenantRefused(
@@ -2500,7 +2507,7 @@ class AuthenticationMiddleware(BaseHTTPMiddleware):
                     x_tenant_id,
                     reason=(
                         "a tenant NAME, which is ambiguous across registries"
-                        if x_tenant_id.strip() in TENANT_UUIDS
+                        if x_tenant_id.strip() in tenant_uuids()
                         else "neither a UUID nor a known tenant name"
                     ),
                 )
@@ -2596,9 +2603,9 @@ class AuthenticationMiddleware(BaseHTTPMiddleware):
         licences "picked which registry it meant", so a name from introspection
         could be honoured. That is backwards. Resolution here goes through
         ``TENANT_UUIDS``, which is the PORTAL REALM's map — so an introspected
-        ``"n8n-dev"`` would resolve to ``0195f48b-…0001``
+        ``"n8n-dev"`` would resolve to ``aaaaaaaa-…0001``
         (``n8n-dev-portal-realm``, the seed tenant) while licences' OWN registry
-        has ``n8n-dev`` as ``019de842-c92a-7e37-8fdd-eb0d8c5396f9``. Honouring
+        has ``n8n-dev`` as ``bbbbbbbb-0000-4000-8000-0000000000a5``. Honouring
         the name would misattribute a licence to a different tenant than the
         authority that issued it says it belongs to — the same defect as the
         tokenless header, on the AUTHENTICATED path, where it is least visible.
@@ -2632,7 +2639,7 @@ class AuthenticationMiddleware(BaseHTTPMiddleware):
         This header has the SAME defect as the tokenless one. It is
         caller-supplied and REPLACES the tenant the licence established, so a
         name misattributes identically: measured on this branch,
-        ``_effective_tenant("n8n-dev")`` returns ``0195f48b-…0001`` — the seed
+        ``_effective_tenant("n8n-dev")`` returns ``aaaaaaaa-…0001`` — the seed
         tenant — and the request is served 200. That a licence was presented does
         not make THIS tenant proven; the call site already says so in the only
         way that matters, ``tenant_proven=not delegated``. The token proved WHO;
@@ -2647,7 +2654,7 @@ class AuthenticationMiddleware(BaseHTTPMiddleware):
         own probe. This door had no such line. Until the commit that adds it,
         ``logger.info("effective-tenant delegation: …")`` recorded only the
         ALREADY-RESOLVED tenant, so a caller sending ``n8n-dev`` and one sending
-        ``0195f48b-…0001`` produced BYTE-IDENTICAL log lines.
+        ``aaaaaaaa-…0001`` produced BYTE-IDENTICAL log lines.
 
         Measured over 30d, grouping those lines by resolved tenant:
 
@@ -2725,7 +2732,7 @@ class AuthenticationMiddleware(BaseHTTPMiddleware):
             header,
             value[:64],
             reason,
-            ",".join(sorted(TENANT_UUIDS)),
+            ",".join(sorted(tenant_uuids())),
         )
         return JSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST,

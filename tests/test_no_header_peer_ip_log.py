@@ -25,11 +25,12 @@ from fastapi.testclient import TestClient
 
 import src.api.auth_middleware as auth_middleware_module
 from src.api.auth_middleware import AuthenticationMiddleware
+from src.api.tenant_constants import default_tenant_uuid
 from src.settings import reset_settings_cache
 
 PEER = "10.42.1.7"
 OTHER_PEER = "10.42.2.9"
-ASSERTED_TENANT = "0195f48b-d000-7000-8000-000000000003"
+ASSERTED_TENANT = "aaaaaaaa-0000-4000-8000-000000000003"
 LOGGER_NAME = auth_middleware_module.logger.name
 NO_HEADER_MARKER = "identity omitted: a tokenless caller"
 ASSERTED_MARKER = "unauthenticated tenant assertion"
@@ -96,7 +97,7 @@ def test_a_no_header_request_logs_its_peer_ip(
     # The response is exactly what the branch served before this change.
     assert resp.status_code == 200
     assert resp.json() == {
-        "tenant_id": auth_middleware_module.DEFAULT_TENANT_ID,
+        "tenant_id": default_tenant_uuid(),
         "license_id": None,
         "subject_id": None,
     }

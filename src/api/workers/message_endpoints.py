@@ -757,7 +757,7 @@ async def send_message(  # noqa: PLR0912, PLR0915 -- send-message handler dispat
             # Without that fallback this branch mints a contract-free row and
             # PERSISTS it — which is how improvement_workflow_development,
             # improvement_prompt_improvement and improvement_principle_improvement
-            # all ended up running unconstrained under tenant 019de842 from
+            # all ended up running unconstrained under tenant aaaaaaaa from
             # 2026-08-27. See ``system_worker_contracts``.
             worker_output_schema = request.output_schema or registered_output_schema(worker_name)
             worker_output_validator = request.output_validator if request.output_validator else None

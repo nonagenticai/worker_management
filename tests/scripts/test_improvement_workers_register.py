@@ -2674,12 +2674,12 @@ def test_asset_loop_post_creates_all_three_workers() -> None:
 # Wrong-tenant silence -- the 2026-09-13 incident
 #
 # `improvement_workflow_development` ran with `system_prompt = NULL` and
-# `output_schema = NULL` on tenant 019de842-c92a-7e37-8fdd-eb0d8c5396f9 (the
+# `output_schema = NULL` on tenant bbbbbbbb-0000-4000-8000-0000000000a5 (the
 # one production traffic uses) from 2026-08-27. Three sessions' worth of
 # prompt fixes went to a row the running system never reads, and on
 # 2026-09-13 a `register.py --force --force-prompt` believed to have reseeded
 # production put its 4106-char prompt on the SEED tenant
-# 0195f48b-d000-7000-8000-000000000001 -- and reported the reseed as verified.
+# aaaaaaaa-0000-4000-8000-000000000001 -- and reported the reseed as verified.
 #
 # ⛔ THE DEFECT IS NOT "THE WRONG UUID IS HARDCODED". `SYSTEM_WORKFLOW_TENANT_ID`
 # is sent only as `X-Internal-Tenant-Id` and does not select the row's tenant;
@@ -2691,8 +2691,8 @@ def test_asset_loop_post_creates_all_three_workers() -> None:
 # ===========================================================================
 
 
-PROD_TENANT = "019de842-c92a-7e37-8fdd-eb0d8c5396f9"
-SEED_TENANT = "0195f48b-d000-7000-8000-000000000001"
+PROD_TENANT = "bbbbbbbb-0000-4000-8000-0000000000a5"
+SEED_TENANT = "aaaaaaaa-0000-4000-8000-000000000001"
 
 
 def _states_row(tenant: str) -> dict[str, Any]:
@@ -3278,8 +3278,8 @@ def test_a_tenant_NAME_is_refused_and_never_mapped_through_tenant_constants(
     """⛔ THE ROOT-CAUSE GUARD. A name must never be resolved into a uuid here.
 
     ``src/api/tenant_constants.py::TENANT_UUIDS`` maps "n8n-dev" to the SEED
-    tenant ``0195f48b-…0001``, while the authoritative licences registry has
-    ``n8n-dev`` as ``019de842-…``. WM would accept the name and resolve it via
+    tenant ``aaaaaaaa-…0001``, while the authoritative licences registry has
+    ``n8n-dev`` as ``aaaaaaaa-…``. WM would accept the name and resolve it via
     that map; doing so would aim at production and land on the seed tenant --
     the precise bug. So this script refuses names outright, and the refusal
     must NAME both uuids so the operator is not left guessing which to pass.
@@ -3293,9 +3293,11 @@ def test_a_tenant_NAME_is_refused_and_never_mapped_through_tenant_constants(
     message = str(excinfo.value)
     assert "NEVER the name" in message or "not a uuid" in message
     if name.strip() == "n8n-dev":
-        assert SEED_TENANT in message and PROD_TENANT in message, (
-            "the refusal must name BOTH tenants the string 'n8n-dev' resolves to; "
-            "naming neither is how an operator retries with the same wrong value"
+        assert "SEED" in message and "DIFFERENT" in message, (
+            "the refusal must say the name resolves to two DIFFERENT tenants across the two "
+            "registries; naming neither is how an operator retries with the same wrong value. "
+            "⛔ It prints no uuid: the values are environment-supplied, and this repository "
+            "may not carry a tenant id."
         )
 
 
@@ -3323,10 +3325,10 @@ def test_the_name_to_uuid_path_is_not_reachable_from_the_cli() -> None:
     "bad",
     [
         "00000000-0000-0000-0000-000000000000",  # nil / default-anon
-        "019de842c92a7e378fdda eb0d8c5396f9",  # not parseable
-        "urn:uuid:019de842-c92a-7e37-8fdd-eb0d8c5396f9",  # non-canonical spelling
-        "{019de842-c92a-7e37-8fdd-eb0d8c5396f9}",  # braced
-        "019de842c92a7e378fddeb0d8c5396f9",  # undashed  # pragma: allowlist secret
+        "aaaaaaaac92a7e378fdda eb0d8c5396f9",  # not parseable
+        "urn:uuid:bbbbbbbb-0000-4000-8000-0000000000a5",  # non-canonical spelling
+        "{bbbbbbbb-0000-4000-8000-0000000000a5}",  # braced
+        "aaaaaaaac92a7e378fddeb0d8c5396f9",  # undashed  # pragma: allowlist secret
     ],
 )
 def test_unusable_tenant_values_raise_rather_than_fall_back(bad: str) -> None:

@@ -57,27 +57,30 @@ def _reset_settings_cache() -> None:
     reset_settings_cache()
 
 
-# The commercial-platform set is defined ONCE, in gitops
-# (``clusters/strato/services/workers/deployment.yaml`` env
-# ``COMMERCIAL_PLATFORM_TENANT_IDS``); the code default is EMPTY (fail closed).
-# Tests run against the estate's value so the platform/customer split they pin
-# is the production one. A test that needs another set overrides the env.
-TEST_COMMERCIAL_PLATFORM_TENANT_IDS = (
-    "0195f48b-d000-7000-8000-000000000001,"
-    "0195f48b-d000-7000-8000-000000000002,"
-    "0195f48b-d000-7000-8000-000000000003,"
-    "0195f48b-d000-7000-8000-000000000004,"
-    "0195f48b-d000-7000-8000-000000000005,"
-    "019de842-c92a-7e37-8fdd-eb0d8c5396f9,"
-    "00000000-0000-0000-0000-000000000001"
+# The tenant sets are defined ONCE, in gitops
+# (``clusters/strato/services/workers/deployment.yaml``); the code default is
+# EMPTY (fail closed). Tests run against the SYNTHETIC estate in
+# ``tests/_platform_tenant.py`` — never the real tenant ids, which do not belong
+# in this public repository. A test that needs another set overrides the env.
+from tests._platform_tenant import (
+    COMMERCIAL_PLATFORM_TENANTS as _COMMERCIAL_SET,
 )
+from tests._platform_tenant import (
+    tenant_env as _tenant_env,
+)
+
+TEST_COMMERCIAL_PLATFORM_TENANT_IDS = ",".join(sorted(_COMMERCIAL_SET))
 
 
 @pytest.fixture(autouse=True)
-def _commercial_platform_tenant_ids(monkeypatch: pytest.MonkeyPatch) -> None:
-    """Every test sees the gitops commercial-platform set (see above)."""
+def _tenant_sets(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Every test sees the synthetic tenant sets (see ``tests/_platform_tenant.py``)."""
     monkeypatch.delenv("WORKER_MANAGEMENT_COMMERCIAL_PLATFORM_TENANT_IDS", raising=False)
-    monkeypatch.setenv("COMMERCIAL_PLATFORM_TENANT_IDS", TEST_COMMERCIAL_PLATFORM_TENANT_IDS)
+    for name, value in _tenant_env().items():
+        monkeypatch.setenv(name, value)
+    from src.settings import reset_settings_cache
+
+    reset_settings_cache()
 
 
 # A routable, GLOBAL address (TEST-NET ranges are not ``is_global``, so they

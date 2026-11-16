@@ -644,7 +644,7 @@ class TestSwapWorkerPrompt:
         deps["registry"].swap_prompt.assert_awaited_once()
 
 
-PLATFORM_TENANT = "0195f48b-d000-7000-8000-000000000001"
+PLATFORM_TENANT = "aaaaaaaa-0000-4000-8000-000000000001"
 
 
 class TestSwapPromptVersion:
@@ -985,7 +985,7 @@ class TestAPreExistingViolationDoesNotStrandTheRow:
 #   weak, it was absent: FastAPI ignores query parameters a route does not
 #   declare.
 # * Cross-checked directly against Postgres on worker4 (no pgbouncer):
-#   ``SELECT count(*) FROM workers WHERE tenant_id = '0195f48b-…-000000000001'``
+#   ``SELECT count(*) FROM workers WHERE tenant_id = 'aaaaaaaa-…-000000000001'``
 #   = 165, so the 165 is the real population and the 100 was the lie.
 #
 # ``getWorkerCohort`` — the only production op in the ``metaPrompt.loop`` scope —

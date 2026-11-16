@@ -54,13 +54,13 @@ from src.worker.agents.pydantic_ai_agent import InferenceRouterOpenAIProvider
 IR_URL = "http://inference-router.inference-router.svc.cluster.local:8150/api"
 API_KEY = "test"  # pragma: allowlist secret  (dummy key for provider construction)
 
-TENANT = "0195f48b-d000-7000-8000-000000000001"
-SUBJECT = "0195f48b-d000-7000-8000-0000000000b2"
-ACTOR = "0195f48b-d000-7000-8000-0000000000c3"
-PROJECT_ID = "0195f48b-d000-7000-8000-0000000000a1"
+TENANT = "aaaaaaaa-0000-4000-8000-000000000001"
+SUBJECT = "aaaaaaaa-0000-4000-8000-0000000000b2"
+ACTOR = "aaaaaaaa-0000-4000-8000-0000000000c3"
+PROJECT_ID = "aaaaaaaa-0000-4000-8000-0000000000a1"
 
 
-SERVICE_ACTOR = "0195f48b-d000-7000-8000-0000000000d4"
+SERVICE_ACTOR = "aaaaaaaa-0000-4000-8000-0000000000d4"
 
 
 def _reset() -> None:
@@ -97,7 +97,7 @@ def service_actor(monkeypatch):
 # spend lands under — review 5331893773 on PR #300.
 
 DELEGATOR = "8382f0b3-c082-4f97-8d47-120ce5a18e05"
-END_USER = "0195f48b-d000-7000-8000-0000000000e5"
+END_USER = "aaaaaaaa-0000-4000-8000-0000000000e5"
 
 
 def _app(sink: list | None = None) -> FastAPI:
@@ -294,10 +294,10 @@ def _missing(caller: str = "unknown") -> float:
     [
         "not-a-uuid",
         "00000000-0000-0000-0000-000000000000",  # nil sentinel is "nobody"
-        "{0195f48b-d000-7000-8000-0000000000c3}",  # braces: uuid.UUID() accepts it
-        "0195f48bd00070008000" + "0000000000c3",  # bare hex
-        "urn:uuid:0195f48b-d000-7000-8000-0000000000c3",
-        "0195f48b-d000-7000-8000-0000000000c3x",
+        "{aaaaaaaa-0000-4000-8000-0000000000c3}",  # braces: uuid.UUID() accepts it
+        "aaaaaaaad00070008000" + "0000000000c3",  # bare hex
+        "urn:uuid:aaaaaaaa-0000-4000-8000-0000000000c3",
+        "aaaaaaaa-0000-4000-8000-0000000000c3x",
     ],
 )
 def test_malformed_actor_from_trusted_caller_is_dropped_and_counted(bad: str) -> None:

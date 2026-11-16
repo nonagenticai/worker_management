@@ -29,7 +29,7 @@
 -- BACKFILL. Measured live 2026-10-01: all 60 existing prompt_versions rows were
 -- written by the system (``actor_kind=migration`` and the
 -- ``claude-asset-bootstrap`` SA), so every existing prompt is owned by the
--- system tenant ``0195f48b-d000-7000-8000-000000000001`` (60/60 mapped, 0
+-- system tenant ``aaaaaaaa-0000-4000-8000-000000000001`` (60/60 mapped, 0
 -- unmapped). ``worker_prompt_binding`` had 0 rows, so its FK validates nothing
 -- old. A DO block refuses the migration if any version is left without an owner.
 --
@@ -55,7 +55,7 @@ CREATE TABLE IF NOT EXISTS prompt_owner (
 
 -- Every existing prompt is a system prompt (see BACKFILL above).
 INSERT INTO prompt_owner (prompt_id, owner_tenant_id)
-SELECT DISTINCT prompt_id, '0195f48b-d000-7000-8000-000000000001'
+SELECT DISTINCT prompt_id, 'aaaaaaaa-0000-4000-8000-000000000001'
 FROM prompt_versions
 ON CONFLICT DO NOTHING;
 

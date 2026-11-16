@@ -78,8 +78,8 @@ from src.worker.agents.pydantic_ai_agent import (
 IR_URL = "http://inference-router.inference-router.svc.cluster.local:8150/api"
 API_KEY = "test"  # pragma: allowlist secret  (dummy key for provider construction)
 
-PROJECT_ID = "0195f48b-d000-7000-8000-0000000000a1"
-TENANT = "0195f48b-d000-7000-8000-000000000001"
+PROJECT_ID = "aaaaaaaa-0000-4000-8000-0000000000a1"
+TENANT = "aaaaaaaa-0000-4000-8000-000000000001"
 
 # Every one of these must be DROPPED, not coerced. Chosen to cover the distinct
 # ways a caller gets this wrong rather than to pad the count:
@@ -99,7 +99,7 @@ INVALID_SCOPES = [
     "both",
     "none",
     "global",
-    "0195f48b-d000-7000-8000-0000000000a1",
+    "aaaaaaaa-0000-4000-8000-0000000000a1",
     " tenant ",
     "tenant,project",
 ]
@@ -268,7 +268,7 @@ def test_middleware_reads_the_inbound_header_name_case_insensitively(header_name
     `.lower()` ends up on the value.
     """
     got = _probe(
-        {"X-Tenant-Id": "0195f48b-d000-7000-8000-000000000003", header_name: SPEND_SCOPE_TENANT}
+        {"X-Tenant-Id": "aaaaaaaa-0000-4000-8000-000000000003", header_name: SPEND_SCOPE_TENANT}
     )
     assert got["ctx_spend_scope"] == SPEND_SCOPE_TENANT
 
@@ -276,12 +276,12 @@ def test_middleware_reads_the_inbound_header_name_case_insensitively(header_name
 def test_middleware_leaves_the_scope_empty_when_the_header_is_absent() -> None:
     """No inbound header ⇒ empty ContextVar. worker_management never invents a
     scope: a caller that says nothing has NOT said `tenant`."""
-    assert _probe({"X-Tenant-Id": "0195f48b-d000-7000-8000-000000000003"})["ctx_spend_scope"] == ""
+    assert _probe({"X-Tenant-Id": "aaaaaaaa-0000-4000-8000-000000000003"})["ctx_spend_scope"] == ""
 
 
 @pytest.mark.parametrize("scope", sorted(SPEND_SCOPES))
 def test_middleware_relays_both_valid_scopes_inbound(scope: str) -> None:
-    got = _probe({"X-Tenant-Id": "0195f48b-d000-7000-8000-000000000003", "X-Spend-Scope": scope})
+    got = _probe({"X-Tenant-Id": "aaaaaaaa-0000-4000-8000-000000000003", "X-Spend-Scope": scope})
     assert got["ctx_spend_scope"] == scope
 
 
@@ -346,7 +346,7 @@ async def test_an_invalid_scope_is_dropped_on_every_path(bad: str) -> None:
     """
     # Inbound relay.
     assert (
-        _probe({"X-Tenant-Id": "0195f48b-d000-7000-8000-000000000003", "X-Spend-Scope": bad})[
+        _probe({"X-Tenant-Id": "aaaaaaaa-0000-4000-8000-000000000003", "X-Spend-Scope": bad})[
             "ctx_spend_scope"
         ]
         == ""
@@ -517,7 +517,7 @@ async def test_scope_and_project_id_are_forwarded_together(scope: str) -> None:
     # Inbound: both survive the middleware, independently.
     got = _probe(
         {
-            "X-Tenant-Id": "0195f48b-d000-7000-8000-000000000003",
+            "X-Tenant-Id": "aaaaaaaa-0000-4000-8000-000000000003",
             "X-Spend-Scope": scope,
             "X-Project-Id": PROJECT_ID,
         }
@@ -549,7 +549,7 @@ async def test_an_invalid_or_absent_scope_never_suppresses_the_project_id(bad: s
     """
     assert _probe(
         {
-            "X-Tenant-Id": "0195f48b-d000-7000-8000-000000000003",
+            "X-Tenant-Id": "aaaaaaaa-0000-4000-8000-000000000003",
             "X-Spend-Scope": bad,
             "X-Project-Id": PROJECT_ID,
         }
@@ -571,7 +571,7 @@ async def test_a_scope_alone_does_not_invent_a_project_id(scope: str) -> None:
     built to make visible — laundering it into a value would re-hide it.
     """
     assert _probe(
-        {"X-Tenant-Id": "0195f48b-d000-7000-8000-000000000003", "X-Spend-Scope": scope}
+        {"X-Tenant-Id": "aaaaaaaa-0000-4000-8000-000000000003", "X-Spend-Scope": scope}
     ) == {
         "ctx_spend_scope": scope,
         "ctx_project_id": "",
