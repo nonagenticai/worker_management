@@ -16,7 +16,7 @@ Skip with: default `uv run pytest` excludes integration marker
 import os
 import uuid
 
-import httpx
+import httpx2 as httpx
 import pytest
 
 from .target_guard import integration_target
@@ -45,7 +45,7 @@ def client():
         headers={
             "X-Tenant-Id": f"Bearer {LICENSE_TOKEN}",
         },
-        verify=False,  # noqa: S501
+        verify=False,
         timeout=30.0,
     ) as c:
         yield c

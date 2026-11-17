@@ -12,7 +12,8 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, cast
 from uuid import uuid7
 
-from pydantic_graph import BaseNode, End, Graph, GraphRunContext
+from pydantic_graph import BaseNode, End, Graph, GraphBuilder, GraphRunContext
+from pydantic_graph.step import NodeStep
 
 from src.security.request_overrides import FunctionCodeNotSupportedError, has_function_code
 from src.worker.graphs.nodes.worker_node import record_quality_score
@@ -25,13 +26,34 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
+def _union_of(*members: Any) -> Any:
+    """Build a `Union[...]` from classes known only at runtime.
+
+    pydantic-graph 2 reads a node's outgoing edges off its `run` return
+    annotation, and these node classes are generated per graph, so the union
+    cannot be written literally. Built as `Any` because a type checker cannot
+    accept a runtime list of classes inside a type expression.
+    """
+    hint: Any = members[0]
+    for member in members[1:]:
+        hint = hint | member
+    return hint
+
+
 @dataclass
 class GraphMetadata:
-    """Metadata storage for Graph instances."""
+    """Metadata storage for Graph instances.
+
+    `node_classes` and `start_node_id` exist so `create_start_node` never has to
+    reach into `Graph`'s private `_nodes` to find the start class: pydantic-graph
+    2 exposes only the built graph, not its node registry.
+    """
 
     node_schemas: dict[str, NodeSchema]
     edge_map: dict[str, list[dict[str, Any]]]
     name: str
+    node_classes: dict[str, type[BaseNode[WorkflowState, None, Any]]] = field(default_factory=dict)
+    start_node_id: str = ""
 
 
 class GraphFactory:
@@ -70,13 +92,15 @@ class GraphFactory:
         edges: list[EdgeSchema],
         name: str | None = None,
         validate: bool = True,  # noqa: FBT001, FBT002, RUF100
-    ) -> Graph[WorkflowState, None, Any]:
-        """Create a CORRECT pydantic-graph following official documentation patterns.
+        start_node_id: str | None = None,
+    ) -> Graph[WorkflowState, None, Any, Any]:
+        """Build a pydantic-graph 2 graph from node and edge schemas.
 
-        According to the official docs, we need to:
-        1. Create node CLASSES that inherit from BaseNode
-        2. Pass these classes to Graph(nodes=(Class1, Class2))
-        3. Each node class handles its own routing logic
+        The start node has to be known at build time: pydantic-graph 2 wires a
+        single edge out of its `StartNode`, and a second edge turns it into a
+        fork that dispatches to the first branch regardless of the instance
+        passed in. Callers that execute from a caller-chosen node must pass
+        `start_node_id` here, not just to `create_start_node`.
         """
         if validate:
             issues = GraphFactory.validate_graph_structure(nodes, edges)
@@ -92,33 +116,66 @@ class GraphFactory:
         # Create node CLASSES dynamically following official pydantic_graph patterns
         node_classes = self._create_node_classes(nodes, node_map, edge_map)
 
-        # Create Graph with node classes (official pattern)
         graph_name = name or f"graph_{uuid7()}"
         logger.info("Creating pydantic Graph with %d node classes", len(node_classes))
-        logger.info("Node class types: %s", [type(nc) for nc in node_classes])
 
-        # Debug: Check if node classes are actually classes
-        for i, nc in enumerate(node_classes):
-            logger.info("Node class %d: %s, callable: %s", i, nc, callable(nc))
+        # pydantic-graph 2 replaced `Graph(nodes=(...))` — which inferred routing
+        # from each node's `run` return *value* — with a GraphBuilder whose edges
+        # are declared up front. Our routing is still dynamic (each node returns
+        # the next node instance), so we publish the same edge set twice:
+        #   1. as a return-type hint on each generated node class, which is how
+        #      the builder learns its outgoing edges, and
+        #   2. as the start edge from the builder's StartNode.
+        # A node that returns `End(...)` needs an edge to EndNode to be legal.
+        registry = {
+            cast("Any", nc)()._node_schema_id: nc  # injected dataclass field
+            for nc in node_classes
+        }
+        for nc in node_classes:
+            schema_id = cast("Any", nc)()._node_schema_id
+            targets = [
+                registry[e["target"]]
+                for e in edge_map.get(schema_id, [])
+                if e["target"] in registry
+            ]
+            cast("Any", nc).run.__annotations__["return"] = _union_of(*targets, End[Any])
 
-        graph = Graph(nodes=cast("Any", tuple(node_classes)), name=graph_name)
+        start_node_id = self._determine_start_node(
+            start_node_id, node_map, edge_map, allow_cycle_fallback=True
+        )
+        builder: GraphBuilder[WorkflowState, None, Any, Any] = GraphBuilder(
+            name=graph_name,
+            state_type=WorkflowState,
+            deps_type=type(None),
+            input_type=Any,
+            output_type=Any,
+        )
+        for nc in node_classes:
+            builder.add(builder.node(nc))
+        builder.add_edge(builder.start_node, cast("Any", NodeStep)(registry[start_node_id]))
+
+        graph = builder.build()
         logger.info("Graph created successfully, type: %s", type(graph))
 
         # Store metadata separately
         self._graph_metadata[id(graph)] = GraphMetadata(
-            node_schemas=node_map, edge_map=edge_map, name=graph_name
+            node_schemas=node_map,
+            edge_map=edge_map,
+            name=graph_name,
+            node_classes=registry,
+            start_node_id=start_node_id,
         )
 
         logger.info(
-            "CORRECT pydantic-graph created with %d node classes: %s",
+            "pydantic-graph 2 built with %d node classes: %s",
             len(node_classes),
             graph_name,
         )
-        return cast("Graph[WorkflowState, None, Any]", graph)
+        return graph
 
     def create_start_node(
         self,
-        graph: Graph[WorkflowState, None, Any],
+        graph: Graph[WorkflowState, None, Any, Any],
         start_node_id: str | None = None,
     ) -> BaseNode[WorkflowState, None, Any]:
         """Create the starting node instance following CORRECT pydantic-graph patterns."""
@@ -127,6 +184,11 @@ class GraphFactory:
         edge_map = metadata.edge_map if metadata else {}
 
         start_node_id = self._determine_start_node(start_node_id, node_schemas, edge_map)
+        if metadata and metadata.start_node_id and start_node_id != metadata.start_node_id:
+            raise ValueError(
+                f"Graph was built to start at {metadata.start_node_id!r}, not {start_node_id!r}; "
+                "pass start_node_id to create_graph()"
+            )
 
         return self._find_and_create_start_node_instance(graph, start_node_id)
 
@@ -135,6 +197,8 @@ class GraphFactory:
         start_node_id: str | None,
         node_schemas: dict[str, NodeSchema],
         edge_map: dict[str, list[dict[str, Any]]],
+        *,
+        allow_cycle_fallback: bool = False,
     ) -> str:
         """Determine the start node ID from provided ID or graph structure."""
         if start_node_id:
@@ -150,45 +214,33 @@ class GraphFactory:
         start_candidates = [node_id for node_id in node_schemas if node_id not in target_nodes]
 
         if not start_candidates:
-            raise ValueError("No valid start node found (no nodes without incoming edges)")
+            if not allow_cycle_fallback or not node_schemas:
+                raise ValueError("No valid start node found (no nodes without incoming edges)")
+            # Building needs *an* edge out of StartNode, and a cyclic schema still
+            # has to be constructible (pydantic-graph 1 could build it too). Pick
+            # the first node; asking to execute from a resolved start still raises.
+            logger.warning(
+                "Graph has no node without incoming edges; wiring the start edge "
+                "to the first node so it can be built"
+            )
+            return next(iter(node_schemas))
 
         return start_candidates[0]
 
     def _find_and_create_start_node_instance(
-        self, graph: Graph[WorkflowState, None, Any], start_node_id: str
+        self, graph: Graph[WorkflowState, None, Any, Any], start_node_id: str
     ) -> BaseNode[WorkflowState, None, Any]:
-        """Find the corresponding node class and create instance."""
-        # Access node classes directly from graph - debug version
-        logger.info("Graph attributes: %s", dir(graph))
-        if hasattr(graph, "get_nodes"):
-            node_classes = graph.get_nodes()
-            logger.info("Using graph.get_nodes(): %s", type(node_classes))
-        elif hasattr(graph, "_nodes"):
-            node_classes = graph._nodes
-            logger.info("Using graph._nodes: %s", type(node_classes))
-        else:
-            logger.error("Graph has no get_nodes() method or _nodes attribute")
-            raise ValueError("Graph has no accessible node classes")
+        """Instantiate the registered class for `start_node_id`.
 
-        for node_class in node_classes:
-            # Ensure node_class is callable
-            if not callable(node_class):
-                logger.error("Node class is not callable: %s", type(node_class))
-                continue
-
-            try:
-                # Create instance to check the _node_schema_id attribute
-                instance = node_class()
-                if (
-                    hasattr(instance, "_node_schema_id")
-                    and instance._node_schema_id == start_node_id
-                ):
-                    return cast("BaseNode[WorkflowState, None, Any]", instance)
-            except Exception:
-                logger.exception("Failed to instantiate node class %s", node_class)
-                continue
-
-        raise ValueError(f"Could not find node class for start node {start_node_id}")
+        pydantic-graph 2 keeps its node registry private, so the factory records
+        the class per schema id in `GraphMetadata` at build time instead of
+        reading `Graph._nodes` back out.
+        """
+        metadata = self._graph_metadata.get(id(graph))
+        node_class = metadata.node_classes.get(start_node_id) if metadata else None
+        if node_class is None:
+            raise ValueError(f"Could not find node class for start node {start_node_id}")
+        return node_class()
 
     def _create_node_classes(
         self,
@@ -377,7 +429,7 @@ class GraphFactory:
             )
 
             def _evaluate_edge_conditions(
-                self, ctx: GraphRunContext[WorkflowState], result: Any
+                self, ctx: GraphRunContext[WorkflowState, None], result: Any
             ) -> str:
                 """Evaluate edge conditions to determine next node.
 
@@ -465,7 +517,7 @@ class GraphFactory:
                 return default_target
 
             def _build_template_context(
-                self, ctx: GraphRunContext[WorkflowState]
+                self, ctx: GraphRunContext[WorkflowState, None]
             ) -> dict[str, Any]:
                 """Build template context from state variables and node outputs."""
                 template_context = {}
@@ -490,7 +542,7 @@ class GraphFactory:
                 return template_context
 
             async def run(
-                self, ctx: GraphRunContext[WorkflowState]
+                self, ctx: GraphRunContext[WorkflowState, None]
             ) -> BaseNode[WorkflowState, None, Any] | End[str]:
                 """Execute worker task and route to next node - OFFICIAL pydantic_graph pattern."""
                 # Get WorkerManager instance
@@ -644,7 +696,7 @@ class GraphFactory:
             )
 
             def _evaluate_edge_conditions(
-                self, ctx: GraphRunContext[WorkflowState], result: Any
+                self, ctx: GraphRunContext[WorkflowState, None], result: Any
             ) -> str:
                 """Evaluate edge conditions to determine next node.
 
@@ -730,7 +782,7 @@ class GraphFactory:
                 return default_target
 
             async def run(
-                self, ctx: GraphRunContext[WorkflowState]
+                self, ctx: GraphRunContext[WorkflowState, None]
             ) -> BaseNode[WorkflowState, None, Any] | End[Any]:
                 """Execute function and route to next node - OFFICIAL pydantic_graph pattern."""
                 logger.info("OFFICIAL FunctionNode executing: %s", schema.id)
@@ -841,7 +893,7 @@ class GraphFactory:
             )
 
             async def run(
-                self, ctx: GraphRunContext[WorkflowState]
+                self, ctx: GraphRunContext[WorkflowState, None]
             ) -> BaseNode[WorkflowState, None, Any] | End[bool]:
                 """Execute condition and route to next node - OFFICIAL pydantic_graph pattern."""
                 condition = schema.data.get("condition", "True") if schema.data else "True"

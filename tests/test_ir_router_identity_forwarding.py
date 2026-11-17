@@ -18,7 +18,7 @@ import sys
 import textwrap
 from pathlib import Path
 
-import httpx
+import httpx2 as httpx
 import pytest
 
 from src.api.identity_context import (
@@ -35,8 +35,8 @@ from src.worker.agents.pydantic_ai_agent import (
 
 IR_URL = "http://inference-router.inference-router.svc.cluster.local:8150"
 COMPLETIONS = f"{IR_URL}/v1/chat/completions"
-TENANT = "0195f48b-d000-7000-8000-000000000100"
-PROJECT = "0195f48b-d000-7000-8000-0000000000a1"
+TENANT = "aaaaaaaa-0000-4000-8000-000000000100"
+PROJECT = "aaaaaaaa-0000-4000-8000-0000000000a1"
 WORKER = "ks-relationship-extractor"
 REPO = Path(__file__).resolve().parents[1]
 

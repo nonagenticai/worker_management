@@ -7,7 +7,7 @@ import logging
 import time
 from contextlib import nullcontext
 from datetime import UTC, datetime
-from typing import Any, cast
+from typing import Any
 from uuid import uuid7
 
 import psycopg
@@ -23,11 +23,12 @@ except ImportError:
 try:
     from pydantic_graph import Graph
 except ImportError:
-    # Fallback for missing pydantic_graph dependency. Generic over the same three
-    # parameters as `pydantic_graph.graph.Graph` so the annotations below stay valid in
-    # both branches — a bare `class Graph:` made them a union of a generic and a
-    # non-generic type, which the type checker rejects as "cannot be specialized".
-    class Graph[StateT, DepsT, RunEndT]:
+    # Fallback for a missing pydantic_graph dependency. Generic over the same four
+    # parameters as pydantic-graph 2's `Graph[StateT, DepsT, InputT, OutputT]` so the
+    # annotations below stay valid in both branches — a bare `class Graph:` made them
+    # a union of a generic and a non-generic type, which the type checker rejects as
+    # "cannot be specialized".
+    class Graph[StateT, DepsT, InputT, OutputT]:
         """No-op replacement when the pydantic_graph package is unavailable."""
 
 
@@ -101,8 +102,8 @@ class PydanticGraphExecutionService:
 
     def __init__(self, execution_db: Any | None = None) -> None:
         """Initialize the pydantic-graph execution service with timeout and cache management."""
-        self.active_sessions: dict[str, Graph[WorkflowState, None, Any]] = {}
-        self._graph_cache: dict[str, Graph[WorkflowState, None, Any]] = {}
+        self.active_sessions: dict[str, Graph[WorkflowState, None, Any, Any]] = {}
+        self._graph_cache: dict[str, Graph[WorkflowState, None, Any, Any]] = {}
         self._cache_timestamps: dict[str, datetime] = {}
         self._cache_ttl = 300  # 5 minutes
         self._cache_max_size = 100  # Maximum cached graphs
@@ -235,13 +236,15 @@ class PydanticGraphExecutionService:
                 node_schemas = [NodeSchema(**node_data) for node_data in graph_data["nodes"]]
                 edge_schemas = [EdgeSchema(**edge_data) for edge_data in graph_data["edges"]]
 
-                # Create graph via factory
+                # Create graph via factory. pydantic-graph 2 fixes the start edge
+                # at build time, so a caller-chosen start node has to be known here.
                 graph_factory = GraphFactory()
                 pg_graph = graph_factory.create_graph(
                     nodes=node_schemas,
                     edges=edge_schemas,
                     name=graph_data.get("name", f"graph_{graph_id}"),
                     validate=True,
+                    start_node_id=start_node,
                 )
 
                 # Create initial state
@@ -264,27 +267,15 @@ class PydanticGraphExecutionService:
                     subject_id=subject_id,
                 )
 
-                # Find start node
+                # Find start node. The factory already wired the start edge to
+                # this schema id when it built the graph above.
                 try:
                     start_node_instance = graph_factory.create_start_node(
                         graph=pg_graph, start_node_id=start_node
                     )
                 except Exception as e:
                     logger.exception("Failed to create start node")
-                    if hasattr(pg_graph, "_nodes") and pg_graph._nodes:
-                        try:
-                            nodes_seq = cast("Any", pg_graph._nodes)
-                            start_node_instance = nodes_seq[0]()
-                            logger.info("Using first node as fallback start node")
-                        except Exception:
-                            logger.exception(
-                                "Fallback start node creation also failed",
-                            )
-                            raise RuntimeError(f"Cannot create start node: {e}") from None
-                    else:
-                        raise RuntimeError(
-                            f"Cannot create start node and no fallback available: {e}"
-                        ) from e
+                    raise RuntimeError(f"Cannot create start node: {e}") from e
 
                 # Execute using pydantic_graph native execution pattern
                 logger.info("Starting pydantic_graph execution with session %s", session_id)
@@ -306,7 +297,7 @@ class PydanticGraphExecutionService:
                         ) as run_span:
                             graph_run_result = await asyncio.wait_for(
                                 pg_graph.run(
-                                    start_node=start_node_instance,
+                                    inputs=start_node_instance,
                                     state=initial_state,
                                     deps=None,
                                 ),
@@ -316,7 +307,7 @@ class PydanticGraphExecutionService:
                     else:
                         graph_run_result = await asyncio.wait_for(
                             pg_graph.run(
-                                start_node=start_node_instance,
+                                inputs=start_node_instance,
                                 state=initial_state,
                                 deps=None,
                             ),
@@ -370,13 +361,17 @@ class PydanticGraphExecutionService:
                 self._session_timestamps[session_id] = time.time()
                 self._ensure_cleanup_running()
 
-                # Extract results from GraphRunResult
-                final_result = (
-                    graph_run_result.output if hasattr(graph_run_result, "output") else None
-                )
-                final_state = (
-                    graph_run_result.state if hasattr(graph_run_result, "state") else initial_state
-                )
+                # Extract results. pydantic-graph 2's `Graph.run()` returns the
+                # `End` payload itself; 1.x returned a GraphRunResult carrying
+                # `.output` and `.state`. The state object is the one we passed
+                # in — nodes mutate it through `ctx.state` — so it stays the
+                # source of truth for completion in both shapes.
+                if hasattr(graph_run_result, "output"):
+                    final_result = graph_run_result.output
+                    final_state = getattr(graph_run_result, "state", initial_state)
+                else:
+                    final_result = graph_run_result
+                    final_state = initial_state
 
                 # Update final state
                 final_state.end_time = utc_now()

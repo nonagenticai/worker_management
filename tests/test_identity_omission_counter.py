@@ -40,12 +40,13 @@ from fastapi.testclient import TestClient
 
 import src.api.auth_middleware as auth_middleware_module
 from src.api.auth_middleware import AuthenticationMiddleware
+from src.api.tenant_constants import default_tenant_uuid
 from src.settings import Settings, get_settings, reset_settings_cache
 
 ENV_VAR = "WORKER_MANAGEMENT_REQUIRE_AUTHENTICATED_TENANT"
 
 # Spelled correctly, proves nothing — the input class this branch accepts.
-ASSERTED_TENANT = "0195f48b-d000-7000-8000-000000000003"
+ASSERTED_TENANT = "aaaaaaaa-0000-4000-8000-000000000003"
 
 ASSERTED = auth_middleware_module._OMISSION_REASON_ASSERTED_TENANT
 DEFAULTED = auth_middleware_module._OMISSION_REASON_DEFAULT_TENANT
@@ -159,7 +160,7 @@ def test_a_verified_caller_is_named_rather_than_lumped_into_unverified(app: Fast
 @pytest.mark.parametrize(
     "segment",
     [
-        "0195f48b-d000-7000-8000-000000000003",
+        "aaaaaaaa-0000-4000-8000-000000000003",
         "12345",
         # The case the old character heuristic let through RAW — and this
         # counter carries FOUR labels, so the blow-up was multiplicative.
@@ -212,7 +213,7 @@ def test_the_no_header_caller_is_counted_under_a_different_reason(app: FastAPI) 
         status, body = _call(app, {})
 
     assert status == 200
-    assert body["tenant_id"] == auth_middleware_module.DEFAULT_TENANT_ID
+    assert body["tenant_id"] == default_tenant_uuid()
     assert body["license_id"] is None
 
     recorded = _omissions(metrics)

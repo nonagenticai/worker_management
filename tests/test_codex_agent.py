@@ -368,7 +368,7 @@ class TestAgentHostExecutionCodex:
 
             with (
                 patch("src.services.agent_host_registry.agent_host_registry") as mock_registry,
-                patch("httpx.AsyncClient", return_value=mock_client),
+                patch("httpx2.AsyncClient", return_value=mock_client),
             ):
                 mock_registry.get_best_instance = AsyncMock(return_value=mock_instance)
                 await agent._execute_via_agent_host("hello")
@@ -402,7 +402,7 @@ class TestAgentHostExecutionCodex:
             mock_client.__aenter__ = AsyncMock(return_value=mock_client)
             mock_client.__aexit__ = AsyncMock(return_value=False)
 
-            with patch("httpx.AsyncClient", return_value=mock_client):
+            with patch("httpx2.AsyncClient", return_value=mock_client):
                 result = await agent._execute_via_agent_host("test")
             assert result == "codex out"
 
@@ -431,7 +431,7 @@ class TestAgentHostExecutionCodex:
             mock_client.__aenter__ = AsyncMock(return_value=mock_client)
             mock_client.__aexit__ = AsyncMock(return_value=False)
 
-            with patch("httpx.AsyncClient", return_value=mock_client):
+            with patch("httpx2.AsyncClient", return_value=mock_client):
                 with pytest.raises(RuntimeError) as exc_info:
                     await agent._execute_via_agent_host("test")
             error_msg = str(exc_info.value)
@@ -463,7 +463,7 @@ class TestAgentHostExecutionCodex:
             mock_client.__aenter__ = AsyncMock(return_value=mock_client)
             mock_client.__aexit__ = AsyncMock(return_value=False)
 
-            with patch("httpx.AsyncClient", return_value=mock_client):
+            with patch("httpx2.AsyncClient", return_value=mock_client):
                 with pytest.raises(RuntimeError) as exc_info:
                     await agent._execute_via_agent_host("test")
             assert len(str(exc_info.value)) < 700
@@ -504,7 +504,7 @@ class TestAgentHostExecutionCodex:
             mock_client.__aenter__ = AsyncMock(return_value=mock_client)
             mock_client.__aexit__ = AsyncMock(return_value=False)
 
-            with patch("httpx.AsyncClient", return_value=mock_client):
+            with patch("httpx2.AsyncClient", return_value=mock_client):
                 await agent._execute_via_agent_host("What is 2+2?")
 
             call_json = mock_client.post.call_args[1]["json"]
@@ -530,7 +530,7 @@ class TestAgentHostCleanupCodex:
             mock_client.__aenter__ = AsyncMock(return_value=mock_client)
             mock_client.__aexit__ = AsyncMock(return_value=False)
 
-            with patch("httpx.AsyncClient", return_value=mock_client):
+            with patch("httpx2.AsyncClient", return_value=mock_client):
                 await agent.cleanup()
             mock_client.delete.assert_called_once()
 
@@ -550,7 +550,7 @@ class TestAgentHostCleanupCodex:
             mock_client.__aenter__ = AsyncMock(return_value=mock_client)
             mock_client.__aexit__ = AsyncMock(return_value=False)
 
-            with patch("httpx.AsyncClient", return_value=mock_client):
+            with patch("httpx2.AsyncClient", return_value=mock_client):
                 await agent.cleanup()
             assert agent.config.agent_host_container_id is None
 
@@ -559,6 +559,6 @@ class TestAgentHostCleanupCodex:
         with patch.dict(os.environ, {"USE_AGENT_HOST": "true"}):
             config = CodexAgentConfig(name="test", db_path="test.db")
             agent = CodexAgent(config=config)
-            with patch("httpx.AsyncClient") as mock_client_cls:
+            with patch("httpx2.AsyncClient") as mock_client_cls:
                 await agent.cleanup()
                 mock_client_cls.assert_not_called()

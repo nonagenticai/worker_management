@@ -16,7 +16,7 @@ import logging
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
-import httpx
+import httpx2 as httpx
 import pytest
 
 from src.services import ir_bundle_tokens as bt

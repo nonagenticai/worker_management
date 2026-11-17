@@ -21,7 +21,7 @@ from unittest.mock import AsyncMock, patch
 os.environ.setdefault("ENABLE_AUTH", "false")
 os.environ.setdefault("OTEL_SDK_DISABLED", "true")
 
-import httpx
+import httpx2 as httpx
 import pytest
 from fastapi.testclient import TestClient
 from pydantic_ai.exceptions import UserError

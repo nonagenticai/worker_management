@@ -9,7 +9,7 @@ import logging
 import os
 from typing import Any, cast
 
-import httpx
+import httpx2 as httpx
 from pydantic import BaseModel, Field
 
 from src.api.identity_context import get_identity_headers

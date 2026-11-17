@@ -8,6 +8,8 @@ from types import SimpleNamespace
 from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
 
+from pydantic_ai.models.test import TestModel
+
 # Environment must be set before importing app
 os.environ.setdefault("ENABLE_AUTH", "false")
 os.environ.setdefault("OTEL_SDK_DISABLED", "true")
@@ -634,7 +636,10 @@ class TestChatCompletionsIdentityForwarding:
             patch("src.api.providers._chat_router.PydanticAIAgentConfig") as mock_config,
             patch(
                 "src.api.providers._chat_router.PydanticAIAgent._initialize_model",
-                return_value=MagicMock(),
+                # pydantic-ai 2's Agent validates its model argument, so a bare
+                # MagicMock no longer constructs; TestModel is the real,
+                # provider-free model pydantic-ai ships for exactly this.
+                return_value=TestModel(),
             ),
         ):
             await _build_agent(req, request)
@@ -674,7 +679,10 @@ class TestChatCompletionsIdentityForwarding:
             patch("src.api.providers._chat_router.PydanticAIAgentConfig") as mock_config,
             patch(
                 "src.api.providers._chat_router.PydanticAIAgent._initialize_model",
-                return_value=MagicMock(),
+                # pydantic-ai 2's Agent validates its model argument, so a bare
+                # MagicMock no longer constructs; TestModel is the real,
+                # provider-free model pydantic-ai ships for exactly this.
+                return_value=TestModel(),
             ),
         ):
             await _build_agent(req, request)
@@ -728,7 +736,10 @@ class TestChatCompletionsOutputSchema:
             patch("src.api.providers._chat_router.PydanticAIAgentConfig"),
             patch(
                 "src.api.providers._chat_router.PydanticAIAgent._initialize_model",
-                return_value=MagicMock(),
+                # pydantic-ai 2's Agent validates its model argument, so a bare
+                # MagicMock no longer constructs; TestModel is the real,
+                # provider-free model pydantic-ai ships for exactly this.
+                return_value=TestModel(),
             ),
             patch("src.api.providers._chat_router.Agent") as mock_agent_cls,
         ):
@@ -768,7 +779,10 @@ class TestChatCompletionsOutputSchema:
             patch("src.api.providers._chat_router.PydanticAIAgentConfig"),
             patch(
                 "src.api.providers._chat_router.PydanticAIAgent._initialize_model",
-                return_value=MagicMock(),
+                # pydantic-ai 2's Agent validates its model argument, so a bare
+                # MagicMock no longer constructs; TestModel is the real,
+                # provider-free model pydantic-ai ships for exactly this.
+                return_value=TestModel(),
             ),
             patch("src.api.providers._chat_router.Agent") as mock_agent_cls,
         ):
@@ -807,7 +821,10 @@ class TestChatCompletionsOutputSchema:
             patch("src.api.providers._chat_router.PydanticAIAgentConfig"),
             patch(
                 "src.api.providers._chat_router.PydanticAIAgent._initialize_model",
-                return_value=MagicMock(),
+                # pydantic-ai 2's Agent validates its model argument, so a bare
+                # MagicMock no longer constructs; TestModel is the real,
+                # provider-free model pydantic-ai ships for exactly this.
+                return_value=TestModel(),
             ),
             patch("src.api.providers._chat_router.Agent") as mock_agent_cls,
         ):
@@ -854,7 +871,10 @@ class TestChatCompletionsOutputSchema:
             patch("src.api.providers._chat_router.PydanticAIAgentConfig"),
             patch(
                 "src.api.providers._chat_router.PydanticAIAgent._initialize_model",
-                return_value=MagicMock(),
+                # pydantic-ai 2's Agent validates its model argument, so a bare
+                # MagicMock no longer constructs; TestModel is the real,
+                # provider-free model pydantic-ai ships for exactly this.
+                return_value=TestModel(),
             ),
             patch("src.api.providers._chat_router.Agent") as mock_agent_cls,
         ):

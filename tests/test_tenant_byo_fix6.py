@@ -22,25 +22,25 @@ class TestG1TwoPlatformSets:
 
     def test_system_tenant_is_commercial_platform_but_not_prompt_write_platform(self):
         from src.api.tenant_constants import (
-            PLATFORM_TENANT_IDS,
             commercial_platform_tenant_ids,
             is_commercial_platform_tenant,
             is_platform_tenant,
+            platform_tenant_ids,
         )
 
         assert is_commercial_platform_tenant(SYSTEM_TENANT) is True
         assert is_platform_tenant(SYSTEM_TENANT) is False
-        assert SYSTEM_TENANT not in PLATFORM_TENANT_IDS
+        assert SYSTEM_TENANT not in platform_tenant_ids()
         # The commercial set (gitops value, see tests/conftest.py) is a strict
         # superset by exactly the system tenant.
-        assert {SYSTEM_TENANT} == commercial_platform_tenant_ids() - PLATFORM_TENANT_IDS
+        assert {SYSTEM_TENANT} == commercial_platform_tenant_ids() - platform_tenant_ids()
 
     def test_commercial_set_fails_closed(self):
         from src.api.tenant_constants import is_commercial_platform_tenant
 
         for value in (None, "", 42, "n8n-dev", "00000000-0000-0000-0000-000000000000"):
             assert is_commercial_platform_tenant(value) is False
-        assert is_commercial_platform_tenant("0195f48b-d000-7000-8000-000000000100") is False
+        assert is_commercial_platform_tenant("aaaaaaaa-0000-4000-8000-000000000100") is False
 
     def test_commercial_set_comes_from_gitops_env_and_drops_names(self, monkeypatch):
         """fr#1385: the set is the env value (gitops), never a code default; a name,
@@ -54,17 +54,17 @@ class TestG1TwoPlatformSets:
         monkeypatch.delenv("COMMERCIAL_PLATFORM_TENANT_IDS", raising=False)
         reset_settings_cache()
         assert commercial_platform_tenant_ids() == frozenset()
-        assert is_commercial_platform_tenant("0195f48b-d000-7000-8000-000000000001") is False
+        assert is_commercial_platform_tenant("aaaaaaaa-0000-4000-8000-000000000001") is False
 
         monkeypatch.setenv(
             "COMMERCIAL_PLATFORM_TENANT_IDS",
-            " 0195F48B-d000-7000-8000-000000000002 ,n8n-dev,"
-            "00000000-0000-0000-0000-000000000000,{0195f48b-d000-7000-8000-000000000003},",
+            " AAAAAAAA-0000-4000-8000-000000000002 ,n8n-dev,"
+            "00000000-0000-0000-0000-000000000000,{aaaaaaaa-0000-4000-8000-000000000003},",
         )
         reset_settings_cache()
         # Case-folded like every tenant uuid; the name, nil and braced forms dropped.
-        assert commercial_platform_tenant_ids() == {"0195f48b-d000-7000-8000-000000000002"}
-        assert is_commercial_platform_tenant("0195f48b-d000-7000-8000-000000000003") is False
+        assert commercial_platform_tenant_ids() == {"aaaaaaaa-0000-4000-8000-000000000002"}
+        assert is_commercial_platform_tenant("aaaaaaaa-0000-4000-8000-000000000003") is False
 
     def test_routing_uses_the_commercial_set(self):
         """The LLM resolver treats the system tenant as platform (IR parity)."""
@@ -233,7 +233,7 @@ class TestN3RedirectHookResolvesUncachedEveryHop:
         import asyncio
         import time
 
-        import httpx
+        import httpx2 as httpx
 
         from src.security import request_overrides as ro
 

@@ -20,7 +20,7 @@ import json
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock, patch
 
-import httpx
+import httpx2 as httpx
 import pytest
 from fastapi import FastAPI, Request
 from fastapi.testclient import TestClient
@@ -35,12 +35,12 @@ from src.telemetry import cost_events
 from src.worker.agents.pydantic_ai_agent import PydanticAIAgent, PydanticAIAgentConfig
 
 AGENT_MODULE = "src.worker.agents.pydantic_ai_agent"
-TENANT = "0195f48b-d000-7000-8000-000000000001"
-OTHER_TENANT = "0195f48b-d000-7000-8000-000000000002"
-PROJECT = "0195f48b-d000-7000-8000-0000000000a1"
-OWN_SA_SUB = "0195f48b-d000-7000-8000-0000000000f1"
-MEMBER = "0195f48b-d000-7000-8000-0000000000c3"
-LICENCE_SUBJECT = "0195f48b-d000-7000-8000-0000000000b2"
+TENANT = "aaaaaaaa-0000-4000-8000-000000000001"
+OTHER_TENANT = "aaaaaaaa-0000-4000-8000-000000000002"
+PROJECT = "aaaaaaaa-0000-4000-8000-0000000000a1"
+OWN_SA_SUB = "aaaaaaaa-0000-4000-8000-0000000000f1"
+MEMBER = "aaaaaaaa-0000-4000-8000-0000000000c3"
+LICENCE_SUBJECT = "aaaaaaaa-0000-4000-8000-0000000000b2"
 
 
 def _val(counter, **labels) -> float:
@@ -210,7 +210,7 @@ def _run_result() -> MagicMock:
     result = MagicMock()
     result.output = "ok"
     result.all_messages.return_value = [message]
-    result.usage.return_value = usage
+    result.usage = usage
     return result
 
 

@@ -24,7 +24,7 @@ import asyncio
 import contextvars
 from unittest.mock import patch
 
-import httpx
+import httpx2 as httpx
 import pytest
 from fastapi import FastAPI, Request
 from fastapi.testclient import TestClient
@@ -41,12 +41,12 @@ from src.worker.agents.pydantic_ai_agent import InferenceRouterOpenAIProvider
 
 IR_URL = "http://inference-router.inference-router.svc.cluster.local:8150/api"
 API_KEY = "test"  # pragma: allowlist secret  (dummy key for provider construction)
-TENANT = "0195f48b-d000-7000-8000-000000000003"
+TENANT = "aaaaaaaa-0000-4000-8000-000000000003"
 
 # Deliberately awkward values: not uuids, mixed case, padding-free punctuation —
 # anything a "helpful" normaliser or validator would touch.
 TRACE_HEADERS: dict[str, str] = {
-    "X-AA-Trace-Id": "Tr4ce-0195f48b/abc:DEF",
+    "X-AA-Trace-Id": "Tr4ce-aaaaaaaa/abc:DEF",
     "X-AA-Card-Id": "card_42.Mixed-Case",
     "X-Project-Id": "not-a-uuid-project",
     "X-AA-Parent-Exec": "n8n-exec-529894",

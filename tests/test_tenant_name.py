@@ -98,7 +98,7 @@ async def test_middleware_stashes_tenant_name_from_header_trusted_network() -> N
     middleware = AuthenticationMiddleware(app=MagicMock(), bypass_auth=False)
 
     request = _make_request_mock(
-        headers={"X-Tenant-Id": "0195f48b-d000-7000-8000-000000000003", "X-Tenant-Name": "acme"},
+        headers={"X-Tenant-Id": "aaaaaaaa-0000-4000-8000-000000000003", "X-Tenant-Name": "acme"},
         client_host="127.0.0.1",
     )
 
@@ -119,7 +119,7 @@ async def test_middleware_stashes_empty_tenant_name_when_header_absent_trusted_n
     middleware = AuthenticationMiddleware(app=MagicMock(), bypass_auth=False)
 
     request = _make_request_mock(
-        headers={"X-Tenant-Id": "0195f48b-d000-7000-8000-000000000003"},
+        headers={"X-Tenant-Id": "aaaaaaaa-0000-4000-8000-000000000003"},
         client_host="127.0.0.1",
     )
 

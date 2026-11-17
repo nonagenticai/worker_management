@@ -20,7 +20,7 @@ from __future__ import annotations
 from typing import Any, cast
 from unittest.mock import AsyncMock, MagicMock, patch
 
-import httpx
+import httpx2 as httpx
 import pytest
 from pydantic_graph import BaseNode, End, GraphRunContext
 
@@ -127,7 +127,7 @@ class TestLoadAdapterNodeHappyPath:
         cls_next = registry[str(next_node.id)]
 
         with patch(
-            "httpx.AsyncClient.post",
+            "httpx2.AsyncClient.post",
             new=AsyncMock(return_value=_mock_post_response(200)),
         ):
             state = _make_state()
@@ -156,7 +156,7 @@ class TestLoadAdapterNodeHappyPath:
         cls_adapter = registry[str(adapter_node.id)]
 
         with patch(
-            "httpx.AsyncClient.post",
+            "httpx2.AsyncClient.post",
             new=AsyncMock(return_value=_mock_post_response(200)),
         ):
             state = _make_state()
@@ -180,7 +180,7 @@ class TestLoadAdapterNodeNonRequiredFailures:
         cls_next = registry[str(next_node.id)]
 
         with patch(
-            "httpx.AsyncClient.post",
+            "httpx2.AsyncClient.post",
             new=AsyncMock(side_effect=httpx.ConnectError("refused")),
         ):
             state = _make_state()
@@ -206,7 +206,7 @@ class TestLoadAdapterNodeNonRequiredFailures:
         cls_adapter = registry[str(adapter_node.id)]
 
         with patch(
-            "httpx.AsyncClient.post",
+            "httpx2.AsyncClient.post",
             new=AsyncMock(side_effect=httpx.ConnectError("refused")),
         ):
             state = _make_state()
@@ -232,7 +232,7 @@ class TestLoadAdapterNodeNonRequiredFailures:
         cls_next = registry[str(next_node.id)]
 
         with patch(
-            "httpx.AsyncClient.post",
+            "httpx2.AsyncClient.post",
             new=AsyncMock(return_value=_mock_post_response(500)),
         ):
             state = _make_state()
@@ -257,7 +257,7 @@ class TestLoadAdapterNodeNonRequiredFailures:
         cls_next = registry[str(next_node.id)]
 
         with patch(
-            "httpx.AsyncClient.post",
+            "httpx2.AsyncClient.post",
             new=AsyncMock(side_effect=httpx.TimeoutException("slow")),
         ):
             state = _make_state()
@@ -288,7 +288,7 @@ class TestLoadAdapterNodeNonRequiredFailures:
         cls_next = registry[str(next_node.id)]
 
         with patch(
-            "httpx.AsyncClient.post",
+            "httpx2.AsyncClient.post",
             new=AsyncMock(side_effect=TimeoutError("stdlib timeout")),
         ):
             state = _make_state()
@@ -321,7 +321,7 @@ class TestLoadAdapterNodeRequiredFailures:
         cls_adapter = registry[str(adapter_node.id)]
 
         with patch(
-            "httpx.AsyncClient.post",
+            "httpx2.AsyncClient.post",
             new=AsyncMock(side_effect=httpx.ConnectError("refused")),
         ):
             state = _make_state()
@@ -376,7 +376,7 @@ class TestLoadAdapterNodeNotConfigured:
 
         post = AsyncMock(return_value=_mock_post_response(200))
         with (
-            patch("httpx.AsyncClient.post", new=post),
+            patch("httpx2.AsyncClient.post", new=post),
             patch(
                 "src.worker.graphs.nodes.load_adapter_node.httpx.AsyncClient",
                 wraps=httpx.AsyncClient,
@@ -417,7 +417,7 @@ class TestLoadAdapterNodeNotConfigured:
         adapter_node = _make_adapter_node("lora-nc2", adapter_manager_url="")
         registry = _build_registry([adapter_node])
         post = AsyncMock(return_value=_mock_post_response(200))
-        with patch("httpx.AsyncClient.post", new=post):
+        with patch("httpx2.AsyncClient.post", new=post):
             state = _make_state()
             result = await registry[str(adapter_node.id)]().run(_make_ctx(state))
         assert post.await_count == 0

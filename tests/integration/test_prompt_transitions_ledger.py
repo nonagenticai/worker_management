@@ -29,7 +29,7 @@ import uuid
 from contextlib import asynccontextmanager
 from typing import TYPE_CHECKING, Any, ClassVar
 
-import httpx
+import httpx2 as httpx
 import psycopg
 import pytest
 import pytest_asyncio
@@ -59,8 +59,8 @@ SA = "n8n-prompt-publisher"
 # A Planka card id: REALIGN R7 requires one on every move into CANARY/PUBLISHED.
 CARD = "1234567890123456789"
 CARD_BODY: dict[str, Any] = {"actor_card_id": CARD}
-PLATFORM_TENANT = "0195f48b-d000-7000-8000-000000000001"
-LICENCE_SUBJECT = "0195f48b-0000-7000-8000-00000000abcd"
+PLATFORM_TENANT = "aaaaaaaa-0000-4000-8000-000000000001"
+LICENCE_SUBJECT = "aaaaaaaa-0000-7000-8000-00000000abcd"
 SPOOF = "spoofed-actor"
 # Every header an attacker could use to name an actor. None may reach the ledger.
 SPOOF_HEADERS = {
@@ -205,7 +205,7 @@ def client(pg_pool, monkeypatch, principal: Principal, fr: FakeFr) -> Iterator[T
     # needs a prompt SA role), and the licence/nobody principals below carry no
     # role. The gate itself is proved in tests/test_prompt_routes_unit.py
     # (TestPlatformGate).
-    app.dependency_overrides[get_tenant_id] = lambda: "0195f48b-d000-7000-8000-000000000001"
+    app.dependency_overrides[get_tenant_id] = lambda: "aaaaaaaa-0000-4000-8000-000000000001"
 
     @app.middleware("http")
     async def _stamp(request: Request, call_next):
@@ -601,7 +601,7 @@ async def _draft(pid: str, v: int) -> None:
         purpose_tags=["keywords"],
         git_sha=None,
         actor=Actor(sub=SA, kind="service_account"),
-        owner_tenant_id="0195f48b-d000-7000-8000-000000000001",
+        owner_tenant_id="aaaaaaaa-0000-4000-8000-000000000001",
     )
 
 
@@ -969,7 +969,7 @@ class TestReleaseCardLookup:
                     200,
                     json={
                         "card_id": CARD,
-                        "tenant_id": "0195f48b-d000-7000-8000-000000000100",
+                        "tenant_id": "aaaaaaaa-0000-4000-8000-000000000100",
                         "platform": True,
                     },
                 ),

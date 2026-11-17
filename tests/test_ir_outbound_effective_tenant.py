@@ -10,7 +10,7 @@ effective tenant the inbound middleware resolved into context), not just
 
 from __future__ import annotations
 
-import httpx
+import httpx2 as httpx
 import pytest
 
 from src.api.identity_context import (

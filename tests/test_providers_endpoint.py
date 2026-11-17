@@ -358,7 +358,7 @@ class TestUnreachableBackendNamesAReason:
     """fr#1385: vlm_local's 502 carried an EMPTY reason (bare httpx error)."""
 
     def test_empty_exception_text_is_replaced_by_its_type(self, client, monkeypatch):
-        import httpx
+        import httpx2 as httpx
 
         monkeypatch.setenv("VLM_LOCAL_URL", "http://vlm.test:9203/api/vlm")
 

@@ -8,9 +8,9 @@ import os
 import time
 from contextlib import AsyncExitStack
 from typing import Any, ClassVar, cast
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock, PropertyMock, patch
 
-import httpx
+import httpx2 as httpx
 import pytest
 from pydantic import BaseModel
 from pydantic_ai import Tool
@@ -460,7 +460,7 @@ class TestTokenUsageExtraction:
         mock_usage.input_tokens = 10
         mock_usage.output_tokens = 20
         mock_usage.total_tokens = 30
-        mock_result.usage.return_value = mock_usage
+        mock_result.usage = mock_usage
         metrics = agent._extract_token_usage("test", mock_result)
         assert metrics is not None
         assert metrics.prompt_tokens == 10
@@ -472,7 +472,7 @@ class TestTokenUsageExtraction:
         mock_result = MagicMock()
         mock_usage = MagicMock()
         mock_usage.has_values.return_value = False
-        mock_result.usage.return_value = mock_usage
+        mock_result.usage = mock_usage
         # Remove model usage path
         agent.agent = MagicMock()
         agent.agent.model = MagicMock()
@@ -485,7 +485,7 @@ class TestTokenUsageExtraction:
         mock_result = MagicMock()
         mock_usage = MagicMock()
         mock_usage.has_values.return_value = False
-        mock_result.usage.return_value = mock_usage
+        mock_result.usage = mock_usage
 
         # Set up legacy model usage
         model_usage = MagicMock()
@@ -513,7 +513,7 @@ class TestTokenUsageExtraction:
     def test_extract_exception_returns_none(self):
         agent, _, _ = _make_agent()
         mock_result = MagicMock()
-        mock_result.usage.side_effect = RuntimeError("broken")
+        type(mock_result).usage = PropertyMock(side_effect=RuntimeError("broken"))
         agent.agent = MagicMock()
         agent.agent.model = MagicMock(spec=[])  # no usage attribute
         metrics = agent._extract_token_usage("test", mock_result)
@@ -588,7 +588,7 @@ def _run_result(completion_tokens, finish_reason=None):
     usage.input_tokens = 100
     usage.output_tokens = completion_tokens
     usage.total_tokens = 100 + completion_tokens
-    result.usage.return_value = usage
+    result.usage = usage
 
     response_message = MagicMock()
     response_message.kind = "response"
@@ -721,7 +721,7 @@ class TestMaxTokensCapHit:
         run_result = MagicMock()
         usage = MagicMock()
         usage.has_values.return_value = False
-        run_result.usage.return_value = usage
+        run_result.usage = usage
         run_result.all_messages.return_value = []  # no finish_reason available
 
         model_usage = MagicMock()
@@ -1992,7 +1992,7 @@ class TestRunLifecycle:
         mock_usage.input_tokens = 5
         mock_usage.output_tokens = 10
         mock_usage.total_tokens = 15
-        mock_response.usage.return_value = mock_usage
+        mock_response.usage = mock_usage
         mock_agent_inst.run = AsyncMock(return_value=mock_response)
 
         with patch(f"{MODULE}.get_metrics_client") as mock_mc:
@@ -2060,7 +2060,7 @@ class TestRunLifecycle:
         mock_usage.input_tokens = 5
         mock_usage.output_tokens = 10
         mock_usage.total_tokens = 15
-        mock_response.usage.return_value = mock_usage
+        mock_response.usage = mock_usage
         mock_agent_inst.run = AsyncMock(return_value=mock_response)
 
         with patch(f"{MODULE}.get_metrics_client") as mock_mc:
@@ -2083,7 +2083,7 @@ class TestRunWithContext:
         mock_response.output = "context result"
         mock_usage = MagicMock()
         mock_usage.has_values.return_value = False
-        mock_response.usage.return_value = mock_usage
+        mock_response.usage = mock_usage
         mock_agent_inst.run = AsyncMock(return_value=mock_response)
 
         # Mock model.usage as None to avoid legacy path
@@ -2162,7 +2162,7 @@ class TestMCPErrorRecovery:
         mock_response.output = "recovered"
         mock_usage = MagicMock()
         mock_usage.has_values.return_value = False
-        mock_response.usage.return_value = mock_usage
+        mock_response.usage = mock_usage
         mock_agent_inst.run = AsyncMock(return_value=mock_response)
         agent.agent = mock_agent_inst
         mock_agent_inst.model = MagicMock()
@@ -4104,7 +4104,7 @@ class TestLostAnswerIsNotASuccess:
         mock_response.output = None
         mock_response.all_messages.return_value = []
         mock_response.all_messages_json.side_effect = Exception("no json")
-        mock_response.usage.return_value = self._usage()
+        mock_response.usage = self._usage()
         mock_agent_inst.run = AsyncMock(return_value=mock_response)
 
         with patch(f"{MODULE}.get_metrics_client") as mock_mc:
@@ -4129,7 +4129,7 @@ class TestLostAnswerIsNotASuccess:
         agent, _, mock_agent_inst = _make_agent()
         mock_response = MagicMock()
         mock_response.output = "a real answer"
-        mock_response.usage.return_value = self._usage(10)
+        mock_response.usage = self._usage(10)
         mock_agent_inst.run = AsyncMock(return_value=mock_response)
 
         with patch(f"{MODULE}.get_metrics_client") as mock_mc:
@@ -4152,7 +4152,7 @@ class TestLostAnswerIsNotASuccess:
         mock_response.output = None
         mock_response.all_messages.return_value = []
         mock_response.all_messages_json.side_effect = Exception("no json")
-        mock_response.usage.return_value = self._usage(0)
+        mock_response.usage = self._usage(0)
         mock_agent_inst.run = AsyncMock(return_value=mock_response)
 
         with patch(f"{MODULE}.get_metrics_client") as mock_mc:
@@ -4200,7 +4200,7 @@ class TestVacuousAnswerIsNotASuccess:
         agent, _, mock_agent_inst = _make_agent(output_schema=schema)
         mock_response = MagicMock()
         mock_response.output = output
-        mock_response.usage.return_value = self._usage()
+        mock_response.usage = self._usage()
         mock_agent_inst.run = AsyncMock(return_value=mock_response)
         with patch(f"{MODULE}.get_metrics_client") as mock_mc:
             mock_metrics = MagicMock()
@@ -4266,7 +4266,7 @@ class TestVacuousAnswerIsNotASuccess:
         mock_response.output = None
         mock_response.all_messages.return_value = []
         mock_response.all_messages_json.side_effect = Exception("no json")
-        mock_response.usage.return_value = self._usage(12000)
+        mock_response.usage = self._usage(12000)
         mock_agent_inst.run = AsyncMock(return_value=mock_response)
         with patch(f"{MODULE}.get_metrics_client") as mock_mc:
             mock_metrics = MagicMock()
@@ -4692,7 +4692,7 @@ class TestNoneNeverReachesTheCallerUnderSuccess:
         # Only consulted when output is None; makes strategy 2/3 find nothing.
         mock_response.all_messages.return_value = []
         mock_response.all_messages_json.side_effect = Exception("no json")
-        mock_response.usage.return_value = self._usage()
+        mock_response.usage = self._usage()
         mock_agent_inst.run = AsyncMock(return_value=mock_response)
 
         with patch(f"{MODULE}.get_metrics_client") as mock_mc:
@@ -4741,7 +4741,7 @@ class TestNoneNeverReachesTheCallerUnderSuccess:
         u.input_tokens = 5
         u.output_tokens = 12000
         u.total_tokens = 12005
-        mock_response.usage.return_value = u
+        mock_response.usage = u
         mock_agent_inst.run = AsyncMock(return_value=mock_response)
 
         with patch(f"{MODULE}.get_metrics_client") as mock_mc:
@@ -5074,14 +5074,14 @@ class TestIrBundleTokenOnIdentityHook:
     async def test_proven_platform_tenant_gets_its_own_token(self, monkeypatch):
         # Owner ruling 2026-10-06: platform tenants are licensed like any other.
         from src.api.identity_context import set_identity_context
-        from src.api.tenant_constants import DEFAULT_TENANT_UUID
+        from src.api.tenant_constants import default_tenant_uuid
 
         monkeypatch.setenv("WM_IR_BUNDLE_TOKENS", "true")
-        set_identity_context(DEFAULT_TENANT_UUID, "lic-1", "sub-1", tenant_provenance="license")
+        set_identity_context(default_tenant_uuid(), "lic-1", "sub-1", tenant_provenance="license")
         req = self._req(f"{_BT_IR_URL}/v1/chat/completions")
         await self._hook()(req)
         assert req.headers["Authorization"] == f"Bearer {_BT_TOKEN}"
-        assert self.minted == [DEFAULT_TENANT_UUID]
+        assert self.minted == [default_tenant_uuid()]
 
     async def test_same_host_different_scheme_or_port_never_gets_the_token(self, monkeypatch):
         # Origin match, not hostname match: another listener on the IR host

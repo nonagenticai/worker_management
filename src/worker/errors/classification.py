@@ -16,7 +16,7 @@ from __future__ import annotations
 import json
 from typing import Any
 
-import httpx
+import httpx2 as httpx
 import openai
 
 _MAX_BODY_CHARS = 2048

@@ -23,7 +23,7 @@ import time
 from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
 
-import httpx
+import httpx2 as httpx
 import jwt
 import pytest
 from cryptography.hazmat.primitives.asymmetric import rsa
@@ -383,7 +383,9 @@ async def test_completion_hook_for_a_proven_tenant_sends_the_token(licenses: _Li
 # other tenant — but only when PROVEN. Membership grants nothing by itself: an
 # asserted platform tenant still gets no token.
 
-PLATFORM_0002 = "0195f48b-d000-7000-8000-000000000002"  # in the conftest gitops set
+from tests._platform_tenant import EXECUTION_TENANT
+
+PLATFORM_0002 = EXECUTION_TENANT  # in the conftest gitops commercial set
 
 
 async def test_proven_platform_tenant_gets_its_own_bundle_token(licenses: _Licenses) -> None:

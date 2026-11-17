@@ -159,7 +159,7 @@ from src.api.prompts.models import (
     is_valid_actor_card_id,
     validate_prompt_id,
 )
-from src.api.tenant_constants import SYSTEM_TENANT_ID, is_platform_tenant
+from src.api.tenant_constants import is_platform_tenant, system_tenant_id
 from src.auth import caller_identity, get_tenant_id
 from src.auth.caller_identity import require_any_role, require_role
 from src.settings import get_settings
@@ -650,7 +650,7 @@ async def publish_prompt_version(
             # licence tenant is incidental (the bootstrap SA's is the AA conveyor
             # tenant), and every prompt they ever wrote is backfilled to the system
             # tenant in 035 -- so new ones are system-owned too (U6 ownership).
-            owner_tenant_id=SYSTEM_TENANT_ID if _holds_prompt_role() else tenant_id,
+            owner_tenant_id=system_tenant_id() if _holds_prompt_role() else tenant_id,
             privileged=_holds_prompt_role(),
         )
     except repository.PromptOwnerMismatch as exc:

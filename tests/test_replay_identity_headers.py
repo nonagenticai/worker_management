@@ -21,7 +21,7 @@ test_ir_outbound_effective_tenant.py. No DB / network required.
 
 from __future__ import annotations
 
-import httpx
+import httpx2 as httpx
 import pytest
 
 from src.api.identity_context import (

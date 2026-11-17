@@ -57,14 +57,9 @@ class AgentExecutionResponse(BaseModel):
     container_id: str
 
 
-@router.post(
-    "/containers/{container_id}/execute-agent",
-    response_model=AgentExecutionResponse
-)
+@router.post("/containers/{container_id}/execute-agent", response_model=AgentExecutionResponse)
 async def execute_agent(
-    container_id: str,
-    request: AgentExecutionRequest,
-    authorization: Optional[str] = Header(None)
+    container_id: str, request: AgentExecutionRequest, authorization: Optional[str] = Header(None)
 ) -> AgentExecutionResponse:
     """Execute CLI agent in a repo container.
 
@@ -88,24 +83,18 @@ async def execute_agent(
         container_info = await container.show()
 
         if container_info["State"]["Status"] != "running":
-            raise HTTPException(
-                status_code=400,
-                detail=f"Container {container_id} is not running"
-            )
+            raise HTTPException(status_code=400, detail=f"Container {container_id} is not running")
 
     except aiodocker.exceptions.DockerError as e:
         await docker.close()
-        raise HTTPException(
-            status_code=404,
-            detail=f"Container {container_id} not found"
-        )
+        raise HTTPException(status_code=404, detail=f"Container {container_id} not found")
 
     # 3. Build CLI command
     command = build_cli_command(
         cli=request.cli,
         prompt=request.prompt,
         system_prompt=request.system_prompt,
-        model=request.model
+        model=request.model,
     )
 
     # 4. Execute in container
@@ -132,7 +121,7 @@ async def execute_agent(
         # Wait with timeout
         await asyncio.wait_for(
             asyncio.sleep(0.1),  # Small delay for exec to finish
-            timeout=request.timeout
+            timeout=request.timeout,
         )
 
         # Get output
@@ -144,10 +133,7 @@ async def execute_agent(
 
         execution_time = time.time() - start_time
 
-        logger.info(
-            f"Agent execution completed in {execution_time:.2f}s, "
-            f"exit_code: {exit_code}"
-        )
+        logger.info(f"Agent execution completed in {execution_time:.2f}s, exit_code: {exit_code}")
 
         await docker.close()
 
@@ -157,7 +143,7 @@ async def execute_agent(
             error=None if exit_code == 0 else "CLI execution failed",
             exit_code=exit_code,
             execution_time=execution_time,
-            container_id=container_id
+            container_id=container_id,
         )
 
     except asyncio.TimeoutError:
@@ -172,7 +158,7 @@ async def execute_agent(
             error=f"Execution timed out after {request.timeout}s",
             exit_code=-1,
             execution_time=execution_time,
-            container_id=container_id
+            container_id=container_id,
         )
 
     except Exception as e:
@@ -187,15 +173,12 @@ async def execute_agent(
             error=str(e),
             exit_code=-1,
             execution_time=execution_time,
-            container_id=container_id
+            container_id=container_id,
         )
 
 
 def build_cli_command(
-    cli: str,
-    prompt: str,
-    system_prompt: Optional[str] = None,
-    model: Optional[str] = None
+    cli: str, prompt: str, system_prompt: Optional[str] = None, model: Optional[str] = None
 ) -> list[str]:
     """Build CLI command array for docker exec.
 
@@ -344,7 +327,7 @@ container = await docker.containers.create(
                 f"{Path.home()}/.claude:/home/executor/.claude:ro",
                 f"{Path.home()}/.codex:/home/executor/.codex:ro",
             ]
-        }
+        },
     }
 )
 ```
@@ -360,11 +343,7 @@ from .agent_execution import router as agent_router
 app = FastAPI()
 
 # Register agent execution endpoint
-app.include_router(
-    agent_router,
-    prefix="/api/v1",
-    tags=["agent-execution"]
-)
+app.include_router(agent_router, prefix="/api/v1", tags=["agent-execution"])
 
 # Add to existing endpoints
 # ...
@@ -410,7 +389,7 @@ agent = create_remote_claude_agent(
     executor_endpoint="https://mini1.local:8889",
     api_key="secret-key",
     container_id="repo-abc123",
-    workspace="/workspace/repo"
+    workspace="/workspace/repo",
 )
 
 result = await agent.run("What files are in this repository?")
@@ -452,51 +431,54 @@ curl https://mini1.local:8889/health
 ```python
 # orchestrator/workflows/analyze_repo.py
 
+
 async def analyze_github_repo(github_url: str):
     """Complete workflow for analyzing a GitHub repo."""
 
     # 1. Provision repo container (code_graph_helper)
-    repo = await code_graph_helper_client.post("/repos/provision", json={
-        "github_url": github_url,
-        "include_cli": True  # Ensure CLIs are installed
-    })
+    repo = await code_graph_helper_client.post(
+        "/repos/provision",
+        json={
+            "github_url": github_url,
+            "include_cli": True,  # Ensure CLIs are installed
+        },
+    )
     container_id = repo["container_id"]
 
     try:
         # 2. Create remote worker (worker_management)
-        worker = await worker_management_client.post("/workers", json={
-            "name": f"analyzer-{container_id[:8]}",
-            "agent_type": "remote_claude",
-            "config": {
-                "executor_endpoint": os.getenv("CODE_GRAPH_HELPER_ENDPOINT"),
-                "api_key": os.getenv("CODE_GRAPH_HELPER_API_KEY"),
-                "container_id": container_id,
-                "workspace": "/workspace/repo",
-                "model": "sonnet",
-                "system_prompt": "You are an expert code analyst."
-            }
-        })
+        worker = await worker_management_client.post(
+            "/workers",
+            json={
+                "name": f"analyzer-{container_id[:8]}",
+                "agent_type": "remote_claude",
+                "config": {
+                    "executor_endpoint": os.getenv("CODE_GRAPH_HELPER_ENDPOINT"),
+                    "api_key": os.getenv("CODE_GRAPH_HELPER_API_KEY"),
+                    "container_id": container_id,
+                    "workspace": "/workspace/repo",
+                    "model": "sonnet",
+                    "system_prompt": "You are an expert code analyst.",
+                },
+            },
+        )
         worker_id = worker["id"]
 
         # 3. Execute analysis tasks
         tasks = [
             "Analyze the overall architecture",
             "Identify security vulnerabilities",
-            "Document the API surface"
+            "Document the API surface",
         ]
 
         results = []
         for task in tasks:
             result = await worker_management_client.post(
-                f"/workers/{worker_id}/execute",
-                json={"task": task}
+                f"/workers/{worker_id}/execute", json={"task": task}
             )
             results.append(result)
 
-        return {
-            "repo": github_url,
-            "analysis": results
-        }
+        return {"repo": github_url, "analysis": results}
 
     finally:
         # 4. Cleanup

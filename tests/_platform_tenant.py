@@ -19,9 +19,61 @@ from unittest.mock import patch
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
-PLATFORM_TENANT = "0195f48b-d000-7000-8000-000000000001"  # n8n-dev, a platform tenant
-CUSTOMER_TENANT_A = "0195f48b-d000-7000-8000-0000000000aa"
-CUSTOMER_TENANT_B = "0195f48b-d000-7000-8000-0000000000bb"
+# ---------------------------------------------------------------------------
+# SYNTHETIC TENANTS — the only tenant uuids this suite is allowed to name.
+#
+# ⛔ THE PRODUCTION TENANT IDS DO NOT BELONG IN THIS REPOSITORY (it is public),
+# and they are no longer in it: every value below is fabricated in the
+# ``aaaaaaaa-0000-4000-8000-`` namespace, which is reserved for nothing and
+# resolves nowhere. The real values arrive through the environment
+# (``tests/conftest.py`` sets the same synthetic values, so unit tests exercise
+# the machinery without ever spelling a real tenant).
+#
+# ``tests/test_no_production_tenant_literals.py`` reds if a production uuid
+# reappears anywhere under ``src/`` or ``tests/``.
+# ---------------------------------------------------------------------------
+SYSTEM_TENANT = "aaaaaaaa-0000-4000-8000-000000000001"  # system + default + "n8n-dev"
+EXECUTION_TENANT = "aaaaaaaa-0000-4000-8000-000000000003"
+KATA_TENANT = "aaaaaaaa-0000-4000-8000-000000000006"  # release tenant beside system
+AA_CONVEYOR_TENANT = "bbbbbbbb-0000-4000-8000-0000000000a5"  # own 8-char prefix
+V4_CONVEYOR_TENANT = "cccccccc-0000-4000-8000-0000000000a6"  # own 8-char prefix
+FR_TEST_TENANT = "aaaaaaaa-0000-4000-8000-000000000099"
+
+PLATFORM_TENANT = SYSTEM_TENANT  # the default "a platform tenant" for a test
+PLATFORM_TENANTS = frozenset(
+    {SYSTEM_TENANT, EXECUTION_TENANT, KATA_TENANT, AA_CONVEYOR_TENANT, V4_CONVEYOR_TENANT}
+)
+RELEASE_TENANTS = frozenset({SYSTEM_TENANT, KATA_TENANT})
+CUSTOMER_TENANT_A = "aaaaaaaa-0000-4000-8000-0000000000aa"
+CUSTOMER_TENANT_B = "aaaaaaaa-0000-4000-8000-0000000000bb"
+CUSTOMER_TENANT_C = "aaaaaaaa-0000-4000-8000-0000000000a7"  # "cdmsfirst"
+
+# The label map the tests run against (the shape the portal realm mints).
+# ⚠️ The LABELS stay as the estate spells them (a label is not an id, and the
+# suite reads the same with them); the UUIDs behind them are fabricated.
+TEST_TENANT_UUIDS = {
+    "n8n-dev": SYSTEM_TENANT,
+    "george-dev": EXECUTION_TENANT,
+    "fr-test": FR_TEST_TENANT,
+    "cdmsfirst": CUSTOMER_TENANT_C,
+}
+
+# The gitops ``00000000-…-0001`` "system" row of the COMMERCIAL set. Fabricated,
+# not a provisioned workspace, and deliberately absent from the platform set.
+SYSTEM_ZERO_TENANT = "00000000-0000-0000-0000-000000000001"
+COMMERCIAL_PLATFORM_TENANTS = PLATFORM_TENANTS | {SYSTEM_ZERO_TENANT}
+
+
+def tenant_env() -> dict[str, str]:
+    """The env values that make the service behave as the production estate does."""
+    return {
+        "PLATFORM_TENANT_IDS": ",".join(sorted(PLATFORM_TENANTS)),
+        "RELEASE_TENANT_IDS": ",".join(sorted(RELEASE_TENANTS)),
+        "TENANT_UUIDS": ",".join(f"{k}={v}" for k, v in TEST_TENANT_UUIDS.items()),
+        "SYSTEM_TENANT_ID": SYSTEM_TENANT,
+        "DEFAULT_TENANT_ID": SYSTEM_TENANT,
+        "COMMERCIAL_PLATFORM_TENANT_IDS": ",".join(sorted(COMMERCIAL_PLATFORM_TENANTS)),
+    }
 
 
 @contextlib.contextmanager

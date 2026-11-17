@@ -10,7 +10,7 @@ import logging
 import os
 from typing import TYPE_CHECKING, Any
 
-import httpx
+import httpx2 as httpx
 from pydantic import Field
 
 from .base_agent import AgentRunResult, TokenUsageMetrics

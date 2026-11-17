@@ -35,7 +35,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
-import httpx
+import httpx2 as httpx
 import yaml
 
 DEFAULT_WM_URL = "http://worker-management:8887"
@@ -110,7 +110,7 @@ def main() -> int:
 
     print(f"Seeding to {base_url}")
     failures: list[str] = []
-    with httpx.Client(verify=False) as client:  # noqa: S501
+    with httpx.Client(verify=False) as client:
         for w in workers:
             name = w["worker_name"]
             ok, status = put_worker(client, base_url, w, token)

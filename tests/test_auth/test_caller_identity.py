@@ -13,7 +13,7 @@ import time
 from typing import TYPE_CHECKING, Any, cast
 from unittest.mock import patch
 
-import httpx
+import httpx2 as httpx
 import pytest
 from fastapi import HTTPException, Request
 

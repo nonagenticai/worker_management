@@ -25,7 +25,7 @@ from .security_middleware import (
     RequestValidationMiddleware,
     SecurityHeadersMiddleware,
 )
-from .tenant_constants import DEFAULT_TENANT_UUID
+from .tenant_constants import default_tenant_uuid
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Callable
@@ -44,7 +44,7 @@ ENABLE_DOCS = os.getenv("ENABLE_DOCS", "false").lower() == "true"
 # example below (~line 178), so it can never scope a request or reach the
 # database — a bad value renders a bad example, nothing more.
 # ⛔ If you ever make this feed a request tenant, resolve it first.
-DEFAULT_TENANT_ID = os.getenv("DEFAULT_TENANT_ID", DEFAULT_TENANT_UUID)
+DEFAULT_TENANT_ID = os.getenv("DEFAULT_TENANT_ID") or default_tenant_uuid()
 
 # Security configuration
 ENABLE_AUTHENTICATION = os.getenv("ENABLE_AUTH", "true").lower() == "true"

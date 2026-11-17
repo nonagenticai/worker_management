@@ -10,7 +10,7 @@ predicate matches the rows it was written for is to seed those rows and look.
 WHAT IT HAS TO PROVE, AND WHY EACH PART IS HERE
 -----------------------------------------------
 1. **The two offending rows are deleted.** Tenant
-   ``0195f48b-d000-7000-8000-000000000001``, roles ``tier:medium`` and
+   ``aaaaaaaa-0000-4000-8000-000000000001``, roles ``tier:medium`` and
    ``tier:high``, ``provider='local'``, ``model='tier-medium'`` — the shape that
    spent $140.31 over 46,102 requests on api.deepseek.com while the tenant's own
    configuration said "platform inference".
@@ -54,10 +54,10 @@ from .pg_guard import (
 pytestmark = [pytest.mark.pg, pytest.mark.asyncio]
 
 # The tenant whose two rows the migration removes (platform-cp-1).
-VICTIM = "0195f48b-d000-7000-8000-000000000001"
+VICTIM = "aaaaaaaa-0000-4000-8000-000000000001"
 # A bystander that carries a byte-identical pair of rows. If the tenant_id
 # predicate is dropped, this tenant loses its config too.
-BYSTANDER = "0195f48b-d000-7000-8000-0000000000ff"
+BYSTANDER = "aaaaaaaa-0000-4000-8000-0000000000ff"
 
 # (tenant, role, provider, model, created_at, survives?)
 SEED: tuple[tuple[str, str, str, str, str, bool], ...] = (

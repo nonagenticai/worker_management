@@ -14,7 +14,7 @@ from abc import abstractmethod
 from typing import Any
 from uuid import UUID, uuid7
 
-import httpx
+import httpx2 as httpx
 from pydantic import BaseModel, ConfigDict, Field
 
 from src.api.identity_context import get_identity_headers

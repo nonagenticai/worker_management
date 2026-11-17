@@ -33,8 +33,8 @@ _UP_034 = _ROOT / "034_worker_prompt_binding.sql"
 _UP_035 = _ROOT / "035_prompt_owner.sql"
 _DOWN_035 = _ROOT / "down" / "035_prompt_owner.down.sql"
 _SCHEMA = "u6_mig035"
-SYSTEM = "0195f48b-d000-7000-8000-000000000001"
-TENANT_B = "0195f48b-d000-7000-8000-000000000003"
+SYSTEM = "aaaaaaaa-0000-4000-8000-000000000001"
+TENANT_B = "aaaaaaaa-0000-4000-8000-000000000003"
 
 
 def _body(path: Path) -> str:

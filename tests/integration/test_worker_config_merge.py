@@ -562,7 +562,7 @@ class TestSeedPersistsAndReachesTheWire:
         import json
         from unittest.mock import AsyncMock, MagicMock, patch
 
-        import httpx
+        import httpx2 as httpx
 
         from src.api.workers._globals import WorkerInstanceCache
 

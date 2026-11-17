@@ -20,7 +20,7 @@ from __future__ import annotations
 
 import asyncio
 
-import httpx
+import httpx2 as httpx
 import pytest
 
 from src.api.identity_context import set_app_id_context, set_correlation_context

@@ -5,7 +5,7 @@
 Until 2026-08-25 ``auth_middleware.dispatch`` did, on the tokenless
 trusted-network path:
 
-    tenant_id = x_tenant_id.strip() if x_tenant_id else DEFAULT_TENANT_ID
+    tenant_id = x_tenant_id.strip() if x_tenant_id else default_tenant_uuid()
 
 — i.e. whatever a caller inside the pod network put in ``X-Tenant-Id`` was
 adopted as the request's tenant and written to the database verbatim. The
@@ -26,14 +26,14 @@ chose. The boundary therefore has to reject it, and reject it as a 400.
 The two halves that must BOTH hold:
   * a canonical UUID works — and is the ONLY thing that does;
   * anything else is refused, and specifically is NOT silently replaced by
-    ``DEFAULT_TENANT_ID``. A silent fallback would keep the pipe open while
+    ``default_tenant_uuid()``. A silent fallback would keep the pipe open while
     hiding it, and would quietly serve one tenant another tenant's data on a
     typo.
 
 ⚠️ AMENDED 2026-09-16 — the first half used to read "a NAME this deployment
 knows still works — resolved, never stored". Names are now refused too. A name
 is not merely unstored, it is UNDECIDABLE: ``n8n-dev`` resolves through
-``TENANT_UUIDS`` to the seed tenant ``n8n-dev-portal-realm`` while the licences
+``tenant_uuids()`` to the seed tenant ``n8n-dev-portal-realm`` while the licences
 registry has ``n8n-dev`` as a different live tenant, so "resolved" was resolving
 to the wrong one. See ``tests/test_tokenless_tenant_name_is_refused.py``.
 """
@@ -46,8 +46,8 @@ import pytest
 from fastapi import FastAPI, Request
 from fastapi.testclient import TestClient
 
-from src.api.auth_middleware import DEFAULT_TENANT_ID, AuthenticationMiddleware
-from src.api.tenant_constants import TENANT_UUIDS
+from src.api.auth_middleware import AuthenticationMiddleware
+from src.api.tenant_constants import default_tenant_uuid, tenant_uuids
 
 
 @pytest.fixture
@@ -74,16 +74,16 @@ def _get(app: FastAPI, tenant_header: str | None) -> tuple[int, dict]:
     return resp.status_code, body
 
 
-@pytest.mark.parametrize("name", sorted(TENANT_UUIDS))
+@pytest.mark.parametrize("name", sorted(tenant_uuids()))
 def test_a_known_tenant_name_is_refused(app: FastAPI, name: str) -> None:
     """⚠️ INVERTED 2026-09-16. This test used to assert a NAME is ACCEPTED.
 
     It was not a wrong test for the contract it was written against — the 2026-08-25
     change it pins deliberately kept names working while closing the verbatim-adoption
     hole. It became wrong when the name half was measured: ``n8n-dev`` resolves here to
-    ``0195f48b-…0001``, which the licences registry calls ``n8n-dev-portal-realm`` (the
+    ``aaaaaaaa-…0001``, which the licences registry calls ``n8n-dev-portal-realm`` (the
     SEED tenant), while the tenant actually named ``n8n-dev`` is
-    ``019de842-c92a-7e37-8fdd-eb0d8c5396f9``. ``fr-test`` collides the same way.
+    ``bbbbbbbb-0000-4000-8000-0000000000a5``. ``fr-test`` collides the same way.
 
     So the assertion below is not a relaxation of this file's thesis, it is its
     completion: a value that resolves to a *different real tenant* than the caller
@@ -97,20 +97,20 @@ def test_a_known_tenant_name_is_refused(app: FastAPI, name: str) -> None:
     assert status == 400
     # The load-bearing half: refusing must not hand back a tenant anyway.
     assert body.get("tenant_id") is None
-    assert body.get("tenant_id") != TENANT_UUIDS[name]
+    assert body.get("tenant_id") != tenant_uuids()[name]
 
 
 def test_a_uuid_passes_through_case_insensitively(app: FastAPI) -> None:
-    status, body = _get(app, "0195F48B-D000-7000-8000-000000000003")
+    status, body = _get(app, "AAAAAAAA-0000-4000-8000-000000000003")
     assert status == 200
-    assert body["tenant_id"] == "0195f48b-d000-7000-8000-000000000003"
+    assert body["tenant_id"] == "aaaaaaaa-0000-4000-8000-000000000003"
 
 
 def test_absent_header_uses_the_default_tenant(app: FastAPI) -> None:
     """Unchanged behaviour, asserted so the change above is scoped to the header."""
     status, body = _get(app, None)
     assert status == 200
-    assert body["tenant_id"] == DEFAULT_TENANT_ID
+    assert body["tenant_id"] == default_tenant_uuid()
 
 
 @pytest.mark.parametrize(
@@ -128,9 +128,9 @@ def test_absent_header_uses_the_default_tenant(app: FastAPI) -> None:
         "gerard-dev",
         # Shapes uuid.UUID() would otherwise accept but that round-trip to a
         # different string than the caller sent.
-        "urn:uuid:0195f48b-d000-7000-8000-000000000003",
-        "{0195f48b-d000-7000-8000-000000000003}",
-        "0195f48bd00070008000000000000003",
+        "urn:uuid:aaaaaaaa-0000-4000-8000-000000000003",
+        "{aaaaaaaa-0000-4000-8000-000000000003}",
+        "aaaaaaaad00070008000000000000003",
         # Injection-ish and empty shapes.
         "' OR 1=1 --",
         "..",
@@ -179,10 +179,10 @@ def test_a_rejected_tenant_does_not_fall_back_to_the_default(app: FastAPI, bogus
 
     A 400 is only the right outcome if the alternative was NOT "quietly serve
     the default tenant". If this ever starts returning 200 with
-    ``DEFAULT_TENANT_ID``, a caller's typo silently reads and writes another
+    ``default_tenant_uuid()``, a caller's typo silently reads and writes another
     tenant's data — the exact failure the 400 exists to prevent, and one that
     a status-code-only assertion would not catch.
     """
     status, body = _get(app, bogus)
     assert status != 200
-    assert body.get("tenant_id") != DEFAULT_TENANT_ID
+    assert body.get("tenant_id") != default_tenant_uuid()

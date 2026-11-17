@@ -25,7 +25,7 @@ from cryptography.hazmat.primitives.asymmetric import rsa
 from fastapi import FastAPI, Request
 from fastapi.testclient import TestClient
 
-from src.api.tenant_constants import SYSTEM_TENANT_ID
+from src.api.tenant_constants import system_tenant_id
 
 os.environ.setdefault("OTEL_SDK_DISABLED", "true")
 
@@ -42,7 +42,7 @@ _TOKEN_URL = "https://keycloak.invalid/realms/secure-apps/protocol/openid-connec
 _ISSUER = "https://auth.example.invalid/realms/secure-apps"
 BOOTSTRAP_SA = "claude-asset-bootstrap"
 # The tenant the tool's workers must land in (infer calls resolve there today).
-TENANT = "019de842-c92a-7e37-8fdd-eb0d8c5396f9"
+TENANT = "bbbbbbbb-0000-4000-8000-0000000000a5"
 PUT_BODY = {"system": "You are a keyword picker.", "question": "Pick keywords"}
 # A Planka card id (REALIGN R7: every release names its board card).
 CARD = "1234567890123456789"
@@ -178,7 +178,7 @@ def test_bootstrap_can_put_a_draft_and_initial_create_it(client, repo, rsa_key):
     assert repo["upsert"].await_args.kwargs["privileged"] is True
     # A system SA's new prompt is SYSTEM-owned, not owned by its incidental
     # licence tenant (the AA conveyor tenant): U6 ownership, migration 035.
-    assert repo["upsert"].await_args.kwargs["owner_tenant_id"] == SYSTEM_TENANT_ID
+    assert repo["upsert"].await_args.kwargs["owner_tenant_id"] == system_tenant_id()
     assert repo["upsert"].await_args.kwargs["owner_tenant_id"] != TENANT
 
     resp = _status(client, headers, "PUBLISHED", "initial_create")

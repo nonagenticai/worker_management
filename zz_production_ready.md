@@ -342,7 +342,7 @@ The non-agent worker implementation is fully functional and production-ready:
 worker = await create_worker(
     worker_name="data_processor",
     tool_names=["calculator", "text_processor"],
-    description="Processes numerical and text data"
+    description="Processes numerical and text data",
     # No agent_role = creates non-agent worker
 )
 ```
@@ -395,9 +395,11 @@ class MyTool:
     def run(self, input_data):
         return {"result": "processed"}
 
+
 # Function-based tools
 def my_tool(input_data):
     return {"result": "processed"}
+
 
 # Async tools
 class AsyncTool:
@@ -432,7 +434,7 @@ class AsyncTool:
 tool_definition = {
     "name": "data_processor",
     "description": "Processes data with various operations",
-    "python_code": '''
+    "python_code": """
 class DataProcessor:
     def run(self, input_data):
         operation = input_data.get("operation", "process")
@@ -444,9 +446,9 @@ class DataProcessor:
             return {"result": len(data.split())}
         else:
             return {"result": f"Processed: {data}"}
-''',
+""",
     "tags": ["data", "processing"],
-    "version": "1.0.0"
+    "version": "1.0.0",
 }
 
 # Create via API
@@ -456,10 +458,7 @@ response = requests.post("http://localhost:8887/tools/", json=tool_definition)
 ### 2. Test Tools Before Deployment
 ```python
 test_input = {"operation": "uppercase", "data": "hello world"}
-response = requests.post(
-    "http://localhost:8887/tools/data_processor/test",
-    json=test_input
-)
+response = requests.post("http://localhost:8887/tools/data_processor/test", json=test_input)
 ```
 
 ### 3. Create Workers with Tools
@@ -467,7 +466,7 @@ response = requests.post(
 worker_data = {
     "worker_name": "processing_worker",
     "tool_names": ["data_processor", "calculator"],
-    "description": "Worker with custom processing tools"
+    "description": "Worker with custom processing tools",
 }
 ```
 
@@ -477,7 +476,7 @@ node = NodeSchema(
     name="process_data",
     node_type="worker",
     worker_name="processing_worker",
-    task_template="Process data: {input_data}"
+    task_template="Process data: {input_data}",
 )
 ```
 
@@ -486,9 +485,7 @@ node = NodeSchema(
 ### 1. Full Automatic Execution
 ```python
 response = await execution_service.execute_graph(
-    graph_id="my_graph",
-    variables={"input": "data"},
-    start_node="entry_point"
+    graph_id="my_graph", variables={"input": "data"}, start_node="entry_point"
 )
 ```
 
@@ -1051,7 +1048,7 @@ tools = [
         else:
             return {"result": f"Processed: {data}", "processed": True}""",
         "tags": ["data", "processing", "reliable"],
-        "version": "1.0.0"
+        "version": "1.0.0",
     },
     {
         "name": "math_calculator",
@@ -1075,8 +1072,8 @@ tools = [
 
         return {"result": result, "operation": operation, "a": a, "b": b}""",
         "tags": ["math", "calculator"],
-        "version": "1.0.0"
-    }
+        "version": "1.0.0",
+    },
 ]
 
 print("Creating tools with persistent database storage...")
@@ -1395,6 +1392,7 @@ curl -X POST "http://localhost:8887/execution/graphs/{GRAPH_ID_FROM_3.3}/execute
 **Recommended Method** (100% reliable):
 ```python
 import requests
+
 tool_data = {
     "name": "my_tool",
     "description": "Tool description",
@@ -1402,7 +1400,7 @@ tool_data = {
     def run(self, input_data):
         return {"result": "success"}""",
     "tags": ["utility"],
-    "version": "1.0.0"
+    "version": "1.0.0",
 }
 response = requests.post("http://localhost:8887/tools/", json=tool_data)
 ```
@@ -1558,16 +1556,16 @@ Inside function code, you can access:
 ```python
 def run(input_data):
     # Graph variables
-    a = input_data.get('a', 0)
-    b = input_data.get('b', 0)
+    a = input_data.get("a", 0)
+    b = input_data.get("b", 0)
 
     # Previous node outputs
-    previous_outputs = input_data.get('node_outputs', {})
+    previous_outputs = input_data.get("node_outputs", {})
     for node_id, output in previous_outputs.items():
         # Process previous results
         pass
 
-    return {'result': a + b}
+    return {"result": a + b}
 ```
 
 #### 8. **Error Prevention Checklist** ✅ TESTED

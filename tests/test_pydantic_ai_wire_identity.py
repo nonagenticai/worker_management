@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import json
 
-import httpx
+import httpx2 as httpx
 import pytest
 from pydantic_ai import Agent
 
@@ -30,10 +30,10 @@ from src.worker.agents.pydantic_ai_agent import (
 )
 
 IR_URL = "http://inference-router.inference-router.svc.cluster.local:8150/api"
-TENANT = "0195f48b-d000-7000-8000-000000000001"
-SUBJECT = "0195f48b-d000-7000-8000-0000000000b2"
-ACTOR = "0195f48b-d000-7000-8000-0000000000c3"
-PROJECT = "0195f48b-d000-7000-8000-0000000000a1"
+TENANT = "aaaaaaaa-0000-4000-8000-000000000001"
+SUBJECT = "aaaaaaaa-0000-4000-8000-0000000000b2"
+ACTOR = "aaaaaaaa-0000-4000-8000-0000000000c3"
+PROJECT = "aaaaaaaa-0000-4000-8000-0000000000a1"
 WORKER = "worker-cdms-classify"
 
 

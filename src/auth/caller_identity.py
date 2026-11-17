@@ -28,7 +28,7 @@ import time
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-import httpx
+import httpx2 as httpx
 from fastapi import HTTPException, Request, status
 
 from src.api.identity_context import get_caller_roles_from_context

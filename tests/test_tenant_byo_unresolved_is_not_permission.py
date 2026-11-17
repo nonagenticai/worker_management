@@ -30,7 +30,7 @@ import os
 from contextlib import asynccontextmanager
 from unittest.mock import MagicMock
 
-import httpx
+import httpx2 as httpx
 import pytest
 
 # Must precede the import of the module under test (see tests/test_agent_metrics.py).

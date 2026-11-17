@@ -35,13 +35,13 @@ import logging
 import re
 from typing import Annotated, Any
 
-import httpx
+import httpx2 as httpx
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from prometheus_client import Counter
 from pydantic import BaseModel, Field, field_validator
 
 from src.api import identity_context
-from src.api.tenant_constants import PLATFORM_TENANT_IDS, is_platform_tenant
+from src.api.tenant_constants import is_platform_tenant, release_tenant_ids
 from src.api.workflow_routing import repository
 from src.auth import get_tenant_id
 from src.auth.caller_identity import require_any_role
@@ -251,9 +251,16 @@ router = APIRouter(
 #   1. ``_require_routing_writer`` — the verified ``service-internal`` SA role
 #      (the #230 gate above, reused unchanged), and
 #   2. ``_require_release_tenant`` — the caller's tenant is the system tenant
-#      ``…0001`` or the workflow-improvement stream tenant ``…0002``. NARROWER
-#      than ``PLATFORM_TENANT_IDS``: "written only by improvement cards", and WM
+#      ``…0001`` or the kata tenant ``…0006``. NARROWER than
+#      ``PLATFORM_TENANT_IDS``: "written only by improvement cards", and WM
 #      cannot verify a card, so the tenant is the narrowest proof it has.
+#      ⚠️ ``…0006`` SUCCEEDED ``…0002`` here on 2026-11-16: fr deleted the v3
+#      workflow-improvement stream on 2026-11-03 (migration 230) and kata is the
+#      one internal workspace where improvement projects now live. The gate's
+#      intent ("the improvement stream may release") is unchanged; only the id
+#      that carries it moved. The other platform tenants — execution ``…0003``,
+#      the AA conveyor ``aaaaaaaa…`` and the v4 conveyor ``aaaaaaaa…`` — are
+#      deliberately still NOT release tenants.
 # Both refuse with 403 BEFORE any database access. phase-10 requires a test and
 # a mutation control PER GATE, so the pair is written out on each route rather
 # than shared through one list or router — removing it from one route must red
@@ -262,14 +269,14 @@ router = APIRouter(
 # ⚠️ On the SA path the tenant is ASSERTED (trusted-network ``X-Tenant-Id``),
 # not introspected: the role is the proof of identity, the tenant only narrows
 # which verified callers may release. A licence alone never carries the role.
-RELEASE_TENANT_IDS: frozenset[str] = frozenset(
-    {
-        "0195f48b-d000-7000-8000-000000000001",  # system
-        "0195f48b-d000-7000-8000-000000000002",  # workflow-improvement stream
-    }
-)
-if not RELEASE_TENANT_IDS <= PLATFORM_TENANT_IDS:  # narrower, never wider
-    raise RuntimeError("RELEASE_TENANT_IDS must be a subset of PLATFORM_TENANT_IDS")
+# ⛔ THE SET IS NOW ENV-SUPPLIED (``RELEASE_TENANT_IDS``), NOT A LITERAL HERE.
+# It used to be two uuids in this file; this repository is public, so the ids
+# live in gitops with the rest of the tenant map.
+#
+# The former import-time ``RELEASE_TENANT_IDS <= PLATFORM_TENANT_IDS`` assertion
+# CANNOT LIVE HERE any more — an import cannot see the environment, so checking
+# there would compare two empty sets and pass. The invariant moved to
+# ``Settings._validate_tenant_sets``, which refuses to boot when it is violated.
 _PLATFORM_ROUTING_FORBIDDEN = {"error": "platform_routing_forbidden"}
 
 
@@ -279,7 +286,7 @@ def _require_release_tenant(tenant_id: Annotated[str, Depends(get_tenant_id)]) -
     Fixed detail, deliberately: it names neither the caller's tenant nor the
     accepted ones (same rule as ``platform_prompt_forbidden``).
     """
-    if (tenant_id or "").strip().lower() in RELEASE_TENANT_IDS:
+    if (tenant_id or "").strip().lower() in release_tenant_ids():
         return
     logger.warning("Refused workflow release call from tenant %s", tenant_id)
     raise HTTPException(status_code=403, detail=_PLATFORM_ROUTING_FORBIDDEN)

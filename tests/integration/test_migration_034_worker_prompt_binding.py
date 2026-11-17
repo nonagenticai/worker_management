@@ -27,7 +27,7 @@ _ROOT = Path(__file__).resolve().parents[2] / "migrations"
 _UP_034 = _ROOT / "034_worker_prompt_binding.sql"
 _DOWN_034 = _ROOT / "down" / "034_worker_prompt_binding.down.sql"
 _SCHEMA = "u6_mig034"
-_TENANT = "0195f48b-d000-7000-8000-000000000003"
+_TENANT = "aaaaaaaa-0000-4000-8000-000000000003"
 
 
 def _body(path: Path) -> str:

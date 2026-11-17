@@ -46,7 +46,7 @@ from contextlib import asynccontextmanager
 from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
 
-import httpx
+import httpx2 as httpx
 import pytest
 from openai import APIConnectionError
 
@@ -80,7 +80,7 @@ def _real_agent(name: str = "within_slot_agent") -> PydanticAIAgent:
         db_path="",
         base_url="http://inference-router.example.com:8150/api",
         api_key="test-key",  # pragma: allowlist secret
-        tenant_id="0195f48b-d000-7000-8000-000000000001",
+        tenant_id="aaaaaaaa-0000-4000-8000-000000000001",
     )
     from tests._platform_tenant import platform_tenant_context
 

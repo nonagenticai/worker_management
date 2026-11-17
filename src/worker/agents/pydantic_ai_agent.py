@@ -18,7 +18,8 @@ from types import GenericAlias
 from typing import TYPE_CHECKING, Any, ClassVar, Protocol, TypedDict, cast
 from uuid import UUID, uuid7
 
-import httpx
+import httpx as httpx_legacy  # cohere 7.3.1 / groq 1.7.0 still build on httpx 0.x
+import httpx2 as httpx
 from cohere import AsyncClientV2 as AsyncCohereClient
 from dotenv import load_dotenv
 from groq import AsyncGroq
@@ -27,7 +28,14 @@ from prometheus_client import Counter
 from pydantic import BaseModel, ConfigDict, Field, StrictInt, field_validator
 from pydantic_ai import Agent, ModelRetry, NativeOutput, PromptedOutput, Tool, models
 from pydantic_ai.exceptions import UnexpectedModelBehavior, UserError
-from pydantic_ai.models import ModelSettings, create_async_http_client
+from pydantic_ai.models import (
+    DEFAULT_HTTP_TIMEOUT,
+    DEFAULT_MAX_CONNECTIONS,
+    DEFAULT_MAX_KEEPALIVE_CONNECTIONS,
+    ConnectPoolTimeoutCap,
+    ModelSettings,
+    get_user_agent,
+)
 from pydantic_ai.models import anthropic as _pai_anthropic
 from pydantic_ai.models import openai as _pai_openai
 from pydantic_ai.models.anthropic import AnthropicModel
@@ -38,8 +46,6 @@ from pydantic_ai.models.openai import (
     OpenAIChatModelSettings,
     OpenAIStreamedResponse,
 )
-from pydantic_ai.profiles.anthropic import AnthropicModelProfile
-from pydantic_ai.profiles.openai import OpenAIModelProfile
 from pydantic_ai.providers.anthropic import AnthropicProvider
 from pydantic_ai.providers.cohere import CohereProvider
 from pydantic_ai.providers.deepseek import DeepSeekProvider
@@ -52,6 +58,7 @@ from src.security.request_overrides import (
     OutputValidatorCodeNotSupportedError,
     has_validator_code,
     pinned_tenant_transport,
+    pinned_tenant_transport_legacy,
     refuse_owner_infra_request,
 )
 from src.telemetry import get_metrics_client
@@ -1998,6 +2005,27 @@ class ModelFactory:
             raise
 
     @staticmethod
+    def _httpx2_http_client() -> httpx.AsyncClient:
+        """pydantic-ai's OpenAI-matched defaults, on httpx2.
+
+        pydantic-ai 2.x's ``create_async_http_client()`` is the LEGACY factory:
+        it returns an httpx 0.x client and exists only for providers whose SDKs
+        still require one. The inference-router paths feed openai 3 /
+        pydantic-ai providers, which type ``http_client`` as an httpx2 client,
+        so they build the same timeouts, pool limits, User-Agent and
+        connect/pool timeout cap here on httpx2.
+        """
+        return httpx.AsyncClient(
+            timeout=httpx.Timeout(DEFAULT_HTTP_TIMEOUT, connect=5),
+            limits=httpx.Limits(
+                max_connections=DEFAULT_MAX_CONNECTIONS,
+                max_keepalive_connections=DEFAULT_MAX_KEEPALIVE_CONNECTIONS,
+            ),
+            headers={"User-Agent": get_user_agent()},
+            event_hooks={"request": [ConnectPoolTimeoutCap(connect=5, pool=DEFAULT_HTTP_TIMEOUT)]},
+        )
+
+    @staticmethod
     def _byo_guarded_http_client(config: PydanticAIAgentConfig) -> httpx.AsyncClient | None:
         """An httpx client for a TENANT BYO ``base_url``, refusing owner infra per hop.
 
@@ -2017,6 +2045,26 @@ class ModelFactory:
             follow_redirects=True,
             event_hooks={"request": [refuse_owner_infra_request]},
             transport=pinned_tenant_transport(),
+        )
+
+    @staticmethod
+    def _byo_guarded_legacy_http_client(
+        config: PydanticAIAgentConfig,
+    ) -> httpx_legacy.AsyncClient | None:
+        """The same BYO guard for SDKs that still speak httpx 0.x (groq, cohere).
+
+        Both declare ``httpx<1`` and type their ``http_client``/``httpx_client``
+        argument as ``httpx.AsyncClient``, so they cannot take the httpx2 client
+        the rest of the service builds. The protection is identical: per-hop
+        refusal hook plus the pinned transport.
+        """
+        if not (getattr(config, "tenant_byo_key", False) and config.base_url):
+            return None
+        return httpx_legacy.AsyncClient(
+            timeout=httpx_legacy.Timeout(600, connect=5),
+            follow_redirects=True,
+            event_hooks={"request": [refuse_owner_infra_request]},
+            transport=pinned_tenant_transport_legacy(),
         )
 
     @staticmethod
@@ -2162,7 +2210,7 @@ class ModelFactory:
         # placeholder bearer as the inference_router/vllm clients: IR stays the
         # single meter (funding=local_gpu on its side). A non-IR dev URL gets the
         # headers but never the tenant's bundle token (origin-gated).
-        http_client = create_async_http_client()
+        http_client = ModelFactory._httpx2_http_client()
         http_client.headers.update(
             ir_identity_default_headers(
                 worker_name=config.name or "",
@@ -2248,7 +2296,7 @@ class ModelFactory:
             custom_groq_client = AsyncGroq(
                 api_key=api_key,
                 base_url=config.base_url,
-                http_client=ModelFactory._byo_guarded_http_client(config),
+                http_client=ModelFactory._byo_guarded_legacy_http_client(config),
             )
             groq_provider = GroqProvider(groq_client=custom_groq_client)
         else:
@@ -2283,7 +2331,7 @@ class ModelFactory:
             custom_cohere_client = AsyncCohereClient(
                 api_key=api_key,
                 base_url=config.base_url,
-                httpx_client=ModelFactory._byo_guarded_http_client(config),
+                httpx_client=ModelFactory._byo_guarded_legacy_http_client(config),
             )
             cohere_provider = CohereProvider(cohere_client=custom_cohere_client)
         else:
@@ -2431,17 +2479,18 @@ class ModelFactory:
         if not base.rstrip("/").endswith("/v1"):
             base = base.rstrip("/") + "/v1"
         logger.info(f"Initializing vLLM model: {config.model} at {base}")
-        # Built through pydantic-ai's own factory, NOT a bare httpx.AsyncClient:
-        # create_async_http_client() carries the OpenAI-matched timeouts and the
-        # pydantic-ai User-Agent, and losing those to add one header would be a
-        # bad trade. Only the header is added.
+        # Built through ModelFactory._httpx2_http_client(), NOT a bare
+        # httpx.AsyncClient: it carries pydantic-ai's OpenAI-matched timeouts,
+        # pool limits, User-Agent and connect/pool timeout cap — on httpx2,
+        # which is what the provider's http_client parameter accepts. Only the
+        # identity header is added.
         #
         # NB passing our own client means OpenAIProvider does not set
         # ``_own_http_client``, so it is not auto-closed on provider __aexit__.
         # That matches InferenceRouterOpenAIProvider in this same file, which
         # supplies its own AsyncOpenAI for the same reason, and nothing here
         # enters providers as context managers.
-        http_client = create_async_http_client()
+        http_client = ModelFactory._httpx2_http_client()
         # Constructor-time identity headers from the SAME helper
         # InferenceRouterOpenAIProvider uses (X-Worker-Name always -- empty
         # string, never "None"; X-Tenant-Id / X-License-Id / X-Subject-Id only
@@ -2839,7 +2888,8 @@ class ResponseExtractor:
         try:
             run_usage = None
             if run_result and hasattr(run_result, "usage"):
-                run_usage = run_result.usage()
+                # pydantic-ai 2 exposes `usage` as a property (1.x's method form is gone).
+                run_usage = run_result.usage
 
             if run_usage and getattr(run_usage, "has_values", lambda: False)():
                 prompt_tokens = getattr(run_usage, "input_tokens", None)
@@ -2997,19 +3047,24 @@ def _temperature_unsent_reason_unguarded(
     name = getattr(model_instance, "model_name", "?")
     # The classes are read from pydantic-ai's own modules, not this module's
     # names: tests patch ``OpenAIChatModel`` here with a MagicMock.
+    # pydantic-ai 2 makes the profile a typed dict returned by `model.profile`
+    # itself; `OpenAIModelProfile.from_profile` / `AnthropicModelProfile.from_profile`
+    # are gone. Every field is optional, so absent means "default" (False / empty).
     if isinstance(model_instance, _pai_openai.OpenAIChatModel):
-        profile = OpenAIModelProfile.from_profile(model_instance.profile)
-        if "temperature" in profile.openai_unsupported_model_settings:
+        profile = model_instance.profile
+        if "temperature" in profile.get("openai_unsupported_model_settings", ()):
             return f"model {name!r} profile lists temperature as unsupported"
-        if profile.openai_supports_reasoning:
-            effort = settings.get("openai_reasoning_effort")
-            if not profile.openai_supports_reasoning_effort_none or effort not in (None, "none"):
-                return f"reasoning model {name!r} rejects sampling parameters"
+        effort = settings.get("openai_reasoning_effort")
+        if profile.get("openai_supports_reasoning", False) and (
+            not profile.get("openai_supports_reasoning_effort_none", False)
+            or effort not in (None, "none")
+        ):
+            return f"reasoning model {name!r} rejects sampling parameters"
         return None
-    if isinstance(model_instance, _pai_anthropic.AnthropicModel):
-        profile = AnthropicModelProfile.from_profile(model_instance.profile)
-        if profile.anthropic_disallows_sampling_settings:
-            return f"model {name!r} disallows sampling settings"
+    if isinstance(model_instance, _pai_anthropic.AnthropicModel) and model_instance.profile.get(
+        "anthropic_disallows_sampling_settings", False
+    ):
+        return f"model {name!r} disallows sampling settings"
     return None
 
 

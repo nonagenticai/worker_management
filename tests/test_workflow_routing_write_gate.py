@@ -34,7 +34,7 @@ from tests._production_error_handlers import install_production_exception_handle
 _KID = "routing-gate-test-key"
 _ISSUER = "https://auth.example.invalid/realms/secure-apps"
 ALLOWED_SA = "improvement-loop-service"
-TENANT = "019de842-c92a-7e37-8fdd-eb0d8c5396f9"
+TENANT = "bbbbbbbb-0000-4000-8000-0000000000a5"
 WF = "Zz9Yy8Xx7Ww6Vv5U"  # a 16-char n8n workflow id (migration 036)
 ASSET = "cell:READY"
 

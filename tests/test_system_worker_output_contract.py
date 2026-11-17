@@ -2,12 +2,12 @@
 
 Measured on prod 2026-09-11 against the production database:
 
-    improvement_workflow_development | 0195f48b-…-000000000001 | updated      | config.output_schema present
-    improvement_workflow_development | 019de842-…-eb0d8c5396f9 | auto-created | config.output_schema ABSENT
+    improvement_workflow_development | aaaaaaaa-…-000000000001 | updated      | config.output_schema present
+    improvement_workflow_development | aaaaaaaa-…-eb0d8c5396f9 | auto-created | config.output_schema ABSENT
 
 ``worker_states`` shows the traffic moving between them: the seeded row's last
 run is 2026-08-27 10:55, and all 93 runs from then to 2026-09-11 08:11 landed on
-the ``019de842`` row. The registry is keyed ``(tenant_id, subject_id,
+the ``aaaaaaaa`` row. The registry is keyed ``(tenant_id, subject_id,
 worker_name)``, so the message endpoint's lookup missed and its auto-create
 branch fabricated a bare row (``output_schema=None``, no ``system_prompt``,
 ``model_provider="vllm"``) and returned 200. Downstream,

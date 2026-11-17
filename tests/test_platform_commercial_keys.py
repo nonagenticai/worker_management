@@ -37,9 +37,9 @@ from fastapi.testclient import TestClient
 
 from src.api.worker_management_api import app
 from src.auth import get_tenant_id
-from tests._platform_tenant import caller_tenant
+from tests._platform_tenant import EXECUTION_TENANT, caller_tenant
 
-PLATFORM_0002 = "0195f48b-d000-7000-8000-000000000002"  # platform-core
+PLATFORM_0002 = EXECUTION_TENANT  # a member of the synthetic commercial set
 CUSTOMER_PROBE = "01a0fdb8-f785-7785-843d-0799f306cbbd"  # isolation-probe-test
 OWNER_XAI_KEY = "xai-owner-key-not-real"  # pragma: allowlist secret
 TENANT_XAI_KEY = "xai-tenant-own-key-not-real"  # pragma: allowlist secret

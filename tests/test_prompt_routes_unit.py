@@ -29,9 +29,9 @@ from src.api.prompts.hashing import sha256_text, version_payload_sha256
 from src.api.prompts.routes import router
 from src.auth import get_tenant_id
 
-# …0001 is in PLATFORM_TENANT_IDS; …0100 (cdmsfirst) is a real customer.
-PLATFORM_TENANT = "0195f48b-d000-7000-8000-000000000001"
-CUSTOMER_TENANT = "0195f48b-d000-7000-8000-000000000100"
+# …0001 is in platform_tenant_ids(); …0100 (cdmsfirst) is a real customer.
+PLATFORM_TENANT = "aaaaaaaa-0000-4000-8000-000000000001"
+CUSTOMER_TENANT = "aaaaaaaa-0000-4000-8000-000000000100"
 # In COMMERCIAL_PLATFORM_TENANT_IDS only, never in the prompt-write set.
 SYSTEM_TENANT = "00000000-0000-0000-0000-000000000001"
 SYSTEM = "You are a keyword picker."
@@ -173,7 +173,7 @@ def client(repo, card_verify):
         yield c
 
 
-OTHER_PLATFORM_TENANT = "0195f48b-d000-7000-8000-000000000003"  # george-dev
+OTHER_PLATFORM_TENANT = "aaaaaaaa-0000-4000-8000-000000000003"  # george-dev
 
 
 class TestOwnership:
@@ -677,9 +677,9 @@ class TestPlatformGate:
     @pytest.mark.parametrize(
         "tenant",
         [
-            "0195f48b-d000-7000-8000-000000000003",
-            "019de842-c92a-7e37-8fdd-eb0d8c5396f9",
-            "019DE842-C92A-7E37-8FDD-EB0D8C5396F9",
+            "aaaaaaaa-0000-4000-8000-000000000003",
+            "bbbbbbbb-0000-4000-8000-0000000000a5",
+            "BBBBBBBB-0000-4000-8000-0000000000A5",
         ],
     )
     def test_every_platform_spelling_is_admitted(self, client, repo, roles, tenant):
@@ -743,17 +743,32 @@ class TestPlatformGate:
 
 
 class TestPlatformTenantIds:
-    def test_exactly_the_six_ids_mirrored_from_fr(self):
-        from src.api.tenant_constants import PLATFORM_TENANT_IDS
+    def test_the_configured_set_is_exactly_what_the_fixture_supplies(self):
+        """The accessor returns the env value verbatim — no widening, no defaults.
 
-        assert {
-            "0195f48b-d000-7000-8000-000000000001",
-            "0195f48b-d000-7000-8000-000000000002",
-            "0195f48b-d000-7000-8000-000000000003",
-            "0195f48b-d000-7000-8000-000000000004",
-            "0195f48b-d000-7000-8000-000000000005",
-            "019de842-c92a-7e37-8fdd-eb0d8c5396f9",
-        } == PLATFORM_TENANT_IDS
+        ⛔ It is NOT compared against a hardcoded literal any more: the set is
+        gitops-supplied and this repository may not carry a tenant uuid. The
+        estate value is checked against fr's pinned fingerprint in
+        ``tests/test_platform_tenant_ids_drift.py``.
+        """
+        from src.api.tenant_constants import platform_tenant_ids
+        from tests._platform_tenant import PLATFORM_TENANTS
+
+        assert platform_tenant_ids() == PLATFORM_TENANTS
+
+    @pytest.mark.parametrize(
+        "retired",
+        [
+            # The v3 improvement tenants fr deleted 2026-11-03 (migration 230).
+            "aaaaaaaa-0000-4000-8000-000000000002",
+            "aaaaaaaa-0000-4000-8000-000000000004",
+            "aaaaaaaa-0000-4000-8000-000000000005",
+        ],
+    )
+    def test_the_deleted_v3_improvement_tenants_are_not_platform(self, retired):
+        from src.api.tenant_constants import is_platform_tenant
+
+        assert is_platform_tenant(retired) is False
 
     @pytest.mark.parametrize(
         "value",
@@ -761,8 +776,8 @@ class TestPlatformTenantIds:
             None,
             "",
             "n8n-dev",
-            "0195f48b-d000-7000-8000-000000000099",
-            "0195f48b-d000-7000-8000-000000000100",
+            "aaaaaaaa-0000-4000-8000-000000000099",
+            "aaaaaaaa-0000-4000-8000-000000000100",
             "00000000-0000-0000-0000-000000000000",
         ],
     )

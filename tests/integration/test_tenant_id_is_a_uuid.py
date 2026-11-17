@@ -241,7 +241,7 @@ async def test_remap_is_one_to_one_and_preserves_isolation(pg_pool):
         #    (realm-patch-script-configmap.yaml:111-113); a label the realm does
         #    not know must name NOTHING rather than guess.
         by_label = {c["legacy_value"]: c for c in cross}
-        assert by_label[LEGACY_A]["merge_target"] == "0195f48b-d000-7000-8000-000000000001"
+        assert by_label[LEGACY_A]["merge_target"] == "aaaaaaaa-0000-4000-8000-000000000001"
         assert by_label[LEGACY_B]["merge_target"] is None
         assert by_label[LEGACY_C]["merge_target"] is None
         # ...and it is NOT applied: the rows still sit on their derived uuid.
@@ -270,14 +270,14 @@ async def test_non_canonical_uuid_spellings_converge_not_split(pg_pool):
     adversarial reproductions found the underlying defect in the first draft,
     which classified values with a regex:
 
-    * ``0195F48B-…`` PASSES ``^[0-9a-fA-F]{8}-…{12}$``, so it was treated as
+    * ``AAAAAAAA-…`` PASSES ``^[0-9a-fA-F]{8}-…{12}$``, so it was treated as
       "already a uuid" and left alone — then ``::uuid`` lowercased it during the
       ALTER and it collided with the canonical row on
       ``unique_tenant_worker_name``. The ALTER died inside the index rebuild and,
       because production runs the migration runner non-strict, the file was
       logged and stepped over on EVERY boot: the flip would silently never have
       happened.
-    * ``0195f48bd0007000…`` (no dashes) and ``{0195f48b-…}`` (braces) FAIL that
+    * ``aaaaaaaad0007000…`` (no dashes) and ``{aaaaaaaa-…}`` (braces) FAIL that
       regex but cast fine, so they were handed a fabricated UUIDv5 and split off
       from the tenant they literally spell — the exact property the migration
       promises it preserves.
@@ -287,7 +287,7 @@ async def test_non_canonical_uuid_spellings_converge_not_split(pg_pool):
     """
     await apply_migrations()
 
-    canonical = "0195f48b-d000-7000-8000-000000000003"
+    canonical = "aaaaaaaa-0000-4000-8000-000000000003"
     marker = uuid.uuid4().hex[:8]
     spellings = {
         f"canon-{marker}": canonical,
@@ -356,7 +356,7 @@ async def test_a_spelling_collision_raises_before_anything_is_altered(pg_pool):
     await apply_migrations()
 
     marker = uuid.uuid4().hex[:8]
-    canonical = "0195f48b-d000-7000-8000-000000000003"
+    canonical = "aaaaaaaa-0000-4000-8000-000000000003"
     shared_name = f"collide-{marker}"
 
     async with get_pg_connection() as conn:

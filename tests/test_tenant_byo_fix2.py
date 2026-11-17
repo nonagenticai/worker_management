@@ -29,7 +29,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 os.environ.setdefault("ENABLE_AUTH", "false")
 os.environ.setdefault("OTEL_SDK_DISABLED", "true")
 
-import httpx
+import httpx2 as httpx
 import jwt
 import pytest
 from cryptography.hazmat.primitives.asymmetric import rsa
@@ -1207,7 +1207,7 @@ def test_n2_absent_tenant_header_is_still_the_platform_default_documented():
 
     assert is_commercial_platform_tenant(None) is False
     assert is_commercial_platform_tenant("") is False
-    assert is_commercial_platform_tenant("0195f48b-d000-7000-8000-000000000001") is True
+    assert is_commercial_platform_tenant("aaaaaaaa-0000-4000-8000-000000000001") is True
 
 
 # =============================================================== fix round 3

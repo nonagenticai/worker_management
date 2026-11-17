@@ -354,9 +354,8 @@ async def impl(ctx, **kwargs):
                     raise ValueError(f"Dangerous function call detected: {node.func.id}")
 
             # Check dangerous attribute access
-            elif isinstance(node, ast.Attribute):
-                if node.attr in dangerous_patterns["attributes"]:
-                    raise ValueError(f"Dangerous attribute access detected: {node.attr}")
+            elif isinstance(node, ast.Attribute) and node.attr in dangerous_patterns["attributes"]:
+                raise ValueError(f"Dangerous attribute access detected: {node.attr}")
 
     @staticmethod
     def _create_sandboxed_namespace() -> dict[str, Any]:

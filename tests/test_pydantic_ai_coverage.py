@@ -1,7 +1,7 @@
 import json
 import os
 from typing import Any, cast
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock, PropertyMock, patch
 
 import pytest
 from pydantic import BaseModel, ValidationError
@@ -238,7 +238,7 @@ class TestTokenUsageExtraction:
         mock_usage.input_tokens = 10
         mock_usage.output_tokens = 20
         mock_usage.total_tokens = 30
-        mock_result.usage.return_value = mock_usage
+        mock_result.usage = mock_usage
 
         metrics = agent._extract_token_usage("test", mock_result)
         assert metrics.prompt_tokens == 10
@@ -250,7 +250,7 @@ class TestTokenUsageExtraction:
         mock_result = MagicMock()
         mock_usage = MagicMock()
         mock_usage.has_values.return_value = False
-        mock_result.usage.return_value = mock_usage
+        mock_result.usage = mock_usage
 
         model_usage = MagicMock(spec=[])
         model_usage.input_tokens = None
@@ -270,12 +270,12 @@ class TestTokenUsageExtraction:
         mock_result = MagicMock()
         mock_usage = MagicMock()
         mock_usage.has_values.return_value = False
-        mock_result.usage.return_value = mock_usage
+        mock_result.usage = mock_usage
         agent.agent.model = MagicMock(spec=[])
         assert agent._extract_token_usage("test", mock_result) is None
 
         mock_result2 = MagicMock()
-        mock_result2.usage.side_effect = RuntimeError("oops")
+        type(mock_result2).usage = PropertyMock(side_effect=RuntimeError("oops"))
         assert agent._extract_token_usage("test", mock_result2) is None
 
 
@@ -340,7 +340,7 @@ class TestAgentRun:
         mock_usage.input_tokens = 5
         mock_usage.output_tokens = 10
         mock_usage.total_tokens = 15
-        mock_response.usage.return_value = mock_usage
+        mock_response.usage = mock_usage
         agent.agent.run = AsyncMock(return_value=mock_response)
 
         with patch(f"{MODULE}.get_metrics_client") as m:
@@ -382,7 +382,7 @@ class TestRunWithContext:
         mock_response.output = "ctx result"
         mock_usage = MagicMock()
         mock_usage.has_values.return_value = False
-        mock_response.usage.return_value = mock_usage
+        mock_response.usage = mock_usage
         agent.agent.run = AsyncMock(return_value=mock_response)
         agent.agent.model = MagicMock(spec=[])
 
@@ -421,7 +421,7 @@ class TestMCPErrorRecovery:
         mock_response.output = "recovered"
         mock_usage = MagicMock()
         mock_usage.has_values.return_value = False
-        mock_response.usage.return_value = mock_usage
+        mock_response.usage = mock_usage
         agent.agent.run = AsyncMock(return_value=mock_response)
         agent.agent.model = MagicMock(spec=[])
 
@@ -557,13 +557,13 @@ class TestMLXWrappers:
 
         provider = InferenceRouterOpenAIProvider(
             base_url="http://ir:8150/v1",
-            tenant_id="0195f48b-d000-7000-8000-000000000001",
+            tenant_id="aaaaaaaa-0000-4000-8000-000000000001",
             license_id="lic-uuid-1",
             subject_id="subj-uuid-2",
         )
         headers = provider._client.default_headers
         assert "X-Schema-Id" not in headers
-        assert headers.get("X-Tenant-Id") == "0195f48b-d000-7000-8000-000000000001"
+        assert headers.get("X-Tenant-Id") == "aaaaaaaa-0000-4000-8000-000000000001"
         assert headers.get("X-License-Id") == "lic-uuid-1"
         assert headers.get("X-Subject-Id") == "subj-uuid-2"
 
@@ -580,7 +580,7 @@ class TestMLXWrappers:
 
         provider = InferenceRouterOpenAIProvider(
             base_url="http://ir:8150/v1",
-            tenant_id="0195f48b-d000-7000-8000-000000000001",
+            tenant_id="aaaaaaaa-0000-4000-8000-000000000001",
             subject_id=None,
         )
         assert "X-Subject-Id" not in provider._client.default_headers
@@ -599,7 +599,7 @@ class TestMLXWrappers:
             model="my-schema",
             db_path="",
             base_url="http://ir:8150",
-            tenant_id="0195f48b-d000-7000-8000-000000000001",
+            tenant_id="aaaaaaaa-0000-4000-8000-000000000001",
             license_id="lic-1",
             subject_id="subj-2",
         )
@@ -610,7 +610,7 @@ class TestMLXWrappers:
             agent._create_inference_router_model(config)
 
         call_kwargs = mock_provider.call_args.kwargs
-        assert call_kwargs["tenant_id"] == "0195f48b-d000-7000-8000-000000000001"
+        assert call_kwargs["tenant_id"] == "aaaaaaaa-0000-4000-8000-000000000001"
         assert call_kwargs["license_id"] == "lic-1"
         assert call_kwargs["subject_id"] == "subj-2"
         assert "schema_id" not in call_kwargs
@@ -628,7 +628,7 @@ class TestInferenceRouterIdentityContextOverride:
     @pytest.mark.asyncio
     async def test_event_hook_overrides_headers_from_contextvar(self):
         """ContextVar set at request time overrides constructor fallbacks."""
-        import httpx
+        import httpx2 as httpx
 
         from src.api.identity_context import set_identity_context
         from src.worker.agents.pydantic_ai_agent import InferenceRouterOpenAIProvider
@@ -668,7 +668,7 @@ class TestInferenceRouterIdentityContextOverride:
     @pytest.mark.asyncio
     async def test_event_hook_falls_back_to_constructor_when_contextvar_unset(self):
         """When no middleware has set the ContextVar, constructor args win."""
-        import httpx
+        import httpx2 as httpx
 
         from src.api.identity_context import set_identity_context
         from src.worker.agents.pydantic_ai_agent import InferenceRouterOpenAIProvider
@@ -696,7 +696,7 @@ class TestInferenceRouterIdentityContextOverride:
         """ContextVars are task-local: concurrent requests don't bleed identity."""
         import asyncio
 
-        import httpx
+        import httpx2 as httpx
 
         from src.api.identity_context import set_identity_context
         from src.worker.agents.pydantic_ai_agent import InferenceRouterOpenAIProvider

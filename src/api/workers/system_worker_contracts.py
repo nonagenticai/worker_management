@@ -15,12 +15,12 @@ That worked only for as long as the caller kept authenticating as the tenant
 the seed ran under. It stopped on 2026-08-27. Measured in
 ``worker_management.workers``::
 
-    improvement_workflow_development | 0195f48b-…-000000000001 | updated      | config.output_schema = t
-    improvement_workflow_development | 019de842-…-eb0d8c5396f9 | auto-created | config.output_schema = f
+    improvement_workflow_development | aaaaaaaa-…-000000000001 | updated      | config.output_schema = t
+    improvement_workflow_development | aaaaaaaa-…-eb0d8c5396f9 | auto-created | config.output_schema = f
 
 and in ``worker_states`` the traffic moved with it: the seeded row's last run
 is 2026-08-27 10:55, and every one of the 93 runs since (to 2026-09-11 08:11)
-landed on the ``019de842`` row.
+landed on the ``aaaaaaaa`` row.
 
 The registry is keyed ``(tenant_id, subject_id, worker_name)``, so the lookup in
 ``message_endpoints`` missed, and the endpoint's **auto-create** branch happily

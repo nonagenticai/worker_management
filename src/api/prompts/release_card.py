@@ -55,11 +55,11 @@ import logging
 import time
 from typing import TYPE_CHECKING, Any
 
-import httpx
+import httpx2 as httpx
 from fastapi import HTTPException
 from prometheus_client import Counter
 
-from src.api.tenant_constants import PLATFORM_TENANT_IDS
+from src.api.tenant_constants import platform_tenant_ids
 from src.settings import get_settings
 
 if TYPE_CHECKING:
@@ -205,7 +205,7 @@ async def verify_release_card(card_id: str) -> None:
     if tenant_id is None:
         raise _refuse(card_id, "unverifiable", 503, UNVERIFIABLE, "fr body malformed")
     # WM's OWN platform set — a drift from fr's literal is a refusal, not a grant.
-    if tenant_id.strip().lower() not in PLATFORM_TENANT_IDS:
+    if tenant_id.strip().lower() not in platform_tenant_ids():
         logger.error(
             "prompt release card %s: fr says platform, WM set disagrees (list drift)", card_id
         )

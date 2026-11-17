@@ -70,12 +70,12 @@ itself. An existing prompt owned by another tenant is a ``conflict``.
 
 ``prompt_id`` naming (just NAMING — ownership is the column):
 
-* the system tenant ``0195f48b-…0001`` keeps the bare ``worker_name`` (its
+* the system tenant ``aaaaaaaa-…0001`` keeps the bare ``worker_name`` (its
   existing prompt-publisher drafts, all owned by …0001 since 035's backfill);
 * every other platform tenant uses ``f"{worker_name}.t{tenant_tag(tenant_id)}"``
   — ``tenant_id[:8]``, widened to ``<8>-<last 4>`` where platform tenants share
   the 8-char prefix (see :func:`tenant_tag`; the bare ``[:8]`` collides for
-  ``0195f48b-…0001..0005``).
+  ``aaaaaaaa-…0001..0005``).
 
 The dry run's "an earlier row of this run would create it" memo is keyed by
 ``(tenant, prompt_id)``: it never lets one tenant's planned prompt satisfy
@@ -106,7 +106,12 @@ from src.api.prompts import repository
 from src.api.prompts.actor import Actor
 from src.api.prompts.hashing import sha256_text, version_payload_sha256
 from src.api.prompts.models import validate_prompt_id
-from src.api.tenant_constants import PLATFORM_TENANT_IDS, TENANT_UUIDS
+from src.api.tenant_constants import (
+    is_platform_tenant,
+    platform_tenant_ids,
+    system_tenant_id,
+    tenant_uuids,
+)
 from src.db.db_config import close_pg_pool, get_pg_connection, init_pg_pool
 
 JOB_NAME = "adopt_live_worker_prompts"
@@ -127,33 +132,55 @@ COUNTERS = (
     "skipped_customer",
 )
 
-# Realm tenants that are NOT platform: customers. Never written, only counted.
-CUSTOMER_TENANT_IDS = frozenset(TENANT_UUIDS.values()) - PLATFORM_TENANT_IDS
+# ⛔ NO MODULE-LEVEL DERIVATION OF THE TENANT SETS. They are environment-supplied
+# now (``PLATFORM_TENANT_IDS`` / ``TENANT_UUIDS`` / ``SYSTEM_TENANT_ID``), and a
+# module-level read would either bake a stale copy (import happened before the
+# operator's env applied) or refuse to import at all. ``_validate_tenant_config``
+# runs from ``main()``, where an unconfigured deployment is a real error.
 
-# The system tenant: its prompts keep the bare worker name (see the docstring).
-from src.api.tenant_constants import SYSTEM_TENANT_ID
 
-assert SYSTEM_TENANT_ID in PLATFORM_TENANT_IDS  # noqa: S101
+def _customer_tenant_ids() -> frozenset[str]:
+    """Realm tenants that are NOT platform: customers. Never written, only counted."""
+    return frozenset(tenant_uuids().values()) - platform_tenant_ids()
+
+
+def _validate_tenant_config() -> None:
+    """Refuse an unconfigured or ambiguous tenant config before touching a row."""
+    platform = platform_tenant_ids()
+    if not platform:
+        raise SystemExit(
+            "PLATFORM_TENANT_IDS is unset (fail-closed default) — nothing to adopt. "
+            "Export the estate value on the Deployment before running this job."
+        )
+    system = system_tenant_id()
+    if system not in platform:
+        raise SystemExit(
+            f"SYSTEM_TENANT_ID={system!r} is not in PLATFORM_TENANT_IDS — the system tenant "
+            "must be a platform tenant (its prompts keep the bare worker name)."
+        )
+    tags = {tenant_tag(t) for t in platform}
+    if len(tags) != len(platform):
+        raise SystemExit(
+            "tenant_tag() is not unique across the configured platform set — two tenants "
+            f"would collide on one prompt_id suffix: {sorted(tags)}"
+        )
 
 
 def tenant_tag(tenant_id: str) -> str:
     """The per-tenant prompt_id suffix: ``tenant_id[:8]``, widened when ambiguous.
 
     ⚠️ The contract's bare ``tenant_id[:8]`` COLLIDES: five of the six platform
-    tenants are ``0195f48b-d000-7000-8000-00000000000N`` and share ``0195f48b``,
+    tenants are ``aaaaaaaa-0000-4000-8000-00000000000N`` and share ``aaaaaaaa``,
     so two tenants with different text would get the SAME id and the second
     would be refused as a conflict. Where the 8-char prefix is shared by another
-    platform tenant the last 4 hex digits are appended (``0195f48b-0003``);
-    the AA tenant keeps ``019de842``. Uniqueness is asserted at import.
+    platform tenant the last 4 hex digits are appended (``aaaaaaaa-0003``);
+    the AA tenant keeps ``aaaaaaaa``. Uniqueness is asserted at import.
     """
     tid = tenant_id.strip().lower()
     head = tid[:8]
-    if sum(1 for p in PLATFORM_TENANT_IDS if p[:8] == head) > 1:
+    if sum(1 for p in platform_tenant_ids() if p[:8] == head) > 1:
         return f"{head}-{tid[-4:]}"
     return head
-
-
-assert len({tenant_tag(t) for t in PLATFORM_TENANT_IDS}) == len(PLATFORM_TENANT_IDS)  # noqa: S101
 
 
 @dataclass
@@ -203,16 +230,16 @@ class _Skip(Exception):
 
 def tenant_class(tenant_id: str) -> str:
     tid = tenant_id.strip().lower()
-    if tid in PLATFORM_TENANT_IDS:
+    if is_platform_tenant(tid):
         return "platform"
-    if tid in CUSTOMER_TENANT_IDS:
+    if tid in _customer_tenant_ids():
         return "customer"
     return "non_platform"
 
 
 def prompt_id_for(tenant_id: str, worker_name: str) -> str:
     """The prompt a platform worker's live text is adopted as (NAMING only)."""
-    if tenant_id.strip().lower() == SYSTEM_TENANT_ID:
+    if tenant_id.strip().lower() == system_tenant_id():
         return worker_name
     return f"{worker_name}.t{tenant_tag(tenant_id)}"
 
@@ -530,6 +557,7 @@ async def amain(argv: list[str] | None = None) -> int:
         "--apply", action="store_true", help=f"write; requires {CONFIRM_ENV}=yes in the env"
     )
     args = parser.parse_args(argv)
+    _validate_tenant_config()
     if args.apply and os.environ.get(CONFIRM_ENV) != "yes":
         print(
             f"refusing --apply: set {CONFIRM_ENV}=yes to confirm (run the dry run first)",

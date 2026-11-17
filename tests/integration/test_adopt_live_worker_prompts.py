@@ -35,9 +35,9 @@ if TYPE_CHECKING:
 
 pytestmark = pytest.mark.pg
 
-P1 = "0195f48b-d000-7000-8000-000000000001"  # platform (n8n-dev)
-P3 = "0195f48b-d000-7000-8000-000000000003"  # platform (george-dev)
-CUSTOMER = "01a1117c-d9b0-72fc-aeda-a9d1187f2a36"  # cdmsfirst (re-keyed 2026-10-07)
+P1 = "aaaaaaaa-0000-4000-8000-000000000001"  # platform (n8n-dev)
+P3 = "aaaaaaaa-0000-4000-8000-000000000003"  # platform (george-dev)
+CUSTOMER = "aaaaaaaa-0000-4000-8000-0000000000a7"  # cdmsfirst (in the synthetic label map)
 TEST_ACTOR = Actor(sub="test_adopt_live", kind="migration")
 
 
@@ -196,9 +196,9 @@ async def test_apply_publishes_live_text_ledgers_and_binds(prefix):
 
     shared, split = names["shared"], names["split"]
     # P1 (the system tenant) keeps the bare name; P3 shares P1's 8-char prefix
-    # "0195f48b", so its tag is widened (a bare [:8] would collide).
-    assert job.tenant_tag(P3) == "0195f48b-0003"
-    shared_p3, split_p3 = f"{shared}.t0195f48b-0003", f"{split}.t0195f48b-0003"
+    # "aaaaaaaa", so its tag is widened (a bare [:8] would collide).
+    assert job.tenant_tag(P3) == "aaaaaaaa-0003"
+    shared_p3, split_p3 = f"{shared}.taaaaaaaa-0003", f"{split}.taaaaaaaa-0003"
     bindings = await _bindings(like)
     assert bindings[(P1, shared)] == shared
     assert bindings[(P3, shared)] == shared_p3
@@ -236,7 +236,7 @@ async def test_identical_text_in_two_tenants_gets_two_prompts_each_owned_by_its_
     must never change what the other's runs. Replaces the old "identical text
     shares one prompt_id" test, which encoded the rejected behaviour."""
     # The AA tenant's 8-char prefix is unique, so it keeps the bare [:8] tag.
-    aa = "019de842-c92a-7e37-8fdd-eb0d8c5396f9"
+    aa = "bbbbbbbb-0000-4000-8000-0000000000a5"
     same = prefix + "same"
     await _worker(P1, same, "Same text.")
     await _worker(P3, same, "Same text.")
@@ -252,7 +252,7 @@ async def test_identical_text_in_two_tenants_gets_two_prompts_each_owned_by_its_
     assert report.totals()["would_create"] == 3
     assert report.totals()["would_bind"] == 0
 
-    id_p1, id_p3, id_aa = same, f"{same}.t0195f48b-0003", f"{same}.t019de842"
+    id_p1, id_p3, id_aa = same, f"{same}.taaaaaaaa-0003", f"{same}.tbbbbbbbb"
     assert await _bindings(like) == {(P1, same): id_p1, (P3, same): id_p3, (aa, same): id_aa}
     assert await _owners(like) == {id_p1: P1, id_p3: P3, id_aa: aa}
     for pid in (id_p1, id_p3, id_aa):
@@ -265,7 +265,7 @@ async def test_identical_text_in_two_tenants_gets_two_prompts_each_owned_by_its_
 async def test_a_prompt_owned_by_another_tenant_is_a_conflict_and_untouched(prefix):
     """The would-be id already exists, owned by ANOTHER tenant: nothing written."""
     name = prefix + "squat"
-    taken = f"{name}.t0195f48b-0003"
+    taken = f"{name}.taaaaaaaa-0003"
     await _draft(taken, "P1 wrote this.", owner=P1)
     await _worker(P3, name, "The LIVE text.")
     like = prefix + "%"
@@ -442,7 +442,7 @@ async def test_same_text_publisher_draft_stays_untouched_and_live_is_adopted_as_
     assert report.totals()["would_create"] == 1
     # v1 draft + v2 adopted (P1) + P3's own v1.
     await _assert_adopted_as_v2(name, like, before, ledger_before, total_versions=3)
-    p3_id = f"{name}.t0195f48b-0003"
+    p3_id = f"{name}.taaaaaaaa-0003"
     assert await _bindings(like) == {(P1, name): name, (P3, name): p3_id}
     assert await _owners(like) == {name: P1, p3_id: P3}
 

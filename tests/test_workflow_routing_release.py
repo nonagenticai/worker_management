@@ -2,7 +2,8 @@
 
 /seed-active, /release, /promote-canary and /discard-canary each need BOTH the
 verified ``service-internal`` SA role AND a caller tenant in
-``RELEASE_TENANT_IDS`` (…0001 system, …0002 workflow-improvement stream) —
+``RELEASE_TENANT_IDS`` (…0001 system, …0006 kata — the successor to the v3
+workflow-improvement stream …0002 that fr deleted 2026-11-03) —
 narrower than the platform set. Every refusal happens BEFORE the repository is
 reached. phase-10 asks for a test and a mutation control PER GATE, so each
 refusal test below is parametrized over the four routes: removing
@@ -34,10 +35,9 @@ os.environ.setdefault("OTEL_SDK_DISABLED", "true")
 
 from src.api import auth_middleware
 from src.api.auth_middleware import AuthenticationMiddleware
-from src.api.tenant_constants import PLATFORM_TENANT_IDS
+from src.api.tenant_constants import platform_tenant_ids, release_tenant_ids
 from src.api.workflow_routing import repository
 from src.api.workflow_routing.routes import (
-    RELEASE_TENANT_IDS,
     ROUTING_WRITER_ROLE,
     ROUTING_WRITER_SCOPED_ROLE,
 )
@@ -49,11 +49,11 @@ _KID = "routing-release-test-key"
 _ISSUER = "https://auth.example.invalid/realms/secure-apps"
 ALLOWED_SA = "improvement-loop-service"
 
-SYSTEM = "0195f48b-d000-7000-8000-000000000001"
-IMPROVE = "0195f48b-d000-7000-8000-000000000002"
-EXECUTION = "0195f48b-d000-7000-8000-000000000003"  # platform, NOT a release tenant
-CONVEYOR = "019de842-c92a-7e37-8fdd-eb0d8c5396f9"  # platform, NOT a release tenant
-CUSTOMER = "01990000-aaaa-7000-8000-00000000c001"
+SYSTEM = "aaaaaaaa-0000-4000-8000-000000000001"
+IMPROVE = "aaaaaaaa-0000-4000-8000-000000000006"  # kata, successor to …0002
+EXECUTION = "aaaaaaaa-0000-4000-8000-000000000003"  # platform, NOT a release tenant
+CONVEYOR = "bbbbbbbb-0000-4000-8000-0000000000a5"  # platform, NOT a release tenant
+CUSTOMER = "aaaaaaaa-0000-4000-8000-00000000c001"
 
 NAME = "AA Activity - Reasoning"
 ASSET = f"activity:{NAME}"
@@ -264,8 +264,8 @@ NOT_RELEASABLE = wire_error(403, {"error": "asset_not_releasable"}, "FORBIDDEN")
 
 
 def test_release_tenants_are_exactly_system_and_the_improvement_stream():
-    assert {SYSTEM, IMPROVE} == RELEASE_TENANT_IDS
-    assert RELEASE_TENANT_IDS <= PLATFORM_TENANT_IDS
+    assert {SYSTEM, IMPROVE} == release_tenant_ids()
+    assert release_tenant_ids() <= platform_tenant_ids()
 
 
 # ---------------------------------------------------------------------------
@@ -524,7 +524,7 @@ def test_discard_is_not_allowlisted_so_a_dropped_asset_can_still_be_disarmed(
 # Body validation: 16-char n8n ids, asset_key shape, pct 1..50
 # ---------------------------------------------------------------------------
 
-BAD_IDS = ["A" * 15, "A" * 17, "0195f48b-d000-7000-8000-0000000000ff", "abcdefgh-jklmnop"]
+BAD_IDS = ["A" * 15, "A" * 17, "aaaaaaaa-0000-4000-8000-0000000000ff", "abcdefgh-jklmnop"]
 BAD_ID_IDS = ["15-chars", "17-chars", "uuid", "non-alnum"]
 
 
@@ -772,7 +772,7 @@ def test_customer_observed_read_is_byte_identical_to_nothing_observed(
         lo.assert_not_awaited()
 
 
-@pytest.mark.parametrize("tenant", sorted(PLATFORM_TENANT_IDS), ids=lambda t: t.rsplit("-", 1)[1])
+@pytest.mark.parametrize("tenant", sorted(platform_tenant_ids()), ids=lambda t: t.rsplit("-", 1)[1])
 def test_every_platform_tenant_still_reads(internet_client, repo, monkeypatch, tenant):
     _licence_of(monkeypatch, tenant)
     with patch.object(repository, "list_observed", new_callable=AsyncMock, return_value=[ROW]):

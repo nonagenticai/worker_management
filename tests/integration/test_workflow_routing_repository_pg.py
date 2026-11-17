@@ -26,7 +26,7 @@ pytestmark = [pytest.mark.pg, pytest.mark.asyncio]
 
 ACTIVE = "AbCdEfGhIjKlMnOp"
 CANARY = "QrStUvWxYzAbCdEf"
-TENANT = "0195f48b-d000-7000-8000-000000000002"
+TENANT = "aaaaaaaa-0000-4000-8000-000000000002"
 
 
 @pytest_asyncio.fixture

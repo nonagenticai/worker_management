@@ -31,7 +31,7 @@ from src.api.security_middleware import (
     RequestValidationMiddleware,
     SecurityHeadersMiddleware,
 )
-from src.api.tenant_constants import DEFAULT_TENANT_UUID
+from src.api.tenant_constants import default_tenant_uuid
 from src.api.workers.prompt_drift import start_drift_task
 from src.db.db_config import close_pg_pool, init_pg_pool, run_migrations
 from src.services.tenant_llm_audit_retention import start_audit_retention_task
@@ -171,7 +171,7 @@ if otelemetry_available and not otel_disabled:
         if otlp_endpoint:
             try:
                 # Test connection first with a short timeout
-                import httpx
+                import httpx2 as httpx
 
                 test_url = otlp_endpoint.replace("/v1/traces", "/")
                 try:
@@ -501,10 +501,10 @@ if otelemetry_available and not otel_disabled:
         logger.warning(f"Failed to instrument SQLAlchemy: {e}")
 
     try:
-        from opentelemetry.instrumentation.httpx import HTTPXClientInstrumentor
+        from opentelemetry.instrumentation.httpx import HTTPX2ClientInstrumentor
 
-        HTTPXClientInstrumentor().instrument()
-        logger.info("httpx instrumented with OpenTelemetry")
+        HTTPX2ClientInstrumentor().instrument()
+        logger.info("httpx2 instrumented with OpenTelemetry")
     except ImportError:
         logger.warning("httpx instrumentation not available")
     except Exception as e:
@@ -522,7 +522,7 @@ async def custom_swagger_ui() -> Any:
             "persistAuthorization": True,
             "requestInterceptor": (
                 "function(req){req.headers['X-Tenant-ID']='"
-                + DEFAULT_TENANT_UUID
+                + default_tenant_uuid()
                 + "';return req;}"
             ),
         },

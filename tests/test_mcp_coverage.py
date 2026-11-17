@@ -9,9 +9,8 @@ import os
 from typing import Any, cast
 from unittest.mock import AsyncMock, MagicMock, patch
 
-import httpx
+import httpx2 as httpx
 import pytest
-from pydantic_ai.mcp import MCPServerSSE, MCPServerStdio
 
 from src.worker.docker_mcp_manager import (
     ContainerNotFoundError,
@@ -27,6 +26,7 @@ from src.worker.factory.mcp_config_resolver import (
 )
 from src.worker.mcp_utils import (
     MCPServerManager,
+    McpServerToolset,
     create_http_server,
     create_http_server_sync,
     create_mcp_servers_from_config,
@@ -138,7 +138,7 @@ class TestResolveWorkingDirectoryExtra:
 class TestCreateHttpServerSyncExtra:
     def test_creates_server_with_url(self):
         server = create_http_server_sync("s", {"url": "http://example.com/sse"})
-        assert isinstance(server, MCPServerSSE)
+        assert isinstance(server, McpServerToolset)
         assert server.url == "http://example.com/sse"
 
     def test_empty_url_returns_none(self):
@@ -158,7 +158,7 @@ class TestCreateHttpServerAsync:
     async def test_basic_sse_creation(self):
         config = {"url": "http://localhost:9090/sse"}
         server = await create_http_server("test", config)
-        assert isinstance(server, MCPServerSSE)
+        assert isinstance(server, McpServerToolset)
         assert server.url == "http://localhost:9090/sse"
         assert server.timeout == 15.0  # default
 
@@ -276,7 +276,7 @@ class TestCreateHttpServerAsync:
             return_value=None,
         ):
             server = await create_http_server("s", config)
-        assert isinstance(server, MCPServerSSE)
+        assert isinstance(server, McpServerToolset)
         assert "Authorization" not in (server.headers or {})
 
     @pytest.mark.asyncio
@@ -290,17 +290,19 @@ class TestCreateHttpServerAsync:
             },
         }
         server = await create_http_server("s", config)
-        assert isinstance(server, MCPServerSSE)
-        # When http_client is set, headers are moved into the client
-        assert server.http_client is not None
+        assert isinstance(server, McpServerToolset)
+        # pydantic-ai 2 builds the HTTP transport inside fastmcp's Client and
+        # offers no seam for our own httpx.AsyncClient; the entry still builds and
+        # keeps its URL/headers.
+        assert server.url == "http://x/sse"
 
     @pytest.mark.asyncio
     async def test_http_client_empty_config_no_custom_client(self):
         config = {"url": "http://x/sse", "http_client": {}}
         server = await create_http_server("s", config)
-        assert isinstance(server, MCPServerSSE)
-        # Empty http_client dict should not create a custom client
-        assert server.http_client is None
+        assert isinstance(server, McpServerToolset)
+        # Empty http_client dict is a no-op; the server still builds.
+        assert server.url == "http://x/sse"
 
 
 # ============================================================================
@@ -523,7 +525,7 @@ class TestCreateStdioServerManagedDocker:
             "env": {},
         }
         server = create_stdio_server("test", config, None)
-        assert isinstance(server, MCPServerStdio)
+        assert isinstance(server, McpServerToolset)
         # _mcp_managed / _mcp_image are dynamic attrs added by mcp_utils.
         assert cast("Any", server)._mcp_managed is True
         assert cast("Any", server)._mcp_image == "ghcr.io/test/mcp-server"
@@ -536,7 +538,7 @@ class TestCreateStdioServerManagedDocker:
             "tool_prefix": "myprefix",
         }
         server = create_stdio_server("test", config, None)
-        assert isinstance(server, MCPServerStdio)
+        assert isinstance(server, McpServerToolset)
         assert server.tool_prefix == "myprefix"
 
     def test_docker_run_with_timeout(self):
@@ -547,7 +549,7 @@ class TestCreateStdioServerManagedDocker:
             "timeout": 60,
         }
         server = create_stdio_server("test", config, None)
-        assert isinstance(server, MCPServerStdio)
+        assert isinstance(server, McpServerToolset)
         assert server.timeout == 60.0
 
     def test_docker_run_invalid_timeout(self):
@@ -558,7 +560,7 @@ class TestCreateStdioServerManagedDocker:
             "timeout": "bad",
         }
         server = create_stdio_server("test", config, None)
-        assert isinstance(server, MCPServerStdio)
+        assert isinstance(server, McpServerToolset)
         # Falls back to default
 
     def test_docker_run_no_image_detected(self):
@@ -596,7 +598,7 @@ class TestCreateStdioServerManagedDocker:
             "env": {"GITHUB_PERSONAL_ACCESS_TOKEN": "ghp_token123"},
         }
         server = create_stdio_server("test", config, None)
-        assert isinstance(server, MCPServerStdio)
+        assert isinstance(server, McpServerToolset)
         assert cast("Any", server)._mcp_managed is True
 
     def test_docker_image_detected_by_mcp_prefix(self):
@@ -607,7 +609,7 @@ class TestCreateStdioServerManagedDocker:
             "env": {},
         }
         server = create_stdio_server("test", config, None)
-        assert isinstance(server, MCPServerStdio)
+        assert isinstance(server, McpServerToolset)
         assert cast("Any", server)._mcp_image == "mcp/some-server"
 
     def test_docker_image_detected_by_server_suffix(self):
@@ -620,7 +622,7 @@ class TestCreateStdioServerManagedDocker:
             "env": {},
         }
         server = create_stdio_server("test", config2, None)
-        assert isinstance(server, MCPServerStdio)
+        assert isinstance(server, McpServerToolset)
         assert cast("Any", server)._mcp_image == "ghcr.io/org/custom-server"
 
 
@@ -628,7 +630,7 @@ class TestCreateRegularStdioServer:
     def test_basic_creation(self):
         config = {"command": "node", "args": ["server.js"]}
         server = create_stdio_server("test", config, None)
-        assert isinstance(server, MCPServerStdio)
+        assert isinstance(server, McpServerToolset)
         assert server.command == "node"
         assert server.args is not None
         assert list(server.args) == ["server.js"]
@@ -724,7 +726,7 @@ class TestCreateMCPServersFromConfigEdges:
         servers = create_mcp_servers_from_config(str(f))
         assert len(servers) == 1
         srv = servers[0]
-        assert isinstance(srv, MCPServerStdio)
+        assert isinstance(srv, McpServerToolset)
         assert srv.cwd == str(subdir)
 
 
@@ -739,14 +741,14 @@ class TestLoadMCPServers:
         config = {"mcpServers": {"s": {"url": "http://localhost/sse"}}}
         servers = await load_mcp_servers(config)
         assert len(servers) == 1
-        assert isinstance(servers[0], MCPServerSSE)
+        assert isinstance(servers[0], McpServerToolset)
 
     @pytest.mark.asyncio
     async def test_dict_with_stdio_server(self):
         config = {"mcpServers": {"s": {"command": "node", "args": ["x.js"]}}}
         servers = await load_mcp_servers(config)
         assert len(servers) == 1
-        assert isinstance(servers[0], MCPServerStdio)
+        assert isinstance(servers[0], McpServerToolset)
 
     @pytest.mark.asyncio
     async def test_file_input(self, tmp_path):
@@ -861,13 +863,13 @@ class TestMCPServerManager:
     async def test_create_server_with_url(self):
         mgr = MCPServerManager()
         server = await mgr._create_server({"url": "http://x/sse", "name": "test"}, "")
-        assert isinstance(server, MCPServerSSE)
+        assert isinstance(server, McpServerToolset)
 
     @pytest.mark.asyncio
     async def test_create_server_with_command(self):
         mgr = MCPServerManager()
         server = await mgr._create_server({"command": "node", "name": "test", "args": []}, "")
-        assert isinstance(server, MCPServerStdio)
+        assert isinstance(server, McpServerToolset)
 
     @pytest.mark.asyncio
     async def test_create_server_invalid_config(self):

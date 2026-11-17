@@ -78,7 +78,7 @@ def test_end_to_end_testclient_peer_with_bare_tenant_header_is_401(app: FastAPI)
             # be perfectly valid: if it were not, the 401 could be attributed to
             # the tenant resolver rejecting a bogus value rather than to the peer
             # name, and the escape hatch would be silently un-pinned.
-            headers={"X-Tenant-Id": "0195f48b-d000-7000-8000-000000000099"},
+            headers={"X-Tenant-Id": "aaaaaaaa-0000-4000-8000-000000000099"},
         )
     assert resp.status_code == 401, (
         f"testclient peer admitted with {resp.status_code}; the production escape hatch is back."
@@ -99,7 +99,7 @@ def test_end_to_end_real_trusted_peer_with_bare_tenant_header_is_200(app: FastAP
             # be perfectly valid: if it were not, the 401 could be attributed to
             # the tenant resolver rejecting a bogus value rather than to the peer
             # name, and the escape hatch would be silently un-pinned.
-            headers={"X-Tenant-Id": "0195f48b-d000-7000-8000-000000000099"},
+            headers={"X-Tenant-Id": "aaaaaaaa-0000-4000-8000-000000000099"},
         )
     assert resp.status_code == 200, (
         f"trusted-network peer got {resp.status_code}; the 401 above is not "

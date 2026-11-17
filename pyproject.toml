@@ -20,12 +20,16 @@ dependencies = [
     "starlette>=1.0.1",  # PYSEC-2026-161 fixed in 1.0.1 (transitive via fastapi)
     "pydantic>=2.12.0",
     "pydantic-settings>=2.14.2",  # GHSA-4xgf-cpjx-pc3j fixed in 2.14.2
+    "httpx2>=2.16.2,<3",
+    # cohere 7.3.1 / groq 1.7.0 (their latest) still require httpx<1 and build
+    # their clients on it; their BYO path keeps a 0.x transport twin in
+    # src/security/request_overrides.py. Everything of ours speaks httpx2.
     "httpx>=0.28.1",
     "uvicorn[standard]>=0.35.0",
     "aiohttp>=3.14.4",
     "urllib3>=2.8.0",  # CVE-2026-44431, CVE-2026-44432 fixed in 2.7.0
     "werkzeug>=3.1.9",
-    "kubernetes>=35.0.0a1",
+    "kubernetes>=37.0.2",
     "asyncio>=3.4.3",
     "sqlalchemy[asyncio]>=2.0",
     "python-multipart>=0.0.27",
@@ -45,25 +49,25 @@ dependencies = [
     "opentelemetry-exporter-prometheus>=0.50b0",
     "opentelemetry-api>=1.24.0",
     "structlog>=24.4.0",
-    "mcp>=1.28.1",
+    "mcp>=2.3.0",
     "cohere>=5.18.0",
-    "pydantic-ai>=1.107.7",
-    "pydantic-graph>=1.0.18",
+    # The httpx2 line (2026-11-17): pydantic-ai >=2.53 requires httpx2, and the
+    # 2.x releases below 2.44/2.52/2.53 carry PYSEC-2026-4275..4291. The whole
+    # service, its transports and its SDK clients now speak httpx2.
+    "pydantic-ai[xai]>=2.69,<3",
+    "anthropic>=1.9,<2",
+    "pydantic-graph>=2.69,<3",
     "psycopg[binary,pool]>=3.2.12",
     "groq>=0.25.0",
-    # <3 until the client is ported to httpx2: openai 3.x's AsyncOpenAI declares
-    # `http_client: httpx2.AsyncClient`, while this service builds an httpx.AsyncClient
-    # around DiagnosticAsyncHTTPTransport. Runtime still works (measured 2026-11-15: the
-    # client constructs and only fails against an unreachable endpoint), but `ty check
-    # src/` — the gate every agent's pre-push runs — fails on the mismatch, which makes
-    # the repository unpushable for everyone. Lift this bound when the transport is ported.
-    "openai>=1.107.2,<3",
+    # openai 3 declares `http_client: httpx2.AsyncClient`; every construction
+    # site passes one (see src/worker/agents/pydantic_ai_agent.py).
+    "openai>=3.19,<4",
     "PyJWT>=2.15.1",
     "redis>=5.0.0",
     "PyYAML>=6.0",
     "aiodocker>=0.21.0",
     "minio>=7.2.0",
-    "cachetools>=5.3.0",
+    "cachetools>=8.0.0",
     "jsonschema>=4.26.0",
     "cryptography>=49.0.0",  # AES-256-GCM for per-tenant BYO LLM key encryption (src/security/secret_box.py)
     # Security floor: pin pyasn1 ≥ 0.6.5 for CVE-2026-119194..119197 (0.6.4 was for PYSEC-2026-3455/3456/3457).
@@ -107,7 +111,7 @@ worker-management = "src.api.worker_management_api:app"
 [dependency-groups]
 dev = [
     "detect-secrets>=1.5.0",
-    "kubernetes>=35.0.0a1",
+    "kubernetes>=37.0.2",
     # The gate the pre-push hook and CI both run. Keep it on the current ty: 0.0.49 (the
     # version this repo sat on) predates every diagnostic the newer releases found, so the
     # hook reported "0 errors" on a tree the current ty rejects.
@@ -188,6 +192,11 @@ ignore = [
     "TRY300",  # try-consider-else — moving the success path into `else:` is stylistic; mid-block success-then-cleanup is clearer in our handlers
     "TRY301",  # raise-within-try — many of our handlers convert one exception to another inside the try block; that IS the cleanup
     "TRY002",  # raise-vanilla-class — `raise ValueError(...)` / `raise RuntimeError(...)` is fine for internal precondition failures; we add custom errors only when callers must distinguish them
+    # PLR0917 (too-many-positional-arguments) is new in ruff 0.15.17. It fires on 7
+    # pre-existing signatures — the agent/worker factories and the pydantic-ai run
+    # helper — that are the service's public construction surface; making those
+    # keyword-only is a breaking change for every caller, so it is a separate unit.
+    "PLR0917",
     "SIM117",  # multiple-with-statements — collapsing nested `with patch(...)` blocks into a single statement with line continuations hurts pytest-mock readability; keep nested
     # ----- pylint (PL) rules silenced project-wide -----
     "PLR2004", # magic-value-comparison — our validation/security code is full of contextual numeric thresholds (max-length 500/1000/5000/100000, ASCII byte boundary 32, heuristic command-injection length 500, etc.). The rule fires on intentional, semantically-clear limits where naming them would add indirection without aiding readers. HTTP-status comparisons specifically have been migrated to `http.HTTPStatus` where applicable; the remaining magic values are genuinely contextual constants.

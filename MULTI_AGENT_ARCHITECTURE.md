@@ -123,6 +123,7 @@ To add a new agent type:
    ```python
    from .base_agent import BaseAgent, AgentRunResult
 
+
    class MyNewAgent(BaseAgent):
        async def run(self, prompt: str) -> AgentRunResult:
            # Implementation
@@ -152,7 +153,9 @@ To add a new agent type:
    ```python
    def _register_my_new_agent():
        from .agent_registry import register_agent
+
        register_agent("my_new_agent", create_my_new_agent, MyNewAgent)
+
 
    _register_my_new_agent()
    ```

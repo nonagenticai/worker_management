@@ -17,7 +17,7 @@ import requests
 tool_definition = {
     "name": "complex_tool",
     "description": "Tool with regex and JSON operations",
-    "python_code": '''
+    "python_code": """
 import re
 import json
 
@@ -33,8 +33,8 @@ class ComplexTool:
         path = "C:\\\\Users\\\\Documents\\\\file.txt"
 
         return {"result": "success", "message": message}
-''',
-    "tags": ["complex"]
+""",
+    "tags": ["complex"],
 }
 
 # This works perfectly
@@ -47,15 +47,15 @@ Users encounter issues when they manually escape strings before JSON encoding:
 
 ```python
 # WRONG: Manual escaping causes double-escaping
-original_code = '''
+original_code = """
 class Tool:
     def run(self, input_data):
         pattern = r'\\d+\\.\\d+'
         return {"result": "test"}
-'''
+"""
 
 # User manually escapes (WRONG!)
-manually_escaped = original_code.replace('\\', '\\\\').replace('"', '\\"')
+manually_escaped = original_code.replace("\\", "\\\\").replace('"', '\\"')
 
 tool_data = {
     "python_code": manually_escaped  # This creates double-escaping!
@@ -92,7 +92,7 @@ All complex Python code patterns pass JSON serialization tests:
 ```python
 # DON'T DO THIS
 code = "class Tool:\\n    def run(self):\\n        return {}"
-escaped = code.replace('\\', '\\\\').replace('"', '\\"')  # Wrong!
+escaped = code.replace("\\", "\\\\").replace('"', '\\"')  # Wrong!
 ```
 
 ### 2. Copying from JSON Viewers

@@ -87,7 +87,7 @@ class TestModelDiscovery:
 
     @pytest.mark.asyncio
     async def test_fetch_models_timeout(self, registry):
-        import httpx
+        import httpx2 as httpx
 
         with patch("src.services.mlx_model_registry.httpx.AsyncClient") as mock_client_cls:
             mock_client = AsyncMock()
@@ -101,7 +101,7 @@ class TestModelDiscovery:
 
     @pytest.mark.asyncio
     async def test_fetch_models_connection_error(self, registry):
-        import httpx
+        import httpx2 as httpx
 
         with patch("src.services.mlx_model_registry.httpx.AsyncClient") as mock_client_cls:
             mock_client = AsyncMock()
@@ -280,7 +280,7 @@ class TestDefaultInstance:
 
     @pytest.mark.asyncio
     async def test_get_default_instance_all_down(self, registry):
-        import httpx
+        import httpx2 as httpx
 
         with patch.object(registry, "fetch_models_from_instance", return_value=[]):
             with patch("src.services.mlx_model_registry.httpx.AsyncClient") as mock_cls:

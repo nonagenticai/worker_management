@@ -49,7 +49,7 @@ if TYPE_CHECKING:
 
 pytestmark = [pytest.mark.pg, pytest.mark.asyncio]
 
-P1 = "0195f48b-d000-7000-8000-000000000001"  # platform (system tenant)
+P1 = "aaaaaaaa-0000-4000-8000-000000000001"  # platform (system tenant)
 CUSTOMER = "7a3c1e5d-0000-4000-8000-00000000c0de"  # not in PLATFORM_TENANT_IDS
 ACTOR = Actor(sub="test-mirror", kind="migration")
 

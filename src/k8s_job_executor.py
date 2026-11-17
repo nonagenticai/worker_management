@@ -2,7 +2,7 @@
 
 import asyncio
 import io
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 from kubernetes import client, config
 from kubernetes.stream import stream
@@ -73,8 +73,17 @@ class K8sJobExecutor:
         # Create Job
         if self.batch_v1 is None:
             raise RuntimeError("K8sJobExecutor not initialized. Call initialize() first.")
-        job = self.batch_v1.create_namespaced_job(namespace=self.namespace, body=job_manifest)
-        job_name = job.metadata.name
+        # kubernetes 37 types `body` as V1Job, but the client serialises a plain
+        # manifest dict identically and this executor builds the manifest as a
+        # dict (image, env, volumes, tolerations). Keep the dict and assert the
+        # name we asked for rather than reading it back off an Optional
+        # `V1Job.metadata`.
+        self.batch_v1.create_namespaced_job(
+            namespace=self.namespace, body=cast("Any", job_manifest)
+        )
+        job_name = (job_manifest.get("metadata") or {}).get("name")
+        if not isinstance(job_name, str):
+            raise TypeError("Job manifest has no metadata.name")
 
         # Wait for pod to start
         await self._wait_for_pod(job_name)
@@ -88,7 +97,7 @@ class K8sJobExecutor:
         job = await self._wait_for_completion(job_name, timeout=600)
 
         # Check for job failure
-        if job and job.status.failed:
+        if job and job.status is not None and job.status.failed:
             raise RuntimeError(f"K8s Job {job_name} failed. Check pod logs for details.")
 
         # Collect artifacts
@@ -332,7 +341,8 @@ class K8sJobExecutor:
         for _ in range(timeout):
             try:
                 job = self.batch_v1.read_namespaced_job(name=job_name, namespace=self.namespace)
-                if job.status.succeeded or job.status.failed:
+                status = job.status
+                if status is not None and (status.succeeded or status.failed):
                     return job
             except client.exceptions.ApiException:
                 pass

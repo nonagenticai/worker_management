@@ -26,12 +26,12 @@
 -- existing registered tenant. There are two candidates and they are in open
 -- conflict:
 --
---   0195f48b-d000-7000-8000-000000000001  -- what Keycloak's portal realm
+--   aaaaaaaa-0000-4000-8000-000000000001  -- what Keycloak's portal realm
 --       actually mints as the `tenant_id` claim for n8n-dev
 --       (gitops-production clusters/strato/services/keycloak/
 --        realm-patch-script-configmap.yaml:111-113), and this deployment's
 --       own DEFAULT_TENANT_ID. 553,550 rows here already.
---   019de842-c92a-7e37-8fdd-eb0d8c5396f9  -- the row literally named
+--   aaaaaaaa-0000-4000-8000-0000000000a5  -- the row literally named
 --       `n8n-dev` in `licenses.public.tenants`. 64,822 rows here already.
 --
 -- The cluster has already written the collision down, in that same configmap
@@ -170,13 +170,13 @@ BEGIN
         -- ⛔ CLASSIFY BY WHETHER IT CASTS, NOT BY A REGEX. An earlier draft used
         --    ^[0-9a-fA-F]{8}-...{12}$ and two adversarial reproductions killed it:
         --
-        --    * `0195F48B-D000-...` PASSES that regex, so it was treated as "already
+        --    * `AAAAAAAA-D000-...` PASSES that regex, so it was treated as "already
         --      a uuid" and left alone -- and then `::uuid` normalised it to
         --      lowercase during the ALTER, colliding with the lowercase row under
         --      `unique_tenant_worker_name`. The ALTER died inside the index rebuild,
         --      and because prod is non-strict the file was stepped over on EVERY
         --      boot: the flip would never have happened, quietly.
-        --    * `0195f48bd0007000...` (no dashes) and `{0195f48b-...}` (braces) FAIL
+        --    * `aaaaaaaad0007000...` (no dashes) and `{aaaaaaaa-...}` (braces) FAIL
         --      the regex but cast fine -- so they were handed a fabricated v5 and
         --      SPLIT OFF from the tenant they are literally spelling. That is the
         --      exact property this migration's header promises it preserves.
@@ -204,20 +204,20 @@ BEGIN
     UPDATE tenant_id_crosswalk c
        SET merge_target = m.uuid_value
       FROM (VALUES
-              ('n8n-dev',       '0195f48b-d000-7000-8000-000000000001'::uuid),
-              ('george-dev',    '0195f48b-d000-7000-8000-000000000003'::uuid),
-              ('fr-test',       '0195f48b-d000-7000-8000-000000000099'::uuid),
-              ('cdmsfirst',     '0195f48b-d000-7000-8000-000000000100'::uuid),
-              ('ahtapol',       '0195f48b-d000-7000-8000-000000000101'::uuid),
-              ('ahtapol-probe', '0195f48b-d000-7000-8000-000000000102'::uuid)
+              ('n8n-dev',       'aaaaaaaa-0000-4000-8000-000000000001'::uuid),
+              ('george-dev',    'aaaaaaaa-0000-4000-8000-000000000003'::uuid),
+              ('fr-test',       'aaaaaaaa-0000-4000-8000-000000000099'::uuid),
+              ('cdmsfirst',     'aaaaaaaa-0000-4000-8000-000000000100'::uuid),
+              ('ahtapol',       'aaaaaaaa-0000-4000-8000-000000000101'::uuid),
+              ('ahtapol-probe', 'aaaaaaaa-0000-4000-8000-000000000102'::uuid)
            ) AS m(label, uuid_value)
      WHERE c.legacy_value = m.label AND c.merge_target IS DISTINCT FROM m.uuid_value;
 
     ------------------------------------------------------------------
     -- 1b. Pre-flight: would the cast itself create a duplicate?
     --
-    --     A value that is a VALID uuid written non-canonically -- `0195F48B-…`,
-    --     `0195f48bd000…` with no dashes, `{0195f48b-…}` -- is normalised by
+    --     A value that is a VALID uuid written non-canonically -- `AAAAAAAA-…`,
+    --     `aaaaaaaad000…` with no dashes, `{aaaaaaaa-…}` -- is normalised by
     --     `::uuid`. If another row already holds the canonical spelling under
     --     the same tenant-scoped unique key, the ALTER dies INSIDE the index
     --     rebuild with `could not create unique index`, which names neither the

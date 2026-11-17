@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import json
 import re
+import uuid
 from functools import lru_cache
 from typing import Literal
 from urllib.parse import urlsplit
@@ -48,6 +49,54 @@ _CALLER_NAME_RE = re.compile(r"^[a-z0-9][a-z0-9._-]{0,63}$")
 _CANONICAL_UUID_RE = re.compile(
     r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$", re.IGNORECASE
 )
+
+
+def parse_tenant_id_csv(raw: str, *, env_name: str) -> frozenset[str]:
+    """Canonical, non-nil tenant UUIDs from the comma-separated ``raw``.
+
+    Raises ``ValueError`` naming the offending entry. ⛔ Nothing is silently
+    dropped here: every one of these env values GATES ACCESS, so a typo narrows
+    the set — the safe direction — but it does so quietly, and the operator who
+    meant to admit a tenant would never learn they failed. A loud startup
+    failure is the only outcome that cannot be misread as "configured".
+    """
+    ids: set[str] = set()
+    for part in (raw or "").split(","):
+        candidate = part.strip()
+        if not candidate:
+            continue
+        try:
+            parsed = uuid.UUID(candidate)
+        except ValueError:
+            raise ValueError(f"{env_name}: {candidate!r} is not a uuid") from None
+        if parsed.int == 0:
+            raise ValueError(f"{env_name}: the nil uuid is never a tenant")
+        if candidate.lower() != str(parsed):
+            raise ValueError(
+                f"{env_name}: {candidate!r} is not a canonical (8-4-4-4-12) uuid; "
+                "braced, urn: and undashed spellings are refused so the value a "
+                "header carries and the value a log shows are the same string"
+            )
+        ids.add(str(parsed))
+    return frozenset(ids)
+
+
+def parse_tenant_label_map(raw: str, *, env_name: str) -> dict[str, str]:
+    """``"<label>=<uuid>,..."`` → ``{label: canonical uuid}``. Raises on a bad entry."""
+    mapping: dict[str, str] = {}
+    for entry in (raw or "").split(","):
+        part = entry.strip()
+        if not part:
+            continue
+        label, sep, value = part.partition("=")
+        label, value = label.strip(), value.strip()
+        if not sep or not label or not value:
+            raise ValueError(f"{env_name}: {part!r} is not <label>=<uuid>")
+        (uuid_value,) = parse_tenant_id_csv(value, env_name=f"{env_name} label {label!r}")
+        if label in mapping:
+            raise ValueError(f"{env_name}: duplicate label {label!r}")
+        mapping[label] = uuid_value
+    return mapping
 
 
 def parse_project_id_caller_licences(raw: str) -> dict[str, str]:
@@ -563,6 +612,71 @@ class Settings(BaseSettings):
             "TENANT_BYO_OWNER_INFRA_DENYLIST",
         ),
         description="Owner-infra hosts/IPs a tenant BYO base_url may never name.",
+    )
+    # ------------------------------------------------------------------
+    # TENANT IDENTIFIERS — DEFINED IN GITOPS, NEVER IN THIS SOURCE.
+    #
+    # ⛔ These are real tenant UUIDs of the production estate. This repository is
+    # PUBLIC, so a literal here publishes the tenant map of every workspace we
+    # run — who is a platform tenant, which label maps to which id. That is not a
+    # credential, but it is estate-internal addressing and it does not belong in
+    # a public tree. The values live in the Deployment env (gitops), beside the
+    # keycloak realm config that mints them, exactly like
+    # ``COMMERCIAL_PLATFORM_TENANT_IDS`` below.
+    #
+    # Every one is EMPTY by default and every consumer FAILS CLOSED on empty:
+    #   * empty ``PLATFORM_TENANT_IDS``   → no tenant is platform (system data
+    #     is writable by none of them; the verified SA roles still work)
+    #   * empty ``RELEASE_TENANT_IDS``    → no tenant may release workflows
+    #   * empty ``TENANT_UUIDS``          → no label resolves; a caller sending
+    #     ``X-Tenant-Id: <name>`` gets a clean 400 (never a guessed tenant)
+    #   * empty ``DEFAULT_TENANT_ID``     → the trusted-network default tenant
+    #     path refuses instead of falling back to a tenant nobody chose
+    #
+    # ⚠️ Rollout order: set these BEFORE scaling the Deployment above 0. With
+    # them unset the service starts and every tenant-scoped surface refuses —
+    # restrictive, never permissive.
+    platform_tenant_ids: str = Field(
+        default="",
+        validation_alias="PLATFORM_TENANT_IDS",
+        description=(
+            "Comma-separated canonical tenant UUIDs of OUR platform workspaces (gitops-managed). "
+            "Mirrors fr's PLATFORM_TENANT_IDS: a tenant platform in one service and customer in the "
+            "other is the leak this set closes. Empty (default) = none is platform."
+        ),
+    )
+    release_tenant_ids: str = Field(
+        default="",
+        validation_alias="RELEASE_TENANT_IDS",
+        description=(
+            "Comma-separated canonical tenant UUIDs allowed to release workflows "
+            "(/seed-active, /release, /promote-canary, /discard-canary). MUST be a subset of "
+            "PLATFORM_TENANT_IDS; validated at startup. Empty (default) = nobody may release."
+        ),
+    )
+    tenant_uuids: str = Field(
+        default="",
+        validation_alias="TENANT_UUIDS",
+        description=(
+            "Comma-separated <label>=<uuid> pairs mirroring what the portal realm mints "
+            "(the Keycloak tenant_id user attribute). Empty (default) = no label resolves."
+        ),
+    )
+    system_tenant_id: str = Field(
+        default="",
+        validation_alias="SYSTEM_TENANT_ID",
+        description=(
+            "The canonical uuid of the SYSTEM tenant — owner of every system-written prompt. "
+            "Empty (default) = system-owned prompt surfaces refuse."
+        ),
+    )
+    default_tenant_id: str = Field(
+        default="",
+        validation_alias="DEFAULT_TENANT_ID",
+        description=(
+            "Canonical uuid (or a label from TENANT_UUIDS) the trusted-network path uses when a "
+            "caller sends no X-Tenant-Id. Empty (default) = that path refuses."
+        ),
     )
     # ------------------------------------------------------------------
     # LOCAL-ONLY LLM POLICY — fail closed, PER TENANT (owner ruling 2026-10-03).
@@ -1357,6 +1471,32 @@ class Settings(BaseSettings):
         except ValueError as exc:
             raise RuntimeError(f"worker_management settings: WM_IR_BUNDLE_BY_APP {exc}") from None
 
+    def _validate_tenant_sets(self) -> None:
+        """Refuse malformed tenant env values, and a release set outside the platform set.
+
+        ⛔ REPLACES the import-time ``RuntimeError`` that used to guard
+        ``RELEASE_TENANT_IDS <= PLATFORM_TENANT_IDS`` in
+        ``src/api/workflow_routing/routes.py``. Both sets are now env-supplied, so
+        an import-time assertion cannot see them — the invariant has to be checked
+        where the values are actually read, at startup, and refuse to boot.
+        """
+        try:
+            platform = parse_tenant_id_csv(self.platform_tenant_ids, env_name="PLATFORM_TENANT_IDS")
+            release = parse_tenant_id_csv(self.release_tenant_ids, env_name="RELEASE_TENANT_IDS")
+            label_map = parse_tenant_label_map(self.tenant_uuids, env_name="TENANT_UUIDS")
+            if self.system_tenant_id:
+                parse_tenant_id_csv(self.system_tenant_id, env_name="SYSTEM_TENANT_ID")
+            if self.default_tenant_id and self.default_tenant_id not in label_map:
+                parse_tenant_id_csv(self.default_tenant_id, env_name="DEFAULT_TENANT_ID")
+        except ValueError as exc:
+            raise RuntimeError(f"worker_management settings: {exc}") from None
+        outside = sorted(release - platform)
+        if outside:
+            raise RuntimeError(
+                "worker_management settings: RELEASE_TENANT_IDS must be a subset of "
+                f"PLATFORM_TENANT_IDS (narrower, never wider); not in the platform set: {outside}"
+            )
+
     # ------------------------------------------------------------------
     # Production fail-fast
     # ------------------------------------------------------------------
@@ -1389,6 +1529,7 @@ class Settings(BaseSettings):
         self._validate_no_direct_gpu_hosts()
         self._validate_project_id_caller_licences()
         self._validate_ir_bundle_by_app()
+        self._validate_tenant_sets()
         if self.environment != "production":
             return
         missing = [n for n in self._REQUIRED_IN_PRODUCTION if not getattr(self, n)]

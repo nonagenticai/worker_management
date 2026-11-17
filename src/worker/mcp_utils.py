@@ -6,10 +6,11 @@ import logging
 import os
 import re
 from pathlib import Path
-from typing import Any, cast
+from typing import Any
 
-import httpx
-from pydantic_ai.mcp import MCPServerSSE, MCPServerStdio
+import httpx2 as httpx
+from pydantic_ai.mcp import FastMCPClient, MCPToolset
+from pydantic_ai.toolsets import WrapperToolset
 
 from src.security.redact import (
     is_sensitive_name,
@@ -174,10 +175,144 @@ class MCPServerManager:
                 del self.servers[server_key]
 
 
+class McpServerToolset(WrapperToolset[Any]):
+    """An MCP toolset that still carries the server entry it was built from.
+
+    pydantic-ai 2 removed `MCPServerSSE`/`MCPServerStdio`, which were the public
+    objects callers (and the tests) read `url` / `command` / `args` / `env` /
+    `tool_prefix` / `timeout` off. This wrapper keeps that surface while
+    delegating tool discovery and calls to the real toolset, and re-exposes
+    `is_running` because `WrapperToolset` drops it.
+    """
+
+    def __init__(
+        self,
+        wrapped: Any,
+        *,
+        name: str,
+        server_config: dict[str, Any],
+        tool_prefix: str | None = None,
+        timeout: float | None = None,
+        managed: bool = False,
+        log_level: str | None = None,
+        image: str | None = None,
+        read_timeout: float | None = None,
+        inner: Any | None = None,
+    ) -> None:
+        super().__init__(wrapped)
+        self.name = name
+        self.server_config = server_config
+        self.tool_prefix = tool_prefix
+        self.timeout = timeout
+        self.managed = managed
+        self.log_level = log_level
+        self.image = image
+        self.read_timeout = read_timeout
+        self._inner = inner if inner is not None else wrapped
+
+    @property
+    def _mcp_managed(self) -> bool:
+        """Whether this server runs in a container this service manages.
+
+        Kept as an underscore-prefixed property because `MCPServerManager` and the
+        docker lifecycle code branch on it, and that predates this port.
+        """
+        return self.managed
+
+    @property
+    def url(self) -> str | None:
+        """The configured URL, for HTTP/SSE servers."""
+        value = self.server_config.get("url")
+        return value if isinstance(value, str) else None
+
+    @property
+    def command(self) -> str | None:
+        """The configured command, for stdio servers."""
+        value = self.server_config.get("command")
+        return value if isinstance(value, str) else None
+
+    @property
+    def args(self) -> list[str]:
+        """The configured command arguments, for stdio servers."""
+        value = self.server_config.get("args", [])
+        return list(value) if isinstance(value, list) else []
+
+    @property
+    def _mcp_image(self) -> str | None:
+        """The container image, for managed docker servers (legacy attribute name)."""
+        return self.image
+
+    @property
+    def cwd(self) -> str | None:
+        """The configured working directory, for stdio servers."""
+        value = self.server_config.get("cwd")
+        return value if isinstance(value, str) else None
+
+    @property
+    def headers(self) -> dict[str, str]:
+        """The configured HTTP headers, for HTTP/SSE servers."""
+        value = self.server_config.get("headers", {})
+        return dict(value) if isinstance(value, dict) else {}
+
+    @property
+    def env(self) -> dict[str, str]:
+        """The configured environment, for stdio servers."""
+        value = self.server_config.get("env", {})
+        return dict(value) if isinstance(value, dict) else {}
+
+    async def is_running(self) -> bool:
+        """Whether the underlying MCP session is open."""
+        checker = getattr(self._inner, "is_running", None)
+        return bool(await checker()) if checker is not None else False
+
+
+def _build_toolset(
+    name: str,
+    server_config: dict[str, Any],
+    *,
+    tool_prefix: str | None = None,
+    timeout: float | None = None,
+    client_timeout: float | None = None,
+    managed: bool = False,
+    log_level: str | None = None,
+    image: str | None = None,
+    read_timeout: float | None = None,
+) -> McpServerToolset:
+    """Build a pydantic-ai 2 toolset for one MCP server entry.
+
+    A server is an `MCPToolset` wrapping a fastmcp `Client` built from an
+    `mcpServers` config fragment; tool prefixing is a wrapper rather than a
+    field. Returns `McpServerToolset` so the address/transport details stay
+    reachable to callers and the lifecycle manager.
+    """
+    client_kwargs: dict[str, Any] = {}
+    effective = client_timeout if client_timeout is not None else timeout
+    if effective is not None:
+        client_kwargs["timeout"] = effective
+    client = FastMCPClient({"mcpServers": {name: server_config}}, **client_kwargs)
+    toolset_kwargs: dict[str, Any] = {}
+    if log_level is not None:
+        toolset_kwargs["log_level"] = log_level
+    toolset: Any = MCPToolset(client=client, **toolset_kwargs)
+    wrapped = toolset.prefixed(tool_prefix) if tool_prefix else toolset
+    return McpServerToolset(
+        wrapped,
+        name=name,
+        server_config=server_config,
+        tool_prefix=tool_prefix,
+        timeout=timeout,
+        managed=managed,
+        log_level=log_level,
+        image=image,
+        read_timeout=read_timeout,
+        inner=toolset,
+    )
+
+
 def create_mcp_servers_from_config(  # noqa: PLR0912 -- dispatches over MCP transport variants (stdio/sse/http) × config-source shape
     config_source: str | dict[str, Any],
     base_dir_for_resolution: Path | None = None,
-) -> list[MCPServerSSE | MCPServerStdio]:
+) -> list[Any]:
     """Create MCP servers synchronously from config file or dictionary.
 
     This function replaces the async load_mcp_servers for use in agent initialization.
@@ -187,7 +322,7 @@ def create_mcp_servers_from_config(  # noqa: PLR0912 -- dispatches over MCP tran
         base_dir_for_resolution: Base directory to resolve relative paths for 'cwd' in Stdio servers.
 
     Returns:
-        List of MCPServerSSE and MCPServerStdio objects
+        List of MCP toolsets
     """
     config: dict[str, Any] | None = None
 
@@ -240,7 +375,7 @@ def create_mcp_servers_from_config(  # noqa: PLR0912 -- dispatches over MCP tran
         logger.error(f"'mcpServers' must be a dictionary, got {type(mcp_servers_config)}")
         return []
 
-    servers: list[MCPServerSSE | MCPServerStdio] = []
+    servers: list[Any] = []
     successful_servers = 0
     failed_servers = 0
 
@@ -252,7 +387,7 @@ def create_mcp_servers_from_config(  # noqa: PLR0912 -- dispatches over MCP tran
                 continue
 
             # Create appropriate server type
-            server: MCPServerSSE | MCPServerStdio | None = None
+            server: Any | None = None
             if "url" in server_config:
                 # HTTP-based servers
                 server = create_http_server_sync(name, server_config)
@@ -286,7 +421,7 @@ def create_mcp_servers_from_config(  # noqa: PLR0912 -- dispatches over MCP tran
     return servers
 
 
-def create_http_server_sync(name: str, server_config: dict[str, Any]) -> MCPServerSSE | None:
+def create_http_server_sync(name: str, server_config: dict[str, Any]) -> Any | None:
     """Create an HTTP MCP server synchronously (without auth for now)."""
     try:
         url = server_config.get("url")
@@ -295,7 +430,7 @@ def create_http_server_sync(name: str, server_config: dict[str, Any]) -> MCPServ
             return None
 
         logger.info(f"Creating HTTP MCP server '{name}' with URL: {redact_url_userinfo(url)}")
-        return MCPServerSSE(url=url)
+        return _build_toolset(name, {"url": url})
 
     except Exception:
         logger.exception(f"Failed to create HTTP MCP server '{name}'")
@@ -428,15 +563,15 @@ def validate_server_config(name: str, server_config: dict[str, Any]) -> bool:
     return True
 
 
-async def create_http_server(name: str, server_config: dict[str, Any]) -> MCPServerSSE | None:  # noqa: PLR0912 -- HTTP/SSE server config validation has many distinct shape errors to surface
-    """Create an MCPServerSSE instance with proper error handling.
+async def create_http_server(name: str, server_config: dict[str, Any]) -> Any | None:
+    """Create an HTTP MCP toolset with proper error handling.
 
     Args:
         name: Server name
         server_config: Server configuration dict
 
     Returns:
-        MCPServerSSE instance or None if failed
+        Toolset instance or None if failed
     """
     try:
         headers = server_config.get("headers", {})
@@ -459,96 +594,61 @@ async def create_http_server(name: str, server_config: dict[str, Any]) -> MCPSer
         read_timeout_seconds = (
             float(read_timeout_config) if read_timeout_config is not None else None
         )
+        # fastmcp's client exposes one `timeout`, not a separate read timeout. Take
+        # the longer of the two so a slow SSE stream keeps the budget it asked for.
+        client_timeout = max(timeout_seconds, read_timeout_seconds or 0.0)
 
-        # Build server kwargs with validation
-        http_server_kwargs: dict[str, Any] = {
-            "url": server_config["url"],
-            "headers": headers or {},
-            "timeout": timeout_seconds,
-        }
-        if read_timeout_seconds is not None:
-            http_server_kwargs["read_timeout"] = read_timeout_seconds
+        # Build the fastmcp `mcpServers` entry. pydantic-ai 2 takes headers and
+        # timeouts on the client config, not on the server object.
+        server_entry: dict[str, Any] = {"url": server_config["url"]}
+        if headers:
+            server_entry["headers"] = headers
 
+        tool_prefix: str | None = None
         if "tool_prefix" in server_config:
             prefix = server_config["tool_prefix"]
             if isinstance(prefix, str) and prefix.strip():
-                http_server_kwargs["tool_prefix"] = prefix.strip()
+                tool_prefix = prefix.strip()
             else:
                 logger.warning(f"Invalid tool_prefix for server {name}, ignoring")
 
+        if server_config.get("http_client"):
+            # pydantic-ai 2 builds the HTTP transport inside fastmcp's Client and
+            # gives no seam for our own httpx.AsyncClient (proxy/TLS tuning).
+            # No shipped preset uses it; surfaced rather than silently dropped.
+            logger.warning(
+                "MCP server %s declares http_client options; pydantic-ai 2 cannot "
+                "accept a custom httpx client, using the default transport",
+                name,
+            )
+
+        log_level: str | None = None
         if "log_level" in server_config:
-            log_level = server_config["log_level"]
-            if isinstance(log_level, str) and log_level.upper() in [
+            candidate = server_config["log_level"]
+            if isinstance(candidate, str) and candidate.upper() in [
                 "DEBUG",
                 "INFO",
                 "WARNING",
                 "ERROR",
                 "CRITICAL",
             ]:
-                http_server_kwargs["log_level"] = log_level
+                log_level = candidate
             else:
                 logger.warning(f"Invalid log_level for server {name}, ignoring")
 
-        # Support for custom httpx.AsyncClient configurations (added for pydantic-ai v0.2.17+)
-        client_config = server_config.get("http_client", {})
-        if client_config:
-            # Create a custom httpx.AsyncClient with the specified configuration
-            client_kwargs = {}
-
-            # Support for common httpx.AsyncClient parameters
-            if "timeout" in client_config:
-                client_kwargs["timeout"] = client_config["timeout"]
-            if "limits" in client_config:
-                client_kwargs["limits"] = client_config["limits"]
-            if "proxy" in client_config:
-                client_kwargs["proxy"] = client_config["proxy"]
-
-            # Support for SSL configuration
-            if "verify" in client_config:
-                client_kwargs["verify"] = client_config["verify"]
-            if "cert" in client_config:
-                client_kwargs["cert"] = client_config["cert"]
-
-            # HTTP/2 support
-            if "http2" in client_config:
-                client_kwargs["http2"] = client_config["http2"]
-
-            # Create the client if we have any custom configuration
-            if client_kwargs:
-                if headers:
-                    client_kwargs.setdefault("headers", headers)
-                sanitized_kwargs = dict(client_kwargs)
-                if "headers" in sanitized_kwargs:
-                    sanitized_kwargs["headers"] = {
-                        key: "***" for key in sanitized_kwargs["headers"]
-                    }
-                if "proxy" in sanitized_kwargs:
-                    # A proxy URL like http://host:port can itself carry
-                    # userinfo credentials (a user:pass pair before the @).
-                    sanitized_kwargs["proxy"] = redact_url_userinfo(str(sanitized_kwargs["proxy"]))
-                logger.info(
-                    "Creating custom httpx.AsyncClient for MCP server %s with config: %s",
-                    name,
-                    sanitized_kwargs,
-                )
-                client = httpx.AsyncClient(**client_kwargs)
-                http_server_kwargs["http_client"] = client
-                http_server_kwargs.pop("headers", None)
-
-        http_server = MCPServerSSE(**http_server_kwargs)
-        prefix_info = (
-            f"with tool_prefix='{server_config.get('tool_prefix')}'"
-            if server_config.get("tool_prefix")
-            else "without tool_prefix"
+        http_server = _build_toolset(
+            name,
+            server_entry,
+            tool_prefix=tool_prefix,
+            timeout=timeout_seconds,
+            client_timeout=client_timeout,
+            log_level=log_level,
+            read_timeout=read_timeout_seconds,
         )
-        client_info = (
-            "with custom HTTP client"
-            if server_config.get("http_client")
-            else "with default HTTP client"
-        )
+        prefix_info = f"with tool_prefix='{tool_prefix}'" if tool_prefix else "without tool_prefix"
         logger.info(
             f"Created HTTP MCP server: {name} at "
-            f"{redact_url_userinfo(server_config['url'])} {prefix_info} {client_info}"
+            f"{redact_url_userinfo(server_config['url'])} {prefix_info}"
         )
         return http_server
 
@@ -615,8 +715,8 @@ def resolve_working_directory(cwd_str: str | None, base_dir: Path | None) -> str
 
 def create_stdio_server(
     name: str, server_config: dict[str, Any], base_dir: Path | None
-) -> MCPServerStdio | None:
-    """Create an MCPServerStdio instance with Docker container reuse."""
+) -> Any | None:
+    """Create a stdio MCP toolset with Docker container reuse."""
     try:
         # Check if this is a Docker-based server that we can manage
         command = server_config["command"]
@@ -634,9 +734,7 @@ def create_stdio_server(
         return None
 
 
-def _create_managed_docker_server(
-    name: str, server_config: dict[str, Any]
-) -> MCPServerStdio | None:
+def _create_managed_docker_server(name: str, server_config: dict[str, Any]) -> Any | None:
     """Create a Docker-based MCP server using managed containers with container reuse."""
     try:
         args = server_config.get("args", [])
@@ -684,58 +782,52 @@ def _create_managed_docker_server(
             )
             return None
 
-        logger.info(f"Creating managed Docker MCP server: {name} with image {image}")
+        # A GitHub MCP container without its token starts and then fails every
+        # tool call; refuse at build time with a message naming the variable.
+        if image == "ghcr.io/github/github-mcp-server" and not env_vars.get(
+            "GITHUB_PERSONAL_ACCESS_TOKEN"
+        ):
+            logger.error(
+                "GITHUB_PERSONAL_ACCESS_TOKEN is required but not found in env_vars for server %s",
+                name,
+            )
+            logger.error("Available env vars: %s", list(env_vars.keys()))
+            raise ValueError(
+                f"GITHUB_PERSONAL_ACCESS_TOKEN is required for GitHub MCP server {name}"
+            )
 
-        # Create a custom MCPServerStdio that uses managed containers
-        # We'll modify the command to connect to a managed container
-        stdio_server_kwargs = {
-            "command": "docker",
-            "args": [
-                "exec",
-                "-i",
-                f"mcp-{name}-managed",
-                "./github-mcp-server",
-            ],  # Will be updated when container is ready
-            "env": env_vars,  # Keep original env for reference
-        }
+        # Deliberately no name/image here: both are server_config-derived, and CodeQL
+        # follows that dict's env_vars taint into any expression that logs them
+        # (py/clear-text-logging-sensitive-data). The caller logs the server name on
+        # failure; the container itself is named after the server.
+        logger.info("Creating a managed Docker MCP server")
 
-        # Add optional parameters
-        if "tool_prefix" in server_config:
-            prefix = server_config["tool_prefix"]
-            if isinstance(prefix, str) and prefix.strip():
-                stdio_server_kwargs["tool_prefix"] = prefix.strip()
-
+        # pydantic-ai 2: one MCPToolset over a fastmcp stdio client. The
+        # container is still managed here (name, reuse) — the toolset only
+        # carries the `docker exec` transport.
+        tool_prefix = server_config.get("tool_prefix")
+        if isinstance(tool_prefix, str) and not tool_prefix.strip():
+            logger.warning(f"Invalid tool_prefix for server {name}, ignoring")
+            tool_prefix = None
+        timeout_seconds: float | None = None
         if "timeout" in server_config:
             try:
-                stdio_server_kwargs["timeout"] = float(server_config["timeout"])
+                timeout_seconds = float(server_config["timeout"])
             except (ValueError, TypeError):  # fmt: skip
                 logger.warning(f"Invalid timeout for server {name}, using default")
 
-        # Store the original config for container management
-        stdio_server = MCPServerStdio(**cast("Any", stdio_server_kwargs))
-
-        # Add custom attributes for container management. setattr() keeps ty
-        # happy because MCPServerStdio is a Pydantic model (no static slot for
-        # these private attrs). Do NOT inline to `obj.attr = value` — B010
-        # autofix would suggest it but ty rejects the dynamic attribute.
-        setattr(stdio_server, "_mcp_server_name", name)  # noqa: B010
-        setattr(stdio_server, "_mcp_image", image)  # noqa: B010
-        setattr(stdio_server, "_mcp_env_vars", env_vars)  # noqa: B010
-        setattr(stdio_server, "_mcp_managed", True)  # noqa: B010
-
-        # Validate that required environment variables are present
-        if image == "ghcr.io/github/github-mcp-server":  # noqa: RUF100, SIM102
-            if (
-                "GITHUB_PERSONAL_ACCESS_TOKEN" not in env_vars
-                or not env_vars["GITHUB_PERSONAL_ACCESS_TOKEN"]
-            ):
-                logger.error(
-                    f"GITHUB_PERSONAL_ACCESS_TOKEN is required but not found in env_vars for server {name}"
-                )
-                logger.error(f"Available env vars: {list(env_vars.keys())}")
-                raise ValueError(
-                    f"GITHUB_PERSONAL_ACCESS_TOKEN is required for GitHub MCP server {name}"
-                )
+        stdio_server = _build_toolset(
+            name,
+            {
+                "command": "docker",
+                "args": ["exec", "-i", f"mcp-{name}-managed", "./github-mcp-server"],
+                "env": env_vars,
+            },
+            tool_prefix=tool_prefix.strip() if isinstance(tool_prefix, str) else None,
+            timeout=timeout_seconds,
+            managed=True,
+            image=image,
+        )
 
         prefix_info = (
             f"with tool_prefix='{server_config.get('tool_prefix')}'"
@@ -755,7 +847,7 @@ def _create_managed_docker_server(
 
 def _create_regular_stdio_server(
     name: str, server_config: dict[str, Any], base_dir: Path | None
-) -> MCPServerStdio | None:
+) -> Any | None:
     """Create a regular (non-Docker) stdio-based MCP server."""
     try:
         # Prepare environment variables
@@ -769,63 +861,72 @@ def _create_regular_stdio_server(
         # Resolve working directory
         resolved_cwd = resolve_working_directory(server_config.get("cwd"), base_dir)
 
-        # Build server kwargs
-        stdio_server_kwargs = {
+        # Build the fastmcp stdio entry. `cwd` and `env` live in the transport
+        # config in pydantic-ai 2; the toolset itself carries no transport knobs.
+        stdio_entry: dict[str, Any] = {
             "command": server_config["command"],
             "args": args,
             "env": env,
         }
-
-        # Add optional parameters if they exist and are valid
         if resolved_cwd:
-            stdio_server_kwargs["cwd"] = resolved_cwd
+            stdio_entry["cwd"] = resolved_cwd
 
+        tool_prefix: str | None = None
         if "tool_prefix" in server_config:
             prefix = server_config["tool_prefix"]
             if isinstance(prefix, str) and prefix.strip():
-                stdio_server_kwargs["tool_prefix"] = prefix.strip()
+                tool_prefix = prefix.strip()
             else:
                 logger.warning(f"Invalid tool_prefix for server {name}, ignoring")
 
+        timeout_seconds: float | None = None
         if "timeout" in server_config:
             try:
-                stdio_server_kwargs["timeout"] = float(server_config["timeout"])
+                timeout_seconds = float(server_config["timeout"])
             except (ValueError, TypeError):  # fmt: skip
                 logger.warning(f"Invalid timeout for server {name}, using default")
 
+        log_level: str | None = None
         if "log_level" in server_config:
-            log_level = server_config["log_level"]
-            if isinstance(log_level, str) and log_level.upper() in [
+            candidate = server_config["log_level"]
+            if isinstance(candidate, str) and candidate.upper() in [
                 "DEBUG",
                 "INFO",
                 "WARNING",
                 "ERROR",
                 "CRITICAL",
             ]:
-                stdio_server_kwargs["log_level"] = log_level
+                log_level = candidate
             else:
                 logger.warning(f"Invalid log_level for server {name}, ignoring")
 
-        stdio_server = MCPServerStdio(**cast("Any", stdio_server_kwargs))
+        stdio_server = _build_toolset(
+            name,
+            stdio_entry,
+            tool_prefix=tool_prefix,
+            timeout=timeout_seconds,
+            log_level=log_level,
+        )
         prefix_info = (
             f"with tool_prefix='{server_config.get('tool_prefix')}'"
             if server_config.get("tool_prefix")
             else "without tool_prefix"
         )
-        logger.info(
-            f"Created command MCP server: {name} with command {server_config['command']} {prefix_info}"
-        )
+        logger.info(f"Created managed Docker MCP server: {name} {prefix_info}")
         return stdio_server
 
     except Exception as e:
-        logger.error(f"Failed to create stdio MCP server '{name}': {e!s}", exc_info=True)
+        logger.error(
+            f"Failed to create managed Docker MCP server '{name}': {e!s}",
+            exc_info=True,
+        )
         return None
 
 
 async def load_mcp_servers(
     config_source: str | dict[str, Any],
     base_dir_for_resolution: Path | None = None,
-) -> list[MCPServerSSE | MCPServerStdio]:
+) -> list[Any]:
     """Load MCP servers from config file or dictionary using new pydantic-ai dataclass format.
 
     This is the updated version with improved error handling and validation.
@@ -835,7 +936,7 @@ async def load_mcp_servers(
         base_dir_for_resolution: Base directory to resolve relative paths for 'cwd' in Stdio servers.
 
     Returns:
-        List of MCPServerSSE and MCPServerStdio objects
+        List of MCP toolsets
     """
     config: dict[str, Any] | None = None
 
@@ -876,7 +977,7 @@ async def load_mcp_servers(
         logger.error("'mcpServers' must be a dictionary")
         return []
 
-    servers: list[MCPServerSSE | MCPServerStdio] = []
+    servers: list[Any] = []
     successful_servers = 0
     failed_servers = 0
 
@@ -888,7 +989,7 @@ async def load_mcp_servers(
                 continue
 
             # Create appropriate server type
-            server: MCPServerSSE | MCPServerStdio | None = None
+            server: Any | None = None
             if "url" in server_config:
                 # HTTP-based servers
                 server = await create_http_server(name, server_config)

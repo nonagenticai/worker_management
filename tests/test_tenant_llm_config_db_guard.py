@@ -21,7 +21,7 @@ import pytest
 from src.db.tenant_llm_config_db import TenantLLMConfigDB
 from src.worker.agents.provider_catalog import PaidUpstreamForLocalPresetError
 
-TENANT = "0195f48b-d000-7000-8000-000000000001"
+TENANT = "aaaaaaaa-0000-4000-8000-000000000001"
 
 
 def _row(**over):

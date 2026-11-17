@@ -598,12 +598,16 @@ class TestFindAndCreateStartNodeInstance:
         with pytest.raises(ValueError, match="Could not find node class"):
             factory._find_and_create_start_node_instance(graph, "nonexistent_id")
 
-    def test_graph_without_nodes_attr_raises(self):
+    def test_graph_without_registered_start_node_raises(self):
+        """An unknown graph (no factory metadata) cannot resolve a start class.
+
+        pydantic-graph 2 keeps its node registry private, so the factory resolves
+        the start from the metadata it recorded at build time; a graph it never
+        built has none.
+        """
         factory = _factory()
         fake_graph = MagicMock()
-        del fake_graph.get_nodes
-        del fake_graph._nodes
-        with pytest.raises(ValueError, match="no accessible node classes"):
+        with pytest.raises(ValueError, match="Could not find node class for start node"):
             factory._find_and_create_start_node_instance(fake_graph, "some_id")
 
 

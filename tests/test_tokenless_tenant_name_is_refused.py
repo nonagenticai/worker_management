@@ -3,11 +3,11 @@
 ⛔ WHAT WAS ACTUALLY WRONG
 
 On the tokenless trusted-network branch, ``X-Tenant-Id: n8n-dev`` resolved to
-``0195f48b-d000-7000-8000-000000000001`` and the request was SERVED. Measured on
+``aaaaaaaa-0000-4000-8000-000000000001`` and the request was SERVED. Measured on
 worker4 2026-09-16 against the authoritative ``licenses.tenants`` registry::
 
-    0195f48b-d000-7000-8000-000000000001 | n8n-dev-portal-realm   <- the SEED tenant
-    019de842-c92a-7e37-8fdd-eb0d8c5396f9 | n8n-dev                <- what the caller meant
+    aaaaaaaa-0000-4000-8000-000000000001 | n8n-dev-portal-realm   <- the SEED tenant
+    bbbbbbbb-0000-4000-8000-0000000000a5 | n8n-dev                <- what the caller meant
 
 So a caller naming production got a real, valid, DIFFERENT tenant, with a 200.
 Not a 404, not a 500 — a plausible wrong answer, which is the failure mode that
@@ -16,8 +16,8 @@ survives review. Reads returned that tenant's rows; writes landed on it.
 ⛔ AND IT IS NOT A ONE-ROW TYPO. ``fr-test`` collides identically: this
 deployment's map says ``…-000000000099`` (registered as ``fr-test-user``) while
 a tenant literally named ``fr-test`` exists at
-``019efaa0-512b-733e-9e98-b1ac82a6f7ee``. Two of the six names in
-``TENANT_UUIDS`` name a different live tenant in the other registry.
+``aaaaaaaa-0000-4000-8000-0000000000a8``. Two of the six names in
+``tenant_uuids()`` name a different live tenant in the other registry.
 
 THE CHOSEN FAILURE DIRECTION, AND WHY IT IS NOT "RESOLVE IT PROPERLY"
 
@@ -29,7 +29,7 @@ A UUID means one thing in both registries, so requiring one is the only option
 under which silent misattribution is impossible.
 
 ⚠️ THE ABSENT-HEADER CASE IS DELIBERATELY UNCHANGED. No header still means
-``DEFAULT_TENANT_ID``. That is this deployment's own configuration rather than a
+``default_tenant_uuid()``. That is this deployment's own configuration rather than a
 caller's claim, it is already stamped ``tenant_provenance=default`` and counted
 by ``_audit_identity_omission``, and it carries the live traffic. Changing it
 belongs to the ``require_authenticated_tenant`` flag, not here.
@@ -73,13 +73,13 @@ import pytest
 from fastapi import FastAPI, Request
 from fastapi.testclient import TestClient
 
-from src.api.auth_middleware import DEFAULT_TENANT_ID, AuthenticationMiddleware
-from src.api.tenant_constants import TENANT_UUIDS
+from src.api.auth_middleware import AuthenticationMiddleware
+from src.api.tenant_constants import default_tenant_uuid, tenant_uuids
 
 # The two rows the whole defect rests on, re-derived from worker4's
 # ``licenses.tenants`` on 2026-09-16 rather than copied from another module.
-SEED_TENANT_UUID = "0195f48b-d000-7000-8000-000000000001"  # licences: n8n-dev-portal-realm
-PRODUCTION_N8N_DEV_UUID = "019de842-c92a-7e37-8fdd-eb0d8c5396f9"  # licences: n8n-dev
+SEED_TENANT_UUID = "aaaaaaaa-0000-4000-8000-000000000001"  # licences: n8n-dev-portal-realm
+PRODUCTION_N8N_DEV_UUID = "bbbbbbbb-0000-4000-8000-0000000000a5"  # licences: n8n-dev
 
 
 @pytest.fixture
@@ -145,17 +145,17 @@ def test_the_refusal_says_why_a_name_cannot_identify_a_tenant(app: FastAPI) -> N
     assert "NAME" in message
 
 
-@pytest.mark.parametrize("name", sorted(TENANT_UUIDS))
+@pytest.mark.parametrize("name", sorted(tenant_uuids()))
 def test_every_known_tenant_name_is_refused(app: FastAPI, name: str) -> None:
     """Not just ``n8n-dev``: the whole crosswalk is off the inbound boundary.
 
     Parametrised over the live map rather than a hand-written list, so a name
-    added to ``TENANT_UUIDS`` later cannot quietly reopen the hole — the guard
+    added to ``tenant_uuids()`` later cannot quietly reopen the hole — the guard
     cannot be blinded by a list I forgot to extend.
     """
     status, body = _get(app, name)
     assert status == 400
-    assert body.get("tenant_id") != TENANT_UUIDS[name]
+    assert body.get("tenant_id") != tenant_uuids()[name]
 
 
 @pytest.mark.parametrize("padded", ["  n8n-dev", "n8n-dev  ", "  n8n-dev  ", "\tn8n-dev\n"])
@@ -165,11 +165,11 @@ def test_a_whitespace_padded_name_is_refused_too(app: FastAPI, padded: str) -> N
     Found by mutation testing, not by review: deleting the ``.strip()`` in
     ``resolve_asserted_tenant_id`` left every other test in this file green.
     The bypass is total, because the two resolvers strip at different moments —
-    an unstripped ``" n8n-dev "`` misses the ``in TENANT_UUIDS`` guard, falls
+    an unstripped ``" n8n-dev "`` misses the ``in tenant_uuids()`` guard, falls
     through to the name-TOLERANT ``resolve_tenant_id``, which strips it itself
     and maps the name to the seed tenant. Measured with the guard's strip
     removed: ``resolve_tenant_id("  n8n-dev  ")`` returns
-    ``0195f48b-d000-7000-8000-000000000001``.
+    ``aaaaaaaa-0000-4000-8000-000000000001``.
 
     So a single space in a caller's config would have restored the entire
     defect, past a guard that looks correct. A membership test against raw
@@ -209,13 +209,13 @@ def test_the_two_colliding_names_do_not_resolve_to_the_other_registrys_tenant(
         "1769980520185202330",
         "gerard-dev",  # retired from the realm 2026-08-12
         "00000000-0000-0000-0000-000000000000",  # nil uuid, refused BY VALUE
-        "urn:uuid:019de842-c92a-7e37-8fdd-eb0d8c5396f9",
-        "{019de842-c92a-7e37-8fdd-eb0d8c5396f9}",
+        "urn:uuid:bbbbbbbb-0000-4000-8000-0000000000a5",
+        "{bbbbbbbb-0000-4000-8000-0000000000a5}",
         # A tenant UUID with its dashes stripped, NOT a credential — detect-secrets
         # scores any 32-char hex run as a high-entropy string. It is in this list
         # precisely because `uuid.UUID()` accepts the spelling and the boundary
         # must not.
-        "019de842c92a7e378fddeb0d8c5396f9",  # pragma: allowlist secret
+        "aaaaaaaac92a7e378fddeb0d8c5396f9",  # pragma: allowlist secret
         "' OR 1=1 --",
         "   ",
     ],
@@ -225,7 +225,7 @@ def test_a_malformed_header_is_a_clean_400_and_not_the_default(app: FastAPI, bog
     status, body = _get(app, bogus)
     assert status == 400
     # A silent fallback here would be the same defect wearing a different hat.
-    assert body.get("tenant_id") != DEFAULT_TENANT_ID
+    assert body.get("tenant_id") != default_tenant_uuid()
 
 
 # ------------------------------------------------------------ drive 4: NO HEADER
@@ -240,7 +240,7 @@ def test_no_header_still_uses_the_default_tenant(app: FastAPI) -> None:
     """
     status, body = _get(app, None)
     assert status == 200
-    assert body["tenant_id"] == DEFAULT_TENANT_ID
+    assert body["tenant_id"] == default_tenant_uuid()
     assert uuid.UUID(body["tenant_id"])
 
 
@@ -281,7 +281,7 @@ def test_the_licensed_path_is_unchanged_and_still_accepts_a_bearer_token(
 # ⛔ THIS WHOLE SECTION EXISTS BECAUSE THE FIRST VERSION OF THIS FIX MISSED IT.
 # `X-Effective-Tenant-Id` is the THIRD caller-asserted door, and #264's defect
 # went through it verbatim: before the rewire, on this branch,
-# `_effective_tenant("n8n-dev")` returned `0195f48b-…0001` — the seed tenant —
+# `_effective_tenant("n8n-dev")` returned `aaaaaaaa-…0001` — the seed tenant —
 # and the request was served 200. A licence proves WHO; this header then
 # re-scopes WHICH on the caller's say-so, which is why the call site stamps
 # `tenant_proven=not delegated`. Caller-asserted is caller-asserted whether or
@@ -321,7 +321,7 @@ def _delegated(
 
 def test_delegating_to_a_uuid_still_works(app: FastAPI, monkeypatch: pytest.MonkeyPatch) -> None:
     """The positive control. Without it, a refusal test proves only that something broke."""
-    target = "01a1117c-d9b0-72fc-aeda-a9d1187f2a36"  # cdmsfirst, agreed in both registries
+    target = "aaaaaaaa-0000-4000-8000-0000000000a7"  # cdmsfirst, agreed in both registries
     status, body, _ = _delegated(app, monkeypatch, target)
     assert status == 200
     assert body["tenant_id"] == target
@@ -385,7 +385,7 @@ def test_the_delegation_log_marks_a_uuid_sender_as_not_name_resolved(
     app: FastAPI, monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
 ) -> None:
     """The discriminator must actually discriminate — a flag that is always True is not one."""
-    target = "0195f48b-d000-7000-8000-000000000100"
+    target = "aaaaaaaa-0000-4000-8000-000000000100"
     with caplog.at_level(logging.INFO, logger="src.api.auth_middleware"):
         _delegated(app, monkeypatch, target)
     line = "\n".join(r.getMessage() for r in caplog.records)
@@ -409,13 +409,13 @@ def test_a_licence_introspecting_to_a_name_is_refused(
 
     It asserted a name from introspection is *honoured*, on the rationale that
     "licences picked which registry it meant". That is backwards: resolution
-    goes through ``TENANT_UUIDS``, the PORTAL REALM's map, so an introspected
+    goes through ``tenant_uuids()``, the PORTAL REALM's map, so an introspected
     ``n8n-dev`` resolved to the seed tenant while licences' own registry has
-    ``n8n-dev`` as ``019de842-…``. Honouring it misattributes a licence to a
+    ``n8n-dev`` as ``aaaaaaaa-…``. Honouring it misattributes a licence to a
     different tenant than the authority that issued it.
 
     ⛔ AND THE OLD FIXTURE COULD NOT HAVE CAUGHT THAT, because it used
-    ``george-dev`` — the ONE name in ``TENANT_UUIDS`` that licences does not
+    ``george-dev`` — the ONE name in ``tenant_uuids()`` that licences does not
     contain at all. For that value the right answer and the wrong answer are the
     same uuid, so the test passed either way. It now uses ``n8n-dev``, where the
     two registries genuinely disagree, so the fixture can tell them apart.

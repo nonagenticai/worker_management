@@ -54,7 +54,7 @@ class FunctionNode(BaseNode[WorkflowState, None, Any]):
         if not self.function_name:
             raise ValueError("FunctionNode must have a registered function_name")
 
-    async def run(self, ctx: GraphRunContext[WorkflowState]) -> Any:
+    async def run(self, ctx: GraphRunContext[WorkflowState, None]) -> Any:
         """Execute function following CORRECT pydantic-graph pattern.
 
         NOTE: Return type is determined by next node class in GraphFactory
@@ -104,7 +104,7 @@ class FunctionNode(BaseNode[WorkflowState, None, Any]):
                 ctx.state.mark_node_failed(self.node_id, error_msg)
                 raise Exception(error_msg) from e
 
-    async def _execute_registered_function(self, ctx: GraphRunContext[WorkflowState]) -> Any:
+    async def _execute_registered_function(self, ctx: GraphRunContext[WorkflowState, None]) -> Any:
         """Execute a function from the server-side :data:`FUNCTION_REGISTRY`.
 
         ``function_name`` used to be ``importlib.import_module``-ed as

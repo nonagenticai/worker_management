@@ -38,7 +38,7 @@ from src.worker.agents.pydantic_ai_agent import PydanticAIAgentConfig
 # A PLATFORM tenant (n8n-dev): a NON-platform tenant's pin is never applied
 # (``tenant_forbidden``, proved in test_message_prompt_source.py), so every pin
 # behaviour below is a platform caller's.
-TENANT = "0195f48b-d000-7000-8000-000000000001"
+TENANT = "aaaaaaaa-0000-4000-8000-000000000001"
 WORKER = "pin_worker"
 WORKER_ID = "wid-pin-1"
 _MP = "src.api.workers.message_endpoints"

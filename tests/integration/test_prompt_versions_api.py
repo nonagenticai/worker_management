@@ -46,11 +46,11 @@ if TYPE_CHECKING:
 pytestmark = pytest.mark.pg
 
 SYSTEM_V1 = "You are a keyword picker. Answer with single words."
-SYSTEM_TENANT = "0195f48b-d000-7000-8000-000000000001"
+SYSTEM_TENANT = "aaaaaaaa-0000-4000-8000-000000000001"
 # A Planka card id: REALIGN R7 requires one on every move into CANARY/PUBLISHED.
 CARD = "1234567890123456789"
 CARD_BODY: dict[str, Any] = {"actor_card_id": CARD}
-OTHER_TENANT = "0195f48b-d000-7000-8000-000000000003"
+OTHER_TENANT = "aaaaaaaa-0000-4000-8000-000000000003"
 SYSTEM_V2 = "You are a keyword picker. Answer with single lowercase words."
 
 
@@ -143,7 +143,7 @@ def client(pg_pool, monkeypatch) -> Iterator[TestClient]:
     app = FastAPI()
     # A PLATFORM tenant: every prompt route, read or write, is platform-only
     # (routes.py PLATFORM GATE).
-    app.dependency_overrides[get_tenant_id] = lambda: "0195f48b-d000-7000-8000-000000000001"
+    app.dependency_overrides[get_tenant_id] = lambda: "aaaaaaaa-0000-4000-8000-000000000001"
     app.include_router(router)
 
     @asynccontextmanager

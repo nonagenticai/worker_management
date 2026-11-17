@@ -17,7 +17,7 @@ services:
       LOG_FORMAT: json
 
       # Trusted Network Auth
-      DEFAULT_TENANT_ID: 0195f48b-d000-7000-8000-000000000001
+      DEFAULT_TENANT_ID: aaaaaaaa-0000-4000-8000-000000000001
 
       # Application Settings
       PORT: 8887

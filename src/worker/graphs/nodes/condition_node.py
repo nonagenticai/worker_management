@@ -34,7 +34,7 @@ class ConditionNode(BaseNode[WorkflowState, None, bool]):
     retry_count: int = 0
 
     async def run(
-        self, ctx: GraphRunContext[WorkflowState]
+        self, ctx: GraphRunContext[WorkflowState, None]
     ) -> BaseNode[WorkflowState, None, Any] | End[bool]:
         """Evaluate condition following CORRECT pydantic-graph pattern.
 

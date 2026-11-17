@@ -142,6 +142,7 @@ class SkillLevel(BaseModel):
     skill_name: str
     level: str = "intermediate"  # beginner, intermediate, expert
 
+
 class WorkloadInfo(BaseModel):
     capacity: int = 5
     current_tasks: int = 0

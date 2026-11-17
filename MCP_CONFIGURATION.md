@@ -25,13 +25,10 @@ agent = create_claude_code_agent(
     mcp_servers=[
         {
             "name": "kanban",
-            "url": "http://localhost:3000/sse"  # Must be accessible from HOST, not container
+            "url": "http://localhost:3000/sse",  # Must be accessible from HOST, not container
         },
-        {
-            "name": "github",
-            "url": "npx -y @modelcontextprotocol/server-github"
-        }
-    ]
+        {"name": "github", "url": "npx -y @modelcontextprotocol/server-github"},
+    ],
 )
 ```
 
@@ -56,9 +53,7 @@ services:
 
 Then configure the agent with the localhost URL:
 ```python
-mcp_servers=[
-    {"name": "kanban", "url": "http://localhost:1337/sse"}
-]
+mcp_servers = [{"name": "kanban", "url": "http://localhost:1337/sse"}]
 ```
 
 ### Global Configuration
@@ -83,7 +78,7 @@ from worker.agents.pydantic_ai_agent import create_pydantic_ai_agent
 agent = create_pydantic_ai_agent(
     name="my-agent",
     model="local-llm",
-    mcp_servers=["http://kanban-mcp:1337/sse"]  # Container network URL works!
+    mcp_servers=["http://kanban-mcp:1337/sse"],  # Container network URL works!
 )
 ```
 
@@ -195,9 +190,7 @@ agent = create_claude_code_agent(
     name="kanban-agent",
     description="Agent with Kanban access",
     db_path="./src/db/worker_registry.sqlite",
-    mcp_servers=[
-        {"name": "kanban", "url": "http://localhost:1337/sse"}
-    ]
+    mcp_servers=[{"name": "kanban", "url": "http://localhost:1337/sse"}],
 )
 ```
 
@@ -210,8 +203,11 @@ agent = create_claude_code_agent(
     db_path="./src/db/worker_registry.sqlite",
     mcp_servers=[
         {"name": "github", "url": "npx -y @modelcontextprotocol/server-github"},
-        {"name": "filesystem", "url": "npx -y @modelcontextprotocol/server-filesystem /path/to/allowed/dir"}
-    ]
+        {
+            "name": "filesystem",
+            "url": "npx -y @modelcontextprotocol/server-filesystem /path/to/allowed/dir",
+        },
+    ],
 )
 ```
 
@@ -224,9 +220,7 @@ You can also configure some MCPs via the API and others manually:
 agent = create_claude_code_agent(
     name="my-agent",
     db_path="./src/db/worker_registry.sqlite",
-    mcp_servers=[
-        {"name": "github", "url": "npx -y @modelcontextprotocol/server-github"}
-    ]
+    mcp_servers=[{"name": "github", "url": "npx -y @modelcontextprotocol/server-github"}],
 )
 
 # Manually on host (persists for all agents)

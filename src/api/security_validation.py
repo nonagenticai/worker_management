@@ -687,8 +687,7 @@ def is_safe_json_data(data: Any, max_depth: int = 10, current_depth: int = 0) ->
         for item in data:
             if not is_safe_json_data(item, max_depth, current_depth + 1):
                 return False
-    elif isinstance(data, str):
-        if len(data) > 100000:  # Limit string length
-            return False
+    elif isinstance(data, str) and len(data) > 100000:  # Limit string length
+        return False
 
     return True

@@ -18,7 +18,7 @@ import logging
 from dataclasses import dataclass, field
 from typing import Any
 
-import httpx
+import httpx2 as httpx
 from cachetools import TTLCache
 
 from src.settings import get_settings
@@ -95,7 +95,7 @@ class MLXModelRegistry:
             List of model dictionaries from the /model/info endpoint
         """
         try:
-            async with httpx.AsyncClient(timeout=10.0, verify=False) as client:  # nosec B501 — internal service, self-signed certs  # noqa: S501
+            async with httpx.AsyncClient(timeout=10.0, verify=False) as client:  # nosec B501 — internal service, self-signed certs
                 response = await client.get(f"{base_url}/model/info")
                 if response.status_code == 200:
                     data = response.json()
@@ -275,7 +275,7 @@ class MLXModelRegistry:
         # No models in cache, try instances directly
         for instance_name, instance_url in _build_mlx_instances().items():
             try:
-                async with httpx.AsyncClient(timeout=5.0, verify=False) as client:  # nosec B501 — internal service, self-signed certs  # noqa: S501
+                async with httpx.AsyncClient(timeout=5.0, verify=False) as client:  # nosec B501 — internal service, self-signed certs
                     response = await client.get(f"{instance_url}/model/info")
                     if response.status_code == 200:
                         logger.info(

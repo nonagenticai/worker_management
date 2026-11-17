@@ -32,9 +32,9 @@ async def check_database_health(tenant_id: str = "", subject_id: str = "") -> bo
     because of its own argument. It resolves to the deployment's default tenant
     instead.
     """
-    from src.api.tenant_constants import DEFAULT_TENANT_UUID
+    from src.api.tenant_constants import default_tenant_uuid
 
-    tenant_id = tenant_id or DEFAULT_TENANT_UUID
+    tenant_id = tenant_id or default_tenant_uuid()
     try:
         db = GraphStateDatabase()
         await db.list_graphs(tenant_id=tenant_id, subject_id=subject_id or tenant_id)

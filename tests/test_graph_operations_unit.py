@@ -10,7 +10,7 @@ import psycopg
 import pytest
 from fastapi import HTTPException
 
-from src.api.tenant_constants import DEFAULT_TENANT_UUID
+from src.api.tenant_constants import default_tenant_uuid
 from src.worker.graphs.graph_operations import (
     check_database_health,
     delete_all_graphs_service,
@@ -304,5 +304,5 @@ class TestCheckDatabaseHealth:
 
         assert result is True
         MockDB.return_value.list_graphs.assert_called_once_with(
-            tenant_id=DEFAULT_TENANT_UUID, subject_id=DEFAULT_TENANT_UUID
+            tenant_id=default_tenant_uuid(), subject_id=default_tenant_uuid()
         )

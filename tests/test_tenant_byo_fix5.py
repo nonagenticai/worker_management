@@ -17,13 +17,13 @@ from __future__ import annotations
 import datetime
 import os
 import secrets
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from unittest.mock import AsyncMock, patch
 
 os.environ.setdefault("ENABLE_AUTH", "false")
 os.environ.setdefault("OTEL_SDK_DISABLED", "true")
 
-import httpx
+import httpx as httpx_legacy  # the cohere BYO client stays on httpx 0.x (its SDK's type)
 import pytest
 from fastapi.testclient import TestClient
 
@@ -39,6 +39,9 @@ from src.security.secret_box import encrypt_secret
 from src.settings import reset_settings_cache
 from tests._platform_tenant import CUSTOMER_TENANT_A, PLATFORM_TENANT
 from tests._tenant_llm_audit_fake import AuditFakeMixin
+
+if TYPE_CHECKING:
+    import httpx2 as httpx  # annotation-only: _code(resp: httpx.Response)
 
 IR_V1 = "http://inference-router.inference-router.svc.cluster.local:8150/v1"
 VENDOR = "https://api.vendor-byo.example/v1"
@@ -470,18 +473,18 @@ class TestM3CohereByoClientRefusesOwnerInfraRedirect:
         )
         ModelFactory._create_cohere_model(cfg)
         client = built.get("httpx_client")
-        assert isinstance(client, httpx.AsyncClient)
+        assert isinstance(client, httpx_legacy.AsyncClient)
         assert refuse_owner_infra_request in client.event_hooks["request"]
 
         hits: list[str] = []
 
-        def handler(request: httpx.Request) -> httpx.Response:
+        def handler(request: httpx_legacy.Request) -> httpx_legacy.Response:
             hits.append(str(request.url))
             if request.url.host == "api.vendor-byo.example":
-                return httpx.Response(307, headers={"location": IR_V1 + "/chat"})
-            return httpx.Response(200, json={"ok": True})
+                return httpx_legacy.Response(307, headers={"location": IR_V1 + "/chat"})
+            return httpx_legacy.Response(200, json={"ok": True})
 
-        client._transport = httpx.MockTransport(handler)
+        client._transport = httpx_legacy.MockTransport(handler)
         with pytest.raises(TenantBaseUrlNotAllowedError):
             await client.post(VENDOR + "/chat", json={})
         assert hits == [VENDOR + "/chat"]

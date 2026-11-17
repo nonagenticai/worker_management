@@ -147,6 +147,8 @@ async def _drive_stream(*chunks: ChatCompletionChunk) -> dict:
         _model_profile=ModelProfile(),
         _response=PeekableAsyncStream(_source()),
         _provider_name="inference_router",
+        # pydantic-ai 2.69 made the provider's model-id namespace an init field.
+        _model_id_namespace="inference_router",
         _provider_url="http://inference-router.invalid",
     )
     async for _ in response._get_event_iterator():
@@ -298,7 +300,7 @@ def _ir_run_result(provider_details: dict | None, *, output: str = "ok") -> Magi
     result = MagicMock()
     result.output = output
     result.all_messages.return_value = [message]
-    result.usage.return_value = usage
+    result.usage = usage
     return result
 
 

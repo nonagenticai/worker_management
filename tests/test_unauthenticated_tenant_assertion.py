@@ -44,13 +44,14 @@ from fastapi.testclient import TestClient
 
 import src.api.auth_middleware as auth_middleware_module
 from src.api.auth_middleware import AuthenticationMiddleware
+from src.api.tenant_constants import default_tenant_uuid
 from src.settings import Settings, get_settings, reset_settings_cache
 
 ENV_VAR = "WORKER_MANAGEMENT_REQUIRE_AUTHENTICATED_TENANT"
 
 # A canonical uuid that is spelled correctly and proves nothing — exactly the
 # input class the middleware accepts today.
-ASSERTED_TENANT = "0195f48b-d000-7000-8000-000000000003"
+ASSERTED_TENANT = "aaaaaaaa-0000-4000-8000-000000000003"
 
 
 @pytest.fixture(autouse=True)
@@ -239,7 +240,7 @@ def test_the_counter_carries_no_tenant_and_no_peer_in_its_labels(app: FastAPI) -
 @pytest.mark.parametrize(
     "segment",
     [
-        "0195f48b-d000-7000-8000-000000000003",
+        "aaaaaaaa-0000-4000-8000-000000000003",
         "12345",
         # ⛔ THE CASE THIS TEST USED TO MISS. The two above are the only ones the
         # old character heuristic collapsed; an alphabetic-after-stripping name
@@ -316,7 +317,7 @@ def test_no_header_is_not_an_assertion_and_is_not_counted(app: FastAPI) -> None:
     with patch.object(auth_middleware_module, "get_metrics_client", return_value=metrics):
         status, body = _call(app, {})
     assert status == 200
-    assert body["tenant_id"] == auth_middleware_module.DEFAULT_TENANT_ID
+    assert body["tenant_id"] == default_tenant_uuid()
     metrics.record_unauthenticated_tenant_assertion.assert_not_called()
 
 
@@ -444,7 +445,7 @@ def test_flag_on_leaves_the_no_header_default_path_alone(
     with patch.object(auth_middleware_module, "get_metrics_client", return_value=MagicMock()):
         status, body = _call(app, {})
     assert status == 200
-    assert body["tenant_id"] == auth_middleware_module.DEFAULT_TENANT_ID
+    assert body["tenant_id"] == default_tenant_uuid()
 
 
 # ---------------------------------------------------------------------------

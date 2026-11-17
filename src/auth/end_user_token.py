@@ -45,7 +45,7 @@ import re
 import time
 from typing import TYPE_CHECKING
 
-import httpx
+import httpx2 as httpx
 import jwt
 
 from src.api.identity_context import set_end_user_identity, set_end_user_proof

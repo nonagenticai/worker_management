@@ -51,7 +51,7 @@ from src.worker.agents.codex_agent import CodexAgent, CodexAgentConfig
 # An allowlisted executor origin (request_overrides.allowed_executor_origins).
 GW = "http://coding-gateway.coding-gateway.svc.cluster.local:8687"
 
-TENANT = "0195f48b-d000-7000-8000-000000000001"
+TENANT = "aaaaaaaa-0000-4000-8000-000000000001"
 SUBJECT = "subject-42"
 LICENSE = "lic-7"
 APP_ID = "requirements_management"

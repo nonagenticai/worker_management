@@ -79,7 +79,7 @@ import os
 import typing
 from typing import Any
 
-import httpx
+import httpx2 as httpx
 from cachetools import TTLCache
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field

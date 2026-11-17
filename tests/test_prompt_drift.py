@@ -25,9 +25,9 @@ from src.settings import reset_settings_cache
 if TYPE_CHECKING:
     from types import EllipsisType
 
-P1 = "0195f48b-d000-7000-8000-000000000001"
-P3 = "0195f48b-d000-7000-8000-000000000003"
-CUSTOMER = "0195f48b-d000-7000-8000-000000000100"  # cdmsfirst
+P1 = "aaaaaaaa-0000-4000-8000-000000000001"
+P3 = "aaaaaaaa-0000-4000-8000-000000000003"
+CUSTOMER = "aaaaaaaa-0000-4000-8000-000000000100"  # cdmsfirst
 
 PUBLISHED = "You are worker-a, published version 1."
 REWRITTEN = "You are what the n8n ensure-node wrote last."
@@ -41,7 +41,7 @@ def _row(
     published: str | None = PUBLISHED,
     status: str | None = "PUBLISHED",
     worker_found: bool = True,
-    owner: str | None | EllipsisType = ...,
+    owner: str | EllipsisType | None = ...,
 ) -> dict[str, Any]:
     return {
         "tenant_id": tenant,

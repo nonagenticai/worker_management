@@ -40,8 +40,8 @@ deployment whose ``DEFAULT_TENANT_ID`` is the seed tenant writes to the SEED
 tenant while reporting plain success -- which is exactly what happened on
 2026-09-13, when a ``--force --force-prompt`` reseed believed to have repaired
 production landed a 4106-char prompt on
-``0195f48b-d000-7000-8000-000000000001`` and left the live propose worker on
-``019de842-c92a-7e37-8fdd-eb0d8c5396f9`` running with
+``aaaaaaaa-0000-4000-8000-000000000001`` and left the live propose worker on
+``aaaaaaaa-0000-4000-8000-0000000000a5`` running with
 ``system_prompt = NULL`` for a further day, 17 days after it first went null.
 
 ⭐ ``--tenant <uuid>`` IS THE OTHER HALF, ADDED 2026-09-15. Reading the tenant
@@ -61,7 +61,7 @@ Both halves have to be said, because only the second one can hurt you.
 * WM's authority is UNCHANGED. Any caller admitted by ``TRUSTED_CIDRS`` could
   already assert any tenant on that header; this script simply declined to.
   Nothing was granted, no boundary moved. Live-probed from inside the WM pod:
-  no header -> ``…-000000000001``; bare ``019de842-…`` -> production.
+  no header -> ``…-000000000001``; bare ``aaaaaaaa-…`` -> production.
 * THIS SCRIPT'S REACH GOES FROM ONE TENANT TO ALL. Pre-fix, a tokenless run
   could touch ``DEFAULT_TENANT_ID`` and nothing else -- reaching any other
   tenant required a licence token somebody had to obtain. Post-fix,
@@ -99,8 +99,8 @@ one thing the probe comment above forbids.
 
 ⛔ PASS THE UUID, NEVER THE NAME. ``resolve_tenant_id`` would accept
 ``n8n-dev``, but ``src/api/tenant_constants.py`` maps that name to the SEED
-tenant ``0195f48b-…0001`` while the authoritative licences registry has
-``n8n-dev`` as ``019de842-…`` -- the very collision behind this whole failure.
+tenant ``aaaaaaaa-…0001`` while the authoritative licences registry has
+``n8n-dev`` as ``aaaaaaaa-…`` -- the very collision behind this whole failure.
 ``asserted_tenant_uuid`` refuses a name for that reason.
 
 Three things exist here so that cannot recur silently:
@@ -128,13 +128,13 @@ Usage::
     uv run python scripts/improvement_workers/register.py --force
     uv run python scripts/improvement_workers/register.py --force --force-prompt
     uv run python scripts/improvement_workers/register.py --force --force-prompt \
-        --expect-tenant 019de842-c92a-7e37-8fdd-eb0d8c5396f9
+        --expect-tenant aaaaaaaa-0000-4000-8000-0000000000a5
 
     # In-cluster, tokenless, aimed at PRODUCTION (what the reconcile CronJob
     # must run -- it currently omits --tenant and therefore always fails):
     uv run python scripts/improvement_workers/register.py --dry-run \
-        --tenant 019de842-c92a-7e37-8fdd-eb0d8c5396f9 \
-        --expect-tenant 019de842-c92a-7e37-8fdd-eb0d8c5396f9
+        --tenant aaaaaaaa-0000-4000-8000-0000000000a5 \
+        --expect-tenant aaaaaaaa-0000-4000-8000-0000000000a5
 """
 
 from __future__ import annotations
@@ -148,7 +148,7 @@ import uuid
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal, Protocol, runtime_checkable
 
-import httpx
+import httpx2 as httpx
 
 # Make ``scripts/`` importable when invoked via ``uv run python scripts/improvement_workers/register.py``.
 _REPO_ROOT = Path(__file__).resolve().parent.parent.parent
@@ -376,10 +376,10 @@ def asserted_tenant_uuid(value: str) -> str:
     ``src/api/tenant_constants.py::TENANT_UUIDS`` -- but that map is the ROOT
     CAUSE of the failure this function is part of fixing. It says
 
-        "n8n-dev" -> 0195f48b-d000-7000-8000-000000000001
+        "n8n-dev" -> aaaaaaaa-0000-4000-8000-000000000001
 
     while the authoritative licences ``tenants`` registry has ``n8n-dev`` as
-    ``019de842-c92a-7e37-8fdd-eb0d8c5396f9`` and ``…-000000000001`` as
+    ``aaaaaaaa-0000-4000-8000-0000000000a5`` and ``…-000000000001`` as
     ``n8n-dev-portal-realm``. So the SAME STRING resolves to two different
     tenants depending on which registry answers, and sending the name would
     silently re-enter the exact bug: aiming at production and landing on the
@@ -389,8 +389,8 @@ def asserted_tenant_uuid(value: str) -> str:
     the paragraph above -- nothing here is carried over from another file::
 
         $ psql -d licenses -At -F'|' -c "select id, name from tenants where ..."
-        0195f48b-d000-7000-8000-000000000001|n8n-dev-portal-realm
-        019de842-c92a-7e37-8fdd-eb0d8c5396f9|n8n-dev
+        aaaaaaaa-0000-4000-8000-000000000001|n8n-dev-portal-realm
+        aaaaaaaa-0000-4000-8000-0000000000a5|n8n-dev
 
     ⚠️ DO NOT RE-COPY THE CROSSWALK IN ``tenant_constants.py``'s DOCSTRING. An
     earlier draft of this docstring did, and asserted that the licences side
@@ -416,10 +416,12 @@ def asserted_tenant_uuid(value: str) -> str:
     except ValueError as exc:
         raise ValueError(
             f"--tenant {candidate!r} is not a uuid. Pass the tenant UUID, NEVER the name: "
-            f"tenant NAMES resolve through src/api/tenant_constants.py, whose 'n8n-dev' is "
-            f"the SEED tenant 0195f48b-d000-7000-8000-000000000001 and NOT the licences "
-            f"registry's n8n-dev (019de842-c92a-7e37-8fdd-eb0d8c5396f9). Production is "
-            f"019de842-c92a-7e37-8fdd-eb0d8c5396f9."
+            "tenant NAMES resolve through src/api/tenant_constants.py TENANT_UUIDS, whose "
+            "'n8n-dev' is the SEED tenant -- and the licences registry's 'n8n-dev' is a "
+            "DIFFERENT tenant. Two registries, two answers, so look BOTH up in the licences "
+            "registry before choosing. This message prints neither uuid on purpose: they are "
+            "environment-supplied (PLATFORM_TENANT_IDS / TENANT_UUIDS), and reading one out "
+            "of a refusal is how the wrong tenant gets picked."
         ) from exc
     if parsed.int == 0:
         raise ValueError(
@@ -557,7 +559,7 @@ def _build_headers(license_token: str, assert_tenant: str = "") -> dict[str, str
     * neither, when both are empty -- unchanged behaviour, and the reason this
       fix exists: WM then falls back to its own ``DEFAULT_TENANT_ID``, which on
       the live Deployment is the SEED tenant
-      ``0195f48b-d000-7000-8000-000000000001``, not production.
+      ``aaaaaaaa-0000-4000-8000-000000000001``, not production.
 
     Raises:
         ValueError: both were supplied. They write the same header, so one
