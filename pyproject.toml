@@ -21,6 +21,10 @@ dependencies = [
     "pydantic>=2.12.0",
     "pydantic-settings>=2.14.2",  # GHSA-4xgf-cpjx-pc3j fixed in 2.14.2
     "httpx2>=2.16.2,<3",
+    # cohere 7.3.1 / groq 1.7.0 (their latest) still require httpx<1 and build
+    # their clients on it; their BYO path keeps a 0.x transport twin in
+    # src/security/request_overrides.py. Everything of ours speaks httpx2.
+    "httpx>=0.28.1",
     "uvicorn[standard]>=0.35.0",
     "aiohttp>=3.14.4",
     "urllib3>=2.8.0",  # CVE-2026-44431, CVE-2026-44432 fixed in 2.7.0

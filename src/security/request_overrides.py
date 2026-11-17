@@ -27,6 +27,7 @@ import logging
 from typing import Any
 from urllib.parse import urlsplit, urlunsplit
 
+import httpx as httpx_legacy  # cohere 7.3.1 / groq 1.7.0 still build on httpx 0.x
 import httpx2 as httpx
 from pydantic_core import PydanticCustomError
 
@@ -751,6 +752,49 @@ class PinnedTenantEndpointTransport(httpx.AsyncBaseTransport):
 def pinned_tenant_transport(**transport_kwargs: Any) -> PinnedTenantEndpointTransport:
     """A :class:`PinnedTenantEndpointTransport` for ``httpx.AsyncClient(transport=)``."""
     return PinnedTenantEndpointTransport(**transport_kwargs)
+
+
+class LegacyPinnedTenantEndpointTransport(httpx_legacy.AsyncBaseTransport):
+    """httpx 0.x twin of :class:`PinnedTenantEndpointTransport`.
+
+    cohere 7.3.1 and groq 1.7.0 — their latest releases — declare ``httpx<1``
+    and type ``http_client``/``httpx_client`` as ``httpx.AsyncClient``, so their
+    BYO paths cannot take the httpx2 client the rest of the service builds.
+    Same validate-and-pin hop as the httpx2 class. Delete this when either SDK
+    ships an httpx2 client.
+    """
+
+    def __init__(self, **transport_kwargs: Any) -> None:
+        self._inner = httpx_legacy.AsyncHTTPTransport(**transport_kwargs)
+
+    async def handle_async_request(self, request: httpx_legacy.Request) -> httpx_legacy.Response:
+        """Validate-and-pin the host, then send through the inner transport."""
+        import asyncio
+
+        host = request.url.host
+        ip = await asyncio.to_thread(pinned_tenant_endpoint_ip, host)
+        if ip == host.strip("[]").lower():
+            return await self._inner.handle_async_request(request)
+        extensions = dict(request.extensions)
+        if request.url.scheme == "https":
+            extensions.setdefault("sni_hostname", host)
+        pinned = httpx_legacy.Request(
+            request.method,
+            request.url.copy_with(host=ip),
+            headers=request.headers,  # carries the original Host
+            stream=request.stream,
+            extensions=extensions,
+        )
+        return await self._inner.handle_async_request(pinned)
+
+    async def aclose(self) -> None:
+        """Close the inner connection pool."""
+        await self._inner.aclose()
+
+
+def pinned_tenant_transport_legacy(**transport_kwargs: Any) -> LegacyPinnedTenantEndpointTransport:
+    """A legacy (httpx 0.x) pinned transport for the cohere/groq BYO clients."""
+    return LegacyPinnedTenantEndpointTransport(**transport_kwargs)
 
 
 def allowed_tenant_base_url_origins(tenant_id: str | None) -> list[tuple[frozenset[str], str, int]]:
