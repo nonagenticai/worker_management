@@ -88,7 +88,7 @@ import time
 import typing
 import uuid
 
-import httpx
+import httpx2 as httpx
 
 logger = logging.getLogger(__name__)
 

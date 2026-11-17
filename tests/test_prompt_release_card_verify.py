@@ -24,7 +24,7 @@ from contextlib import asynccontextmanager
 from typing import TYPE_CHECKING, Any
 from unittest.mock import AsyncMock, patch
 
-import httpx
+import httpx2 as httpx
 import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient

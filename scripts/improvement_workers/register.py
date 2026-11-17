@@ -148,7 +148,7 @@ import uuid
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal, Protocol, runtime_checkable
 
-import httpx
+import httpx2 as httpx
 
 # Make ``scripts/`` importable when invoked via ``uv run python scripts/improvement_workers/register.py``.
 _REPO_ROOT = Path(__file__).resolve().parent.parent.parent

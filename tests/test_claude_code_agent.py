@@ -11,7 +11,7 @@ import os
 from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
 
-import httpx
+import httpx2 as httpx
 import pytest
 
 from src.worker.agents.claude_code_agent import (
@@ -587,7 +587,7 @@ class TestExecuteViaProxy:
 
         resp = _resp(200, {"success": True, "output": "proxy result", "execution_time": 1.5})
         client = _mock_httpx_client(post_returns=resp)
-        with patch("httpx.AsyncClient", return_value=client):
+        with patch("httpx2.AsyncClient", return_value=client):
             result = await agent._execute_via_proxy("hi")
         assert result == "proxy result"
 
@@ -607,7 +607,7 @@ class TestExecuteViaProxy:
 
         resp = _resp(500, text="Internal Server Error")
         client = _mock_httpx_client(post_returns=resp)
-        with patch("httpx.AsyncClient", return_value=client):
+        with patch("httpx2.AsyncClient", return_value=client):
             with pytest.raises(RuntimeError, match="Proxy returned status 500"):
                 await agent._execute_via_proxy("hi")
 
@@ -619,7 +619,7 @@ class TestExecuteViaProxy:
 
         resp = _resp(200, {"success": False, "error": "model down"})
         client = _mock_httpx_client(post_returns=resp)
-        with patch("httpx.AsyncClient", return_value=client):
+        with patch("httpx2.AsyncClient", return_value=client):
             with pytest.raises(RuntimeError, match="Proxy execution failed: model down"):
                 await agent._execute_via_proxy("hi")
 
@@ -630,7 +630,7 @@ class TestExecuteViaProxy:
             agent = ClaudeCodeAgent(config=config)
 
         client = _mock_httpx_client(post_side_effect=httpx.TimeoutException("timed out"))
-        with patch("httpx.AsyncClient", return_value=client):
+        with patch("httpx2.AsyncClient", return_value=client):
             with pytest.raises(httpx.TimeoutException):
                 await agent._execute_via_proxy("hi")
 
@@ -641,7 +641,7 @@ class TestExecuteViaProxy:
             agent = ClaudeCodeAgent(config=config)
 
         client = _mock_httpx_client(post_side_effect=ConnectionError("refused"))
-        with patch("httpx.AsyncClient", return_value=client):
+        with patch("httpx2.AsyncClient", return_value=client):
             with pytest.raises(RuntimeError, match="Proxy execution error"):
                 await agent._execute_via_proxy("hi")
 
@@ -654,7 +654,7 @@ class TestExecuteViaProxy:
 
         resp = _resp(200, {"success": False})
         client = _mock_httpx_client(post_returns=resp)
-        with patch("httpx.AsyncClient", return_value=client):
+        with patch("httpx2.AsyncClient", return_value=client):
             with pytest.raises(RuntimeError, match="Unknown proxy error"):
                 await agent._execute_via_proxy("hi")
 
@@ -902,7 +902,7 @@ class TestAgentHostExecution:
         client = _mock_httpx_client(post_side_effect=[create_resp, exec_resp])
         with (
             patch("src.services.agent_host_registry.agent_host_registry") as mock_reg,
-            patch("httpx.AsyncClient", return_value=client),
+            patch("httpx2.AsyncClient", return_value=client),
         ):
             mock_reg.get_best_instance = AsyncMock(return_value=mock_instance)
             result = await agent._execute_via_agent_host("hello")
@@ -920,7 +920,7 @@ class TestAgentHostExecution:
 
         exec_resp = _resp(200, {"success": True, "exit_code": 0, "stdout": "reused", "stderr": ""})
         client = _mock_httpx_client(post_returns=exec_resp)
-        with patch("httpx.AsyncClient", return_value=client):
+        with patch("httpx2.AsyncClient", return_value=client):
             result = await agent._execute_via_agent_host("hello")
         assert result == "reused"
         assert client.post.call_count == 1
@@ -943,7 +943,7 @@ class TestAgentHostExecution:
             },
         )
         client = _mock_httpx_client(post_returns=resp)
-        with patch("httpx.AsyncClient", return_value=client):
+        with patch("httpx2.AsyncClient", return_value=client):
             with pytest.raises(RuntimeError) as exc_info:
                 await agent._execute_via_agent_host("test")
         msg = str(exc_info.value)
@@ -961,7 +961,7 @@ class TestAgentHostExecution:
 
         resp = _resp(200, {"success": False, "exit_code": 1, "stdout": "x" * 1000, "stderr": ""})
         client = _mock_httpx_client(post_returns=resp)
-        with patch("httpx.AsyncClient", return_value=client):
+        with patch("httpx2.AsyncClient", return_value=client):
             with pytest.raises(RuntimeError) as exc_info:
                 await agent._execute_via_agent_host("test")
         assert len(str(exc_info.value)) < 700
@@ -991,7 +991,7 @@ class TestAgentHostExecution:
         client = _mock_httpx_client(post_returns=create_resp)
         with (
             patch("src.services.agent_host_registry.agent_host_registry") as mock_reg,
-            patch("httpx.AsyncClient", return_value=client),
+            patch("httpx2.AsyncClient", return_value=client),
         ):
             mock_reg.get_best_instance = AsyncMock(return_value=mock_instance)
             with pytest.raises(RuntimeError, match="container create failed"):
@@ -1007,7 +1007,7 @@ class TestAgentHostExecution:
 
         resp = _resp(500, text="Server Error")
         client = _mock_httpx_client(post_returns=resp)
-        with patch("httpx.AsyncClient", return_value=client):
+        with patch("httpx2.AsyncClient", return_value=client):
             with pytest.raises(RuntimeError, match="agent-host exec failed"):
                 await agent._execute_via_agent_host("test")
 
@@ -1028,7 +1028,7 @@ class TestAgentHostCleanup:
 
         resp = _resp(200)
         client = _mock_httpx_client(delete_returns=resp)
-        with patch("httpx.AsyncClient", return_value=client):
+        with patch("httpx2.AsyncClient", return_value=client):
             await agent.cleanup()
         client.delete.assert_called_once()
         assert agent.config.agent_host_container_id is None
@@ -1043,7 +1043,7 @@ class TestAgentHostCleanup:
 
         resp = _resp(500, text="fail")
         client = _mock_httpx_client(delete_returns=resp)
-        with patch("httpx.AsyncClient", return_value=client):
+        with patch("httpx2.AsyncClient", return_value=client):
             await agent.cleanup()  # should not raise
         assert agent.config.agent_host_container_id is None
 
@@ -1056,7 +1056,7 @@ class TestAgentHostCleanup:
         agent.config.agent_host_url = "http://agent-host:9100"
 
         client = _mock_httpx_client(delete_side_effect=Exception("refused"))
-        with patch("httpx.AsyncClient", return_value=client):
+        with patch("httpx2.AsyncClient", return_value=client):
             await agent.cleanup()  # should not raise
         assert agent.config.agent_host_container_id is None
 
@@ -1065,7 +1065,7 @@ class TestAgentHostCleanup:
         with _agent_host_env():
             config = ClaudeCodeAgentConfig(name="test", db_path="test.db")
             agent = ClaudeCodeAgent(config=config)
-        with patch("httpx.AsyncClient") as mock_cls:
+        with patch("httpx2.AsyncClient") as mock_cls:
             await agent.cleanup()
             mock_cls.assert_not_called()
 
@@ -1075,7 +1075,7 @@ class TestAgentHostCleanup:
         agent.config.agent_host_container_id = "ctr-123"
         agent.config.agent_host_url = "http://agent-host:9100"
         # use_agent_host is False -> cleanup should not try to delete
-        with patch("httpx.AsyncClient") as mock_cls:
+        with patch("httpx2.AsyncClient") as mock_cls:
             await agent.cleanup()
             mock_cls.assert_not_called()
 
@@ -1174,7 +1174,7 @@ class TestAddMCPServerViaProxy:
 
         resp = _resp(200, {"success": True})
         client = _mock_httpx_client(post_returns=resp)
-        with patch("httpx.AsyncClient", return_value=client):
+        with patch("httpx2.AsyncClient", return_value=client):
             await agent._add_mcp_server_via_proxy({"name": "kanban", "url": "http://x"})
 
     @pytest.mark.asyncio
@@ -1200,7 +1200,7 @@ class TestAddMCPServerViaProxy:
 
         resp = _resp(500, text="error")
         client = _mock_httpx_client(post_returns=resp)
-        with patch("httpx.AsyncClient", return_value=client):
+        with patch("httpx2.AsyncClient", return_value=client):
             with pytest.raises(RuntimeError, match="Proxy returned status 500"):
                 await agent._add_mcp_server_via_proxy({"name": "kanban"})
 
@@ -1212,7 +1212,7 @@ class TestAddMCPServerViaProxy:
 
         resp = _resp(200, {"success": False, "error": "bad config"})
         client = _mock_httpx_client(post_returns=resp)
-        with patch("httpx.AsyncClient", return_value=client):
+        with patch("httpx2.AsyncClient", return_value=client):
             with pytest.raises(RuntimeError, match="MCP add failed"):
                 await agent._add_mcp_server_via_proxy({"name": "kanban"})
 
@@ -1223,7 +1223,7 @@ class TestAddMCPServerViaProxy:
             agent = ClaudeCodeAgent(config=config)
 
         client = _mock_httpx_client(post_side_effect=httpx.TimeoutException("timed out"))
-        with patch("httpx.AsyncClient", return_value=client):
+        with patch("httpx2.AsyncClient", return_value=client):
             with pytest.raises(httpx.TimeoutException):
                 await agent._add_mcp_server_via_proxy({"name": "kanban"})
 
@@ -1234,7 +1234,7 @@ class TestAddMCPServerViaProxy:
             agent = ClaudeCodeAgent(config=config)
 
         client = _mock_httpx_client(post_side_effect=ConnectionError("refused"))
-        with patch("httpx.AsyncClient", return_value=client):
+        with patch("httpx2.AsyncClient", return_value=client):
             with pytest.raises(RuntimeError, match="Error adding MCP server via proxy"):
                 await agent._add_mcp_server_via_proxy({"name": "kanban"})
 

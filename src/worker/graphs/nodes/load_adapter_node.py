@@ -41,7 +41,7 @@ import time
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
-import httpx
+import httpx2 as httpx
 from pydantic_graph import BaseNode, End, GraphRunContext
 
 from src.worker.graphs.pydantic_graph_state import WorkflowState

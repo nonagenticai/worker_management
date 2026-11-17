@@ -17,7 +17,7 @@ from __future__ import annotations
 
 import logging
 
-import httpx
+import httpx2 as httpx
 import pytest
 
 from src.services import ir_bundle_tokens

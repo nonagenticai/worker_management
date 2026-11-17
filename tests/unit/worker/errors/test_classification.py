@@ -8,7 +8,7 @@ a plain ``ValueError`` (the ``unknown`` floor).
 
 from __future__ import annotations
 
-import httpx
+import httpx2 as httpx
 import openai
 
 from src.worker.errors import classify_call_error, extract_error_detail

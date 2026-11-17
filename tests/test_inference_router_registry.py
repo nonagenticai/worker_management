@@ -75,7 +75,7 @@ class TestFetchModels:
 
     @pytest.mark.asyncio
     async def test_fetch_models_timeout(self, registry):
-        import httpx
+        import httpx2 as httpx
 
         with patch("src.services.inference_router_registry.httpx.AsyncClient") as mock_cls:
             mock_client = AsyncMock()
@@ -88,7 +88,7 @@ class TestFetchModels:
 
     @pytest.mark.asyncio
     async def test_fetch_models_connection_error(self, registry):
-        import httpx
+        import httpx2 as httpx
 
         with patch("src.services.inference_router_registry.httpx.AsyncClient") as mock_cls:
             mock_client = AsyncMock()

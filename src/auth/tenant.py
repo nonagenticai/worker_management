@@ -10,7 +10,7 @@ import time
 import uuid
 from typing import TYPE_CHECKING, Any, cast
 
-import httpx
+import httpx2 as httpx
 from cachetools import TTLCache
 from fastapi import HTTPException, Request
 

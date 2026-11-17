@@ -18,7 +18,7 @@ from __future__ import annotations
 from typing import Any, cast
 from unittest.mock import AsyncMock, patch
 
-import httpx
+import httpx2 as httpx
 import pytest
 from pydantic_graph import BaseNode, End, GraphRunContext
 

@@ -20,7 +20,7 @@ dependencies = [
     "starlette>=1.0.1",  # PYSEC-2026-161 fixed in 1.0.1 (transitive via fastapi)
     "pydantic>=2.12.0",
     "pydantic-settings>=2.14.2",  # GHSA-4xgf-cpjx-pc3j fixed in 2.14.2
-    "httpx>=0.28.1",
+    "httpx2>=2.16.2,<3",
     "uvicorn[standard]>=0.35.0",
     "aiohttp>=3.14.4",
     "urllib3>=2.8.0",  # CVE-2026-44431, CVE-2026-44432 fixed in 2.7.0
@@ -47,30 +47,17 @@ dependencies = [
     "structlog>=24.4.0",
     "mcp>=2.3.0",
     "cohere>=5.18.0",
-    # <2.32 until the httpx2 port: every pydantic-ai-slim[openai] release from
-    # 2.32.0 on requires openai>=3, and openai 3 declares
-    # `http_client: httpx2.AsyncClient`. This service's
-    # PinnedTenantEndpointTransport + http_diagnostics subclass
-    # httpx.AsyncBaseTransport, and 240 call sites assume httpx 0.x, so the
-    # openai 3 line is a separate unit. 2.31.1 is the last 2.x that accepts
-    # openai 2.x.
-    "pydantic-ai[xai]>=2.31.1,<2.32",
-    # <1 while we stay on httpx 0.x: anthropic 1.0.0 is the release that moved
-    # the SDK to httpx2, and pydantic-ai 2.31.1's
-    # AnthropicProvider still builds an httpx.AsyncClient and passes it in
-    # ("Invalid `http_client` argument"). Lifting this is the same unit as the
-    # openai 3 / httpx2 port below.
-    "anthropic>=0.109.2,<1",
-    "pydantic-graph>=2.31.1,<2.32",
+    # The httpx2 line (2026-11-17): pydantic-ai >=2.53 requires httpx2, and the
+    # 2.x releases below 2.44/2.52/2.53 carry PYSEC-2026-4275..4291. The whole
+    # service, its transports and its SDK clients now speak httpx2.
+    "pydantic-ai[xai]>=2.69,<3",
+    "anthropic>=1.9,<2",
+    "pydantic-graph>=2.69,<3",
     "psycopg[binary,pool]>=3.2.12",
     "groq>=0.25.0",
-    # <3 until the client is ported to httpx2: openai 3.x's AsyncOpenAI declares
-    # `http_client: httpx2.AsyncClient`, while this service builds an httpx.AsyncClient
-    # around DiagnosticAsyncHTTPTransport. Runtime still works (measured 2026-11-15: the
-    # client constructs and only fails against an unreachable endpoint), but `ty check
-    # src/` — the gate every agent's pre-push runs — fails on the mismatch, which makes
-    # the repository unpushable for everyone. Lift this bound when the transport is ported.
-    "openai>=1.107.2,<3",
+    # openai 3 declares `http_client: httpx2.AsyncClient`; every construction
+    # site passes one (see src/worker/agents/pydantic_ai_agent.py).
+    "openai>=3.19,<4",
     "PyJWT>=2.15.1",
     "redis>=5.0.0",
     "PyYAML>=6.0",

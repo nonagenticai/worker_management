@@ -41,7 +41,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, NoReturn
 
-import httpx
+import httpx2 as httpx
 from prometheus_client import Counter
 
 from src.api.error_handlers import APIError

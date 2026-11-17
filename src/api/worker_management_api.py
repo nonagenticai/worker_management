@@ -171,7 +171,7 @@ if otelemetry_available and not otel_disabled:
         if otlp_endpoint:
             try:
                 # Test connection first with a short timeout
-                import httpx
+                import httpx2 as httpx
 
                 test_url = otlp_endpoint.replace("/v1/traces", "/")
                 try:
@@ -501,10 +501,10 @@ if otelemetry_available and not otel_disabled:
         logger.warning(f"Failed to instrument SQLAlchemy: {e}")
 
     try:
-        from opentelemetry.instrumentation.httpx import HTTPXClientInstrumentor
+        from opentelemetry.instrumentation.httpx import HTTPX2ClientInstrumentor
 
-        HTTPXClientInstrumentor().instrument()
-        logger.info("httpx instrumented with OpenTelemetry")
+        HTTPX2ClientInstrumentor().instrument()
+        logger.info("httpx2 instrumented with OpenTelemetry")
     except ImportError:
         logger.warning("httpx instrumentation not available")
     except Exception as e:

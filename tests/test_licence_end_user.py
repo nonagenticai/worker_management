@@ -205,7 +205,7 @@ class TestLicenceBranchEndUser:
         assert resp.json()["error"]["failure_class"] == "not_access_token"
 
     def test_jwks_unreachable_is_503_not_a_fallback(self, portal_key, monkeypatch):
-        import httpx
+        import httpx2 as httpx
 
         async def boom(url: str) -> dict:
             raise httpx.ConnectError("down")

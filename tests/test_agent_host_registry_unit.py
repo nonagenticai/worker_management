@@ -2,7 +2,7 @@
 
 from unittest.mock import AsyncMock, MagicMock, patch
 
-import httpx
+import httpx2 as httpx
 import pytest
 
 from src.services.agent_host_registry import AgentHostInstance, AgentHostRegistry
@@ -28,7 +28,7 @@ class TestCheckInstanceHealth:
             "max_containers": 10,
         }
 
-        with patch("httpx.AsyncClient") as MockClient:
+        with patch("httpx2.AsyncClient") as MockClient:
             mock_client = AsyncMock()
             mock_client.get = AsyncMock(return_value=mock_response)
             mock_client.__aenter__ = AsyncMock(return_value=mock_client)
@@ -45,7 +45,7 @@ class TestCheckInstanceHealth:
         mock_response = MagicMock()
         mock_response.status_code = 500
 
-        with patch("httpx.AsyncClient") as MockClient:
+        with patch("httpx2.AsyncClient") as MockClient:
             mock_client = AsyncMock()
             mock_client.get = AsyncMock(return_value=mock_response)
             mock_client.__aenter__ = AsyncMock(return_value=mock_client)
@@ -59,7 +59,7 @@ class TestCheckInstanceHealth:
     async def test_connect_error(self):
         registry = AgentHostRegistry()
 
-        with patch("httpx.AsyncClient") as MockClient:
+        with patch("httpx2.AsyncClient") as MockClient:
             mock_client = AsyncMock()
             mock_client.get = AsyncMock(side_effect=httpx.ConnectError("refused"))
             mock_client.__aenter__ = AsyncMock(return_value=mock_client)
@@ -73,7 +73,7 @@ class TestCheckInstanceHealth:
     async def test_timeout(self):
         registry = AgentHostRegistry()
 
-        with patch("httpx.AsyncClient") as MockClient:
+        with patch("httpx2.AsyncClient") as MockClient:
             mock_client = AsyncMock()
             mock_client.get = AsyncMock(side_effect=httpx.TimeoutException("timeout"))
             mock_client.__aenter__ = AsyncMock(return_value=mock_client)

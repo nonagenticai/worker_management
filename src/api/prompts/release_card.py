@@ -55,7 +55,7 @@ import logging
 import time
 from typing import TYPE_CHECKING, Any
 
-import httpx
+import httpx2 as httpx
 from fastapi import HTTPException
 from prometheus_client import Counter
 

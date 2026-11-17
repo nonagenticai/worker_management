@@ -40,7 +40,7 @@ from contextlib import contextmanager
 from typing import TYPE_CHECKING, Any, cast
 from unittest.mock import AsyncMock, patch
 
-import httpx
+import httpx2 as httpx
 import openai
 import pytest
 import pytest_asyncio

@@ -15,7 +15,7 @@ PydanticAI agent ks-narrative-structure raised "Connection error" at
 
 from __future__ import annotations
 
-import httpx
+import httpx2 as httpx
 import pytest
 from openai._constants import DEFAULT_MAX_RETRIES
 

@@ -17,7 +17,7 @@ import asyncio
 import ipaddress
 from typing import Any
 
-import httpx
+import httpx2 as httpx
 import pytest
 
 from src.security import request_overrides as ro

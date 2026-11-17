@@ -35,7 +35,7 @@ from __future__ import annotations
 import asyncio
 from unittest.mock import patch
 
-import httpx
+import httpx2 as httpx
 import pytest
 from fastapi import FastAPI, Request
 from fastapi.testclient import TestClient

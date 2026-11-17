@@ -34,7 +34,7 @@ import sys
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-import httpx
+import httpx2 as httpx
 import pytest
 from prometheus_client import REGISTRY
 
@@ -276,9 +276,6 @@ def test_malformed_config_is_unconfigured_and_never_raises(
         # connect — neither httpx.HTTPError nor OSError. Fails before any socket
         # is opened, so the real (un-mocked) network path is safe here.
         ("http://127.0.0.1:99999/", ExceptionGroup, "ExceptionGroup"),
-        # Empty IDNA label: idna.IDNAError (a UnicodeError, NOT a
-        # UnicodeEncodeError) while encoding the host — before DNS.
-        ("http://xn--/", UnicodeError, "IDNAError"),
     ],
 )
 def test_unenumerated_bad_url_is_error_and_never_raises(
@@ -301,6 +298,28 @@ def test_unenumerated_bad_url_is_error_and_never_raises(
         _emit()  # must not raise into the rollback request
     assert _delta(before) == {"error": 1.0}
     assert f"(unexpected): {logged}" in caplog.text
+    assert TOKEN not in caplog.text
+
+
+def test_idna_invalid_host_is_a_transport_error_and_never_raises(
+    env: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
+) -> None:
+    """httpx2 defers IDNA: ``http://xn--/`` is not rejected while building the URL.
+
+    httpx 0.x raised ``idna.IDNAError`` before any socket; httpx2 hands the host
+    to getaddrinfo, so it surfaces as a ConnectError (an HTTPError) and lands in
+    the enumerated transport branch. The point this test defends is unchanged:
+    the rollback request never raises and the token is never logged.
+    """
+    from src.settings import reset_settings_cache
+
+    env.setenv("FR_WORKFLOW_ROLLBACK_URL", "http://xn--/")
+    reset_settings_cache()
+    routes.set_rollback_webhook_transport_for_tests(None)
+    before = _counts()
+    with caplog.at_level(logging.DEBUG):
+        _emit()
+    assert _delta(before) == {"transport_error": 1.0}
     assert TOKEN not in caplog.text
 
 

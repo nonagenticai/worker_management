@@ -29,7 +29,7 @@ import uuid
 from contextlib import asynccontextmanager
 from typing import TYPE_CHECKING, Any, ClassVar
 
-import httpx
+import httpx2 as httpx
 import psycopg
 import pytest
 import pytest_asyncio

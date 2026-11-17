@@ -29,7 +29,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 os.environ.setdefault("ENABLE_AUTH", "false")
 os.environ.setdefault("OTEL_SDK_DISABLED", "true")
 
-import httpx
+import httpx2 as httpx
 import jwt
 import pytest
 from cryptography.hazmat.primitives.asymmetric import rsa

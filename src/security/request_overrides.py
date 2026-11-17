@@ -27,7 +27,7 @@ import logging
 from typing import Any
 from urllib.parse import urlsplit, urlunsplit
 
-import httpx
+import httpx2 as httpx
 from pydantic_core import PydanticCustomError
 
 logger = logging.getLogger(__name__)

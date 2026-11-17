@@ -8,7 +8,7 @@ import re
 from pathlib import Path
 from typing import Any
 
-import httpx
+import httpx2 as httpx
 from pydantic_ai.mcp import FastMCPClient, MCPToolset
 from pydantic_ai.toolsets import WrapperToolset
 

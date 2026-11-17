@@ -33,7 +33,7 @@ import asyncio
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, patch
 
-import httpx
+import httpx2 as httpx
 import pytest
 from fastapi import FastAPI, Request
 from fastapi.testclient import TestClient

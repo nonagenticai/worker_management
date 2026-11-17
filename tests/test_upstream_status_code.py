@@ -19,7 +19,7 @@ pins the fact that made this invisible.
 
 from __future__ import annotations
 
-import httpx
+import httpx2 as httpx
 import openai
 import pytest
 from pydantic_ai.exceptions import ModelHTTPError

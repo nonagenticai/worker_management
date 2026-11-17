@@ -1,7 +1,7 @@
 import json
 import os
 from typing import Any, cast
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock, PropertyMock, patch
 
 import pytest
 from pydantic import BaseModel, ValidationError
@@ -238,7 +238,7 @@ class TestTokenUsageExtraction:
         mock_usage.input_tokens = 10
         mock_usage.output_tokens = 20
         mock_usage.total_tokens = 30
-        mock_result.usage.return_value = mock_usage
+        mock_result.usage = mock_usage
 
         metrics = agent._extract_token_usage("test", mock_result)
         assert metrics.prompt_tokens == 10
@@ -250,7 +250,7 @@ class TestTokenUsageExtraction:
         mock_result = MagicMock()
         mock_usage = MagicMock()
         mock_usage.has_values.return_value = False
-        mock_result.usage.return_value = mock_usage
+        mock_result.usage = mock_usage
 
         model_usage = MagicMock(spec=[])
         model_usage.input_tokens = None
@@ -270,12 +270,12 @@ class TestTokenUsageExtraction:
         mock_result = MagicMock()
         mock_usage = MagicMock()
         mock_usage.has_values.return_value = False
-        mock_result.usage.return_value = mock_usage
+        mock_result.usage = mock_usage
         agent.agent.model = MagicMock(spec=[])
         assert agent._extract_token_usage("test", mock_result) is None
 
         mock_result2 = MagicMock()
-        mock_result2.usage.side_effect = RuntimeError("oops")
+        type(mock_result2).usage = PropertyMock(side_effect=RuntimeError("oops"))
         assert agent._extract_token_usage("test", mock_result2) is None
 
 
@@ -340,7 +340,7 @@ class TestAgentRun:
         mock_usage.input_tokens = 5
         mock_usage.output_tokens = 10
         mock_usage.total_tokens = 15
-        mock_response.usage.return_value = mock_usage
+        mock_response.usage = mock_usage
         agent.agent.run = AsyncMock(return_value=mock_response)
 
         with patch(f"{MODULE}.get_metrics_client") as m:
@@ -382,7 +382,7 @@ class TestRunWithContext:
         mock_response.output = "ctx result"
         mock_usage = MagicMock()
         mock_usage.has_values.return_value = False
-        mock_response.usage.return_value = mock_usage
+        mock_response.usage = mock_usage
         agent.agent.run = AsyncMock(return_value=mock_response)
         agent.agent.model = MagicMock(spec=[])
 
@@ -421,7 +421,7 @@ class TestMCPErrorRecovery:
         mock_response.output = "recovered"
         mock_usage = MagicMock()
         mock_usage.has_values.return_value = False
-        mock_response.usage.return_value = mock_usage
+        mock_response.usage = mock_usage
         agent.agent.run = AsyncMock(return_value=mock_response)
         agent.agent.model = MagicMock(spec=[])
 
@@ -628,7 +628,7 @@ class TestInferenceRouterIdentityContextOverride:
     @pytest.mark.asyncio
     async def test_event_hook_overrides_headers_from_contextvar(self):
         """ContextVar set at request time overrides constructor fallbacks."""
-        import httpx
+        import httpx2 as httpx
 
         from src.api.identity_context import set_identity_context
         from src.worker.agents.pydantic_ai_agent import InferenceRouterOpenAIProvider
@@ -668,7 +668,7 @@ class TestInferenceRouterIdentityContextOverride:
     @pytest.mark.asyncio
     async def test_event_hook_falls_back_to_constructor_when_contextvar_unset(self):
         """When no middleware has set the ContextVar, constructor args win."""
-        import httpx
+        import httpx2 as httpx
 
         from src.api.identity_context import set_identity_context
         from src.worker.agents.pydantic_ai_agent import InferenceRouterOpenAIProvider
@@ -696,7 +696,7 @@ class TestInferenceRouterIdentityContextOverride:
         """ContextVars are task-local: concurrent requests don't bleed identity."""
         import asyncio
 
-        import httpx
+        import httpx2 as httpx
 
         from src.api.identity_context import set_identity_context
         from src.worker.agents.pydantic_ai_agent import InferenceRouterOpenAIProvider

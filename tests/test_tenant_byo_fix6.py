@@ -233,7 +233,7 @@ class TestN3RedirectHookResolvesUncachedEveryHop:
         import asyncio
         import time
 
-        import httpx
+        import httpx2 as httpx
 
         from src.security import request_overrides as ro
 

@@ -207,7 +207,17 @@ def test_fr_checkout_matches_the_pinned_fingerprint() -> None:
             "no fr checkout (set FR_REPO_DIR to an fr clone) — the pinned-fixture "
             "comparison above still ran"
         )
-    live = parse_fr_platform_tenant_ids(path.read_text(encoding="utf-8"))
+    source = path.read_text(encoding="utf-8")
+    try:
+        live = parse_fr_platform_tenant_ids(source)
+    except ValueError as exc:
+        if "not found in fr source" in str(exc):
+            pytest.skip(
+                "the fr checkout carries no PLATFORM_TENANT_IDS literal — its ids come "
+                "from FR_*_TENANT_ID at runtime since 2026-11-16, so there is no source "
+                "set to compare against the fingerprint"
+            )
+        raise
     assert tenant_set_hash(live) == _fixture()["tenant_set_sha256"], (
         f"fr's set at {path} differs from the pinned fingerprint "
         f"({_fixture()['fr_ref']}) — re-pin the hash and WM's Deployment env together"

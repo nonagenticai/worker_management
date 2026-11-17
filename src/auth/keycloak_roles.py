@@ -62,7 +62,7 @@ import time
 from typing import TYPE_CHECKING
 from urllib.parse import urlsplit
 
-import httpx
+import httpx2 as httpx
 import jwt
 
 from src.settings import get_settings
@@ -138,7 +138,7 @@ def _jwks_url() -> str:
 
 
 async def _fetch_jwks(url: str) -> dict:
-    async with httpx.AsyncClient(verify=False, timeout=5.0) as client:  # nosec B501  # noqa: S501
+    async with httpx.AsyncClient(verify=False, timeout=5.0) as client:  # nosec B501
         resp = await client.get(url)
         resp.raise_for_status()
         return resp.json()

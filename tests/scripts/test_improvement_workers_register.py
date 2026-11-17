@@ -28,7 +28,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 from unittest import mock
 
-import httpx
+import httpx2 as httpx
 import jsonschema
 import pytest
 

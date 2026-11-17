@@ -39,7 +39,7 @@ import os
 import sys
 from typing import Any
 
-import httpx
+import httpx2 as httpx
 
 DEFAULT_WM_URL = "http://worker-management:8887"
 
@@ -196,7 +196,7 @@ def main() -> int:
         return 2
 
     print(f"Seeding to {base_url}")
-    with httpx.Client(verify=False) as client:  # noqa: S501
+    with httpx.Client(verify=False) as client:
         ok, status = put_worker(client, base_url, worker, token)
         marker = "OK" if ok else "FAIL"
         print(f"PUT {worker['worker_name']}: {marker} ({status})")

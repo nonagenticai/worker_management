@@ -20,7 +20,7 @@ from __future__ import annotations
 import ast
 from pathlib import Path
 
-import httpx
+import httpx2 as httpx
 import pytest
 
 from src.api.identity_context import (

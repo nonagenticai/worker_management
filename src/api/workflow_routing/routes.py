@@ -35,7 +35,7 @@ import logging
 import re
 from typing import Annotated, Any
 
-import httpx
+import httpx2 as httpx
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from prometheus_client import Counter
 from pydantic import BaseModel, Field, field_validator

@@ -34,7 +34,7 @@ from contextlib import asynccontextmanager, contextmanager
 from typing import TYPE_CHECKING, Any
 from unittest.mock import AsyncMock, MagicMock, patch
 
-import httpx
+import httpx2 as httpx
 import pytest
 from pydantic_ai import ModelRetry
 

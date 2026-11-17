@@ -18,7 +18,7 @@ from __future__ import annotations
 import asyncio
 import logging
 
-import httpx
+import httpx2 as httpx
 import pytest
 
 from src.worker.agents.http_diagnostics import (

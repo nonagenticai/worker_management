@@ -9,7 +9,7 @@ import os
 from typing import Any, cast
 from unittest.mock import AsyncMock, MagicMock, patch
 
-import httpx
+import httpx2 as httpx
 import pytest
 
 from src.worker.docker_mcp_manager import (

@@ -861,7 +861,7 @@ class AgentMetricsClient:
         prevent.
         """
         try:
-            import httpx
+            import httpx2 as httpx
 
             test_url = metrics_endpoint.replace("/v1/metrics", "/")
             httpx.get(test_url, timeout=2)

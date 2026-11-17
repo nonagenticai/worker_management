@@ -18,7 +18,7 @@ from types import GenericAlias
 from typing import TYPE_CHECKING, Any, ClassVar, Protocol, TypedDict, cast
 from uuid import UUID, uuid7
 
-import httpx
+import httpx2 as httpx
 from cohere import AsyncClientV2 as AsyncCohereClient
 from dotenv import load_dotenv
 from groq import AsyncGroq
@@ -2837,10 +2837,8 @@ class ResponseExtractor:
         try:
             run_usage = None
             if run_result and hasattr(run_result, "usage"):
-                # pydantic-ai 2 exposes `usage` as a property; 1.x made it a method.
+                # pydantic-ai 2 exposes `usage` as a property (1.x's method form is gone).
                 run_usage = run_result.usage
-                if callable(run_usage):
-                    run_usage = run_usage()
 
             if run_usage and getattr(run_usage, "has_values", lambda: False)():
                 prompt_tokens = getattr(run_usage, "input_tokens", None)

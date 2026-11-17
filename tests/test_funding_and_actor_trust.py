@@ -20,7 +20,7 @@ import json
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock, patch
 
-import httpx
+import httpx2 as httpx
 import pytest
 from fastapi import FastAPI, Request
 from fastapi.testclient import TestClient
@@ -210,7 +210,7 @@ def _run_result() -> MagicMock:
     result = MagicMock()
     result.output = "ok"
     result.all_messages.return_value = [message]
-    result.usage.return_value = usage
+    result.usage = usage
     return result
 
 

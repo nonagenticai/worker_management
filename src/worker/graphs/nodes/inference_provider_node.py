@@ -44,7 +44,7 @@ import time
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, cast
 
-import httpx
+import httpx2 as httpx
 import openai
 from pydantic_graph import BaseNode, End, GraphRunContext
 
