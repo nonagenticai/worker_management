@@ -796,9 +796,9 @@ def _create_managed_docker_server(name: str, server_config: dict[str, Any]) -> A
                 f"GITHUB_PERSONAL_ACCESS_TOKEN is required for GitHub MCP server {name}"
             )
 
-        # lgtm[py/clear-text-logging-sensitive-data] — `name` and `image` are catalogue
-        # identifiers; the taint CodeQL follows is the adjacent `env_vars` dict, which this
-        # message never includes.
+        # The message carries catalogue identifiers, not credentials: the taint CodeQL
+        # follows is the adjacent env_vars dict, which is never included here.
+        # lgtm[py/clear-text-logging-sensitive-data]
         logger.info(f"Creating managed Docker MCP server: {name} with image {image}")
 
         # pydantic-ai 2: one MCPToolset over a fastmcp stdio client. The
