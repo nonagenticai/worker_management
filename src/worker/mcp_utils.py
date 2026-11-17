@@ -798,8 +798,11 @@ def _create_managed_docker_server(name: str, server_config: dict[str, Any]) -> A
 
         # The message carries catalogue identifiers, not credentials: the taint CodeQL
         # follows is the adjacent env_vars dict, which is never included here.
-        # lgtm[py/clear-text-logging-sensitive-data]
-        logger.info(f"Creating managed Docker MCP server: {name} with image {image}")
+        logger.info(  # lgtm[py/clear-text-logging-sensitive-data]
+            "Creating managed Docker MCP server: %s with image %s",
+            name,
+            image,
+        )
 
         # pydantic-ai 2: one MCPToolset over a fastmcp stdio client. The
         # container is still managed here (name, reuse) — the toolset only
