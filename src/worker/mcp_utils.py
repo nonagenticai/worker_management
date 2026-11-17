@@ -796,7 +796,7 @@ def _create_managed_docker_server(name: str, server_config: dict[str, Any]) -> A
                 f"GITHUB_PERSONAL_ACCESS_TOKEN is required for GitHub MCP server {name}"
             )
 
-        # codeql[py/clear-text-logging-sensitive-data] — `name` and `image` are catalogue
+        # lgtm[py/clear-text-logging-sensitive-data] — `name` and `image` are catalogue
         # identifiers; the taint CodeQL follows is the adjacent `env_vars` dict, which this
         # message never includes.
         logger.info(f"Creating managed Docker MCP server: {name} with image {image}")
