@@ -1312,7 +1312,6 @@ from src.settings import get_settings as _get_settings
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable
 
-    from pydantic_ai.mcp import MCPServerSSE, MCPServerStdio
     from pydantic_ai.models.google import GoogleModel
     from pydantic_ai.models.xai import XaiModel
     from pydantic_ai.run import AgentRunResult as FrameworkAgentRunResult
@@ -5028,7 +5027,9 @@ class PydanticAIAgent(BaseAgent):
             logger.warning("Health check failed: %s", e)
             return False
 
-    async def _is_mcp_server_healthy(self, server: MCPServerSSE | MCPServerStdio) -> bool:
+    # pydantic-ai 2 removed MCPServerSSE/MCPServerStdio; the check below is duck-typed
+    # over whatever server object the MCP wiring produced (see worker/mcp_utils.py).
+    async def _is_mcp_server_healthy(self, server: Any) -> bool:
         """Check if MCP server is healthy.
 
         Args:
@@ -5168,7 +5169,7 @@ def create_pydantic_ai_agent(  # noqa: PLR0913 -- agent factory accepts one arg 
     base_url: str | None = None,
     api_key: str | None = None,
     tools_dir: str | None = None,
-    mcp_servers_list: list[MCPServerSSE | MCPServerStdio] | None = None,
+    mcp_servers_list: list[Any] | None = None,
     output_schema: dict[str, Any] | None = None,
     output_validator_code: str | None = None,
     max_tokens: int | None = None,
