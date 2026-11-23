@@ -55,7 +55,7 @@ dependencies = [
     # 2.x releases below 2.44/2.52/2.53 carry PYSEC-2026-4275..4291. The whole
     # service, its transports and its SDK clients now speak httpx2.
     "pydantic-ai[xai]>=2.69,<3",
-    "anthropic>=1.9,<2",
+    "anthropic>=1.9,<3",
     "pydantic-graph>=2.69,<3",
     "psycopg[binary,pool]>=3.2.12",
     "groq>=0.25.0",
